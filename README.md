@@ -10,12 +10,15 @@
 
 Collect all 6 parts of a code, hidden throughout the FireHawks server, by solving these puzzles.
 
+## wow such empty huh?
+
+
+## DUCK RULEZ LMAO 
+![https://tinyurl.com/y33feu8f](/ERPGresources/ERPG(duckduckgo).jpg "https://tinyurl.com/y33feu8f")
+
+
 ## Guess who?
 [![Someone's Profile Picture in Firehawk](/ERPGresources/pfp.png "Someone's Profile Picture in Firehawk")](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-
-
-## Netflix and what!?
-> _In 2005 Afghanistan, Navy SEALs Marcus Luttrell, Michael Murphy, Danny Dietz and Matthew "Axe" Axelson deploy on a mission of surveillance and to take out Taliban leader Ahmad Shah. Though spotted by goatherds, Luttrell and his team decide not to kill them. But one of the Afghans alerts a group of Taliban fighters to the invaders, and a terrible battle ensues, in which the SEALs find themselves hopelessly outnumbered and outgunned._
 
 
 ## Here's a (tom)riddle!
@@ -25,16 +28,10 @@ the right choice for harry,
 says the sorting hat.
 
 
+## Netflix and what!?
+> _In 2005 Afghanistan, Navy SEALs Marcus Luttrell, Michael Murphy, Danny Dietz and Matthew "Axe" Axelson deploy on a mission of surveillance and to take out Taliban leader Ahmad Shah. Though spotted by goatherds, Luttrell and his team decide not to kill them. But one of the Afghans alerts a group of Taliban fighters to the invaders, and a terrible battle ensues, in which the SEALs find themselves hopelessly outnumbered and outgunned._
+
+
 ## Pancakes are the best breakfast.
-![](/ERPGresources/pancakes.jpg "in japanese ofcourse")
-
-
-## DUCK RULEZ LMAO 
-![https://tinyurl.com/y33feu8f](/ERPGresources/ERPG(duckduckgo).jpg "https://tinyurl.com/y33feu8f")
-
-
-## wow such empty huh?
-```diff
-   # It's a Tia-pocalypse!
-```
+![](/ERPGresources/pancakes.jpg "in japanese ofcourse" =250x250)
 
