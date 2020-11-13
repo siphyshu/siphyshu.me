@@ -26,7 +26,7 @@ says the sorting hat.
 
 
 ## Pancakes are the best breakfast.
-[![](/ERPGresources/pancakes.jpg "in japanese ofcourse")]
+![](/ERPGresources/pancakes.jpg "in japanese ofcourse")
 
 
 ## DUCK RULEZ LMAO 
@@ -34,7 +34,7 @@ says the sorting hat.
 
 
 ## wow such empty huh?
-```html
-   <p style="color:white;">It's a Tia-pocalypse!</p>
+```diff
+   # It's a Tia-pocalypse!
 ```
 
