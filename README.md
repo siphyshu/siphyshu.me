@@ -33,5 +33,5 @@ says the sorting hat.
 
 
 ## Pancakes are the best breakfast.
-![](/ERPGresources/pancakes.jpg =250x250 "in japanese ofcourse")
+![](/ERPGresources/pancakes.jpg "in japanese ofcourse")
 
