@@ -11,8 +11,8 @@
 Collect all 6 parts of a code, hidden throughout the FireHawks server, by solving these puzzles.  
 
 ## wow such empty huh?
-  
-  
+⠀  
+⠀  
 
 ## DUCK RULEZ LMAO 
 ![https://tinyurl.com/y33feu8f](/ERPGresources/ERPG(duckduckgo).jpg "https://tinyurl.com/y33feu8f")
