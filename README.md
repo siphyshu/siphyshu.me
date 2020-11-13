@@ -7,7 +7,7 @@
 ========================
 > 5m for the first person to reach the end.
 
-[![Someone's Profile Picture in Firehawk](/ERPGresources/pfp.png)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![Someone's Profile Picture in Firehawk](/ERPGresources/pfp.png)](https://www.youtube.com/watch?v=dQw4w9WgXcQ) "Someone's Profile Picture in Firehawks"
 
 
 
