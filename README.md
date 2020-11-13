@@ -3,10 +3,10 @@
 
 **ERPG Adventure Hunt!**
 ========================
-> **PRIZES!**
-> 5m for the first person to reach the end and complete the objective.
-> 3m for finding the alternative code. (be on the lookout!)
-> 2m for the GA winner! :3
+> **PRIZES!**  
+> 5m for the first person to reach the end and complete the objective.  
+> 3m for finding the alternative code. (be on the lookout!)  
+> 2m for the GA winner! :3  
   
 Collect all 6 parts of a code, hidden throughout the FireHawks server, by solving these puzzles.  
 
