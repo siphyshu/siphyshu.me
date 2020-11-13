@@ -1,5 +1,5 @@
-<!-- # siphyshu.github.io -->
-<!-- > A personal website, portfolio, blog and whatever else fancies me. :P -->
+# siphyshu.github.io  
+> A personal website, portfolio, blog and whatever else fancies me. :P  
 
 **ERPG Adventure Hunt!**
 ========================
