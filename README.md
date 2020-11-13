@@ -3,7 +3,7 @@
 
 <!-- > A personal website, portfolio, blog and whatever else fancies me. :P -->
 
-**ERPG ADVENTURE HUNT!**  
+**ERPG Adventure Hunt!**
 ========================
 > 5m for the first person to reach the end.
 
@@ -13,4 +13,5 @@
 
 
 **for yall erpg peeps, here's the puzzle. XD**
+
 ![https://tinyurl.com/y2bmuwfo](/ERPG(duckduckgo).jpg "https://tinyurl.com/y2bmuwfo")
