@@ -38,6 +38,6 @@ says the sorting hat.
   
 
 ## Pancakes are the best breakfast.
-![](/ERPGresources/pancakes.jpg "in japanese ofcourse")
+![](/ERPGresources/maplewhat.jpg "in japanese ofcourse")
   
   
