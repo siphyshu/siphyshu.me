@@ -15,7 +15,7 @@ Collect all 6 parts of a code, hidden throughout the FireHawks server, by solvin
 [!["bwahahahahahaha"](/ERPGresources/white_strip.png "bwahahahahahaha")](https://discord.com/channels/434428141944176640/765217032626110464/765217145218924626)  
 ⠀  
 
-## DUCK RULEZ LMAO 
+## DUCK rulez lmao 
 ![https://tinyurl.com/y33feu8f](/ERPGresources/ERPG(duckduckgo).jpg "https://tinyurl.com/y33feu8f")
   
   
