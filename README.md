@@ -6,9 +6,9 @@ ERPG Adventure Hunt!
 Collect all 6 parts of a code, hidden throughout the FireHawks server, by solving these puzzles.  
 
 > **PRIZES!**  
-> 5m/25m for the first person to reach the end and complete the objective.  
-> 3m/15m for finding the alternative code. (be on the lookout!)  
-> 2m/10m for the GA winner! :3  
+> 10m/30m for the first person to reach the end and complete the objective.  
+> 5m/15m for finding the alternative code. (be on the lookout!)  
+> 3m/10m for the GA winner! :3  
   
   
 ## wow such empty huh?
