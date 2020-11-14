@@ -1,8 +1,8 @@
 # siphyshu.github.io  
 > A personal website, portfolio, blog and whatever else fancies me. :P  
 
-**ERPG Adventure Hunt!**
-========================
+ERPG Adventure Hunt!
+--------------------
 > **PRIZES!**  
 > 5m for the first person to reach the end and complete the objective.  
 > 3m for finding the alternative code. (be on the lookout!)  
