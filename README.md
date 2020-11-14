@@ -46,6 +46,6 @@ says the sorting hat.
 -->  
   
   
-> puzzle reveal timings: 
-> 3rd and 4th - 5:00 UTC
-> 5th and 6th - 9:00 UTC
+> puzzle reveal timings:  
+> 3rd and 4th - 5:00 UTC  
+> 5th and 6th - 9:00 UTC  
