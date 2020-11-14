@@ -12,7 +12,7 @@ Collect all 6 parts of a code, hidden throughout the FireHawks server, by solvin
   
   
 ## wow such empty huh?
-![](/ERPGresources/white_strip.png "bwahahahahahaha")](https://discord.com/channels/434428141944176640/765217032626110464/765217145218924626)  
+[!["bwahahahahahaha"](/ERPGresources/white_strip.png "bwahahahahahaha")](https://discord.com/channels/434428141944176640/765217032626110464/765217145218924626)  
 ⠀  
 
 ## DUCK RULEZ LMAO 
