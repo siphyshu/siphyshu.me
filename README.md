@@ -21,7 +21,7 @@ Collect all 6 parts of a code, hidden throughout the FireHawks server, by solvin
   
 
 ## Guess who?
-[![Someone's Profile Picture in Firehawk](/ERPGresources/pfp.png "Someone's Profile Picture in Firehawk")](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![Someone's Profile Picture in Firehawk](/ERPGresources/pfp.png "Someone's Profile Picture in Firehawk")](https://youtu.be/8G0w9W_PVis)
   
   
 
