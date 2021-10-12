@@ -1,6 +1,6 @@
 # 🌴 My Very Own Personal Site!
 
-![]()
+![image](https://user-images.githubusercontent.com/52672162/136898376-d7e60db3-37b3-471c-b287-caab222d37e3.png)
 
 This is my personal website - for now it's a simple landing page with my intro and projects.
 
@@ -19,6 +19,6 @@ I plan to make v2 with a full fledged website, fully functional with a blog and 
 
 # 👀 A side quest
 
-I love easter eggs and adding quirky things to my projects,
+I love easter eggs and adding quirky things to my projects,  
 So ofcourse there are some in my website! See if you can find em!
 
