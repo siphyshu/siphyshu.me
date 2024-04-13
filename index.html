@@ -28,7 +28,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var lastPopupTime = localStorage.getItem('lastPopupTime');
-            if (!lastPopupTime || (Date.now() - parseInt(lastPopupTime, 10)) > (24 * 60 * 60 * 1000) || true) {
+            if (!lastPopupTime || (Date.now() - parseInt(lastPopupTime, 10)) > (24 * 60 * 60 * 1000)) {
                 setTimeout(function() {
                     var popup = document.getElementById('popup');
                     popup.classList.add('active');
