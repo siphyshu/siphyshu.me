@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="./images/siphyshu_favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./styles.css" type="text/css">
+    <script src="./index.js" type="text/javascript"></script>
 </head>
 <body>
     <div class="popup" id="popup">
@@ -23,25 +24,5 @@
             <a href="https://siphyshu.medium.com" target="_blank"><img src="./images/medium_small.png">Blog</a>
             <a href="https://linkedin.com/in/jaiyank-saxena" target="_blank"><img src="./images/linkedin_small.png">LinkedIn</a>
         </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var lastPopupTime = localStorage.getItem('lastPopupTime');
-            if (!lastPopupTime || (Date.now() - parseInt(lastPopupTime, 10)) > (24 * 60 * 60 * 1000)) {
-                setTimeout(function() {
-                    var popup = document.getElementById('popup');
-                    popup.classList.add('active');
-                    localStorage.setItem('lastPopupTime', Date.now().toString());
-                }, 3000);
-            }
-            
-            var popup = document.getElementById('popup');
-            popup.addEventListener('click', function() {
-                popup.classList.remove('active');
-            });
-        });
-    </script>
-
 </body>
 </html>
