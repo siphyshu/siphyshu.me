@@ -42,6 +42,8 @@ body {
     justify-content: center;
     position: relative;
     top: 200px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 
@@ -86,6 +88,7 @@ body {
     display: flex;
     justify-content: center;
     gap: 18px;
+    margin-bottom: 15px;
 }
 
 
@@ -101,4 +104,14 @@ body {
     width: 20px;
     height: 20px;
     margin-right: 5px;
+}
+
+.github-contribution-graph {
+    display: flex;
+    justify-content: center;
+}
+
+.github-contribution-graph img {
+    width: 100%;
+    height: auto;
 }
