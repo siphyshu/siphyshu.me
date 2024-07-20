@@ -5,7 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 
-const colors = ['red', 'aqua', 'blue', 'green', 'skin', 'yellow'];
+const colors = {
+  blue: '#8AC3FF',
+  aqua: '#62DDBD',
+  red: '#F096A4',
+  green: '#C3E798',
+  yellow: '#FADFA4',
+  skin: '#F4D0B5'
+};
 
 const HandprintCanvas = () => {
   const [handprints, setHandprints] = useState([]);
@@ -15,7 +22,9 @@ const HandprintCanvas = () => {
   const [link, setLink] = useState('');
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [tempHandprint, setTempHandprint] = useState(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 1400, height: 400 });
+  const [canvasSize, setCanvasSize] = useState({ width: 1400, height: 300 });
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [isPlacingHandprint, setIsPlacingHandprint] = useState(true);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -23,6 +32,10 @@ const HandprintCanvas = () => {
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setSelectedColor(Object.keys(colors)[Math.floor(Math.random() * Object.keys(colors).length)]);
   }, []);
 
   const handleResize = () => {
@@ -36,14 +49,14 @@ const HandprintCanvas = () => {
     let width = containerWidth - 40;
     width = Math.min(Math.max(width, minWidth), maxWidth);
 
-    let height = width / 3.5;  // Start with a 7:2 aspect ratio
+    let height = width / 4.67; 
 
     if (width < 700) {
-      const extraHeight = (700 - width) / 2;
+      const extraHeight = (700 - width) / 2.67; 
       height += extraHeight;
     }
 
-    height = Math.min(height, width);
+    height = Math.min(height, width * 0.75); 
 
     setCanvasSize({ width, height });
   };
@@ -80,10 +93,9 @@ const HandprintCanvas = () => {
     const xPercentage = (x / canvasSize.width) * 100;
     const yPercentage = (y / canvasSize.height) * 100;
     
-    const color = colors[Math.floor(Math.random() * colors.length)];
     const angle = Math.random() * 120 - 60;
 
-    setTempHandprint({ x: xPercentage, y: yPercentage, color, angle });
+    setTempHandprint({ x: xPercentage, y: yPercentage, color: selectedColor, angle });
     setFormPosition({ x: e.clientX, y: e.clientY });
     setName('');
     setLink('');
@@ -96,7 +108,8 @@ const HandprintCanvas = () => {
     const newHandprint = {
       ...tempHandprint,
       name: name || "Anonymous",
-      link: link || null
+      link: link || null,
+      color: selectedColor
     };
 
     try {
@@ -111,8 +124,9 @@ const HandprintCanvas = () => {
       setHandprints(prevHandprints => [...prevHandprints, newHandprint]);
       setFormPosition(null);
       setTempHandprint(null);
-      toast.success("Your mark is imprinted here forever!", {
-        position: "bottom-center",
+      setIsPlacingHandprint(false); // Set to false after placing handprint
+      toast.success("Your mark shall be here, forever...", {
+        position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -124,7 +138,7 @@ const HandprintCanvas = () => {
       console.error('Error adding handprint:', error);
       setTempHandprint(null);
       toast.error("Failed to save your handprint. Please try again.", {
-        position: "bottom-center",
+        position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -142,6 +156,9 @@ const HandprintCanvas = () => {
 
   return (
     <div className="w-full px-5 flex justify-center flex-col items-center">
+      <p className="text-sm italic text-gray-600 mb-4">
+        In this tapestry of pixels, weave your silent hello. 🖐️
+      </p>
       <TransformWrapper
         initialScale={1}
         initialPositionX={0}
@@ -152,12 +169,16 @@ const HandprintCanvas = () => {
             <TransformComponent>
               <div
                 ref={canvasRef}
-                className={`bg-gray-100 relative overflow-hidden ${formPosition ? 'cursor-default' : 'cursor-none'}`}
+                className={`bg-gray-100 relative overflow-hidden ${isPlacingHandprint ? 'cursor-none' : 'cursor-default'}`}
                 style={{
                   width: `${canvasSize.width}px`,
                   height: `${canvasSize.height}px`,
                 }}
-                onClick={(e) => handleCanvasClick(e, rest.state?.scale || 1, rest.state?.positionX || 0, rest.state?.positionY || 0)}
+                onClick={(e) => {
+                  if (isPlacingHandprint) {
+                    handleCanvasClick(e, rest.state?.scale || 1, rest.state?.positionX || 0, rest.state?.positionY || 0);
+                  }
+                }}
                 onMouseMove={(e) => handleCanvasHover(e, rest.state?.scale || 1, rest.state?.positionX || 0, rest.state?.positionY || 0)}
               >
                 {[...handprints, tempHandprint].filter(Boolean).map((handprint, index) => (
@@ -186,7 +207,7 @@ const HandprintCanvas = () => {
                       <div 
                         className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 whitespace-nowrap font-serif"
                         style={{ 
-                          transform: `translate(-50%, -100%) scale(${1 / (rest.state?.scale || 1)})`,
+                          transform: `translate(-50%, -100%) scale(${1 / (rest.state?.scale || 1)}) rotate(${-handprint.angle}deg)`,
                           transformOrigin: 'center bottom'
                         }}
                       >
@@ -196,7 +217,7 @@ const HandprintCanvas = () => {
                     )}
                   </div>
                 ))}
-                {!formPosition && (
+                {isPlacingHandprint && (
                   <div
                     className="absolute pointer-events-none"
                     style={{
@@ -224,17 +245,17 @@ const HandprintCanvas = () => {
                     <Maximize size={20} />
                   </button>
                 </div>
+                <div className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1">
+                  <p className="text-sm font-serif">{handprints.length} 🖐️</p>
+                </div>
               </div>
             </TransformComponent>
           </React.Fragment>
         )}
       </TransformWrapper>
-      <p className="text-sm italic text-gray-600 mt-4">
-        In this tapestry of pixels, weave your silent hello. 🖐️
-      </p>
       {formPosition && (
         <div
-          className="absolute bg-white border border-gray-300 shadow-md"
+          className="absolute bg-white border border-black shadow-md"
           style={{
             left: `${formPosition.x}px`,
             top: `${formPosition.y}px`,
@@ -247,15 +268,27 @@ const HandprintCanvas = () => {
               placeholder="Name / Alias"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="block w-full mb-2 px-2 py-1 border border-gray-300"
+              className="block w-full mb-2 px-2 py-1 border border-black"
             />
             <input
               type="text"
               placeholder="Link (Optional)"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              className="block w-full mb-2 px-2 py-1 border border-gray-300"
+              className="block w-full mb-2 px-2 py-1 border border-black"
             />
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between w-full">
+                {Object.entries(colors).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className={`w-6 h-6 cursor-pointer ${selectedColor === key ? 'ring-2 ring-black' : ''}`}
+                    style={{ backgroundColor: value }}
+                    onClick={() => setSelectedColor(key)}
+                  />
+                ))}
+              </div>
+            </div>
             <div className="flex justify-between">
               <button
                 type="submit"
@@ -265,7 +298,10 @@ const HandprintCanvas = () => {
               </button>
               <button
                 type="button"
-                onClick={cancelHandprint}
+                onClick={() => {
+                  cancelHandprint();
+                  setIsPlacingHandprint(true);
+                }}
                 className="bg-gray-300 text-black px-4 py-2 hover:bg-gray-400"
               >
                 Cancel
