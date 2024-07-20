@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 
 const colors = ['red', 'aqua', 'blue', 'green', 'skin', 'yellow'];
 
@@ -13,6 +15,7 @@ const HandprintCanvas = () => {
   const [link, setLink] = useState('');
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [tempHandprint, setTempHandprint] = useState(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 1400, height: 400 });
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -27,15 +30,22 @@ const HandprintCanvas = () => {
     if (!canvas) return;
 
     const containerWidth = canvas.parentElement.clientWidth;
-    const maxWidth = 1400; // Increased max width
+    const maxWidth = 1400;
     const minWidth = 300;
-    const aspectRatio = 7 / 2;
 
     let width = containerWidth - 40;
     width = Math.min(Math.max(width, minWidth), maxWidth);
 
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${width / aspectRatio}px`;
+    let height = width / 3.5;  // Start with a 7:2 aspect ratio
+
+    if (width < 700) {
+      const extraHeight = (700 - width) / 2;
+      height += extraHeight;
+    }
+
+    height = Math.min(height, width);
+
+    setCanvasSize({ width, height });
   };
 
   const fetchHandprints = async () => {
@@ -50,24 +60,30 @@ const HandprintCanvas = () => {
     }
   };
 
-  const handleCanvasHover = (e) => {
+  const calculateRelativePosition = (clientX, clientY, scale, positionX, positionY) => {
     const rect = canvasRef.current.getBoundingClientRect();
-    setCursorPosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+    const x = (clientX - rect.left - positionX) / scale;
+    const y = (clientY - rect.top - positionY) / scale;
+    return { x, y };
   };
 
-  const handleCanvasClick = (e) => {
-    if (formPosition) return; // Ignore clicks when form is open
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width * 100;
-    const y = (e.clientY - rect.top) / rect.height * 100;
+  const handleCanvasHover = (e, scale = 1, positionX = 0, positionY = 0) => {
+    if (!canvasRef.current) return;
+    const { x, y } = calculateRelativePosition(e.clientX, e.clientY, scale, positionX, positionY);
+    setCursorPosition({ x, y });
+  };
+
+  const handleCanvasClick = (e, scale = 1, positionX = 0, positionY = 0) => {
+    if (formPosition) return;
+    const { x, y } = calculateRelativePosition(e.clientX, e.clientY, scale, positionX, positionY);
+    
+    const xPercentage = (x / canvasSize.width) * 100;
+    const yPercentage = (y / canvasSize.height) * 100;
     
     const color = colors[Math.floor(Math.random() * colors.length)];
     const angle = Math.random() * 120 - 60;
 
-    setTempHandprint({ x, y, color, angle });
+    setTempHandprint({ x: xPercentage, y: yPercentage, color, angle });
     setFormPosition({ x: e.clientX, y: e.clientY });
     setName('');
     setLink('');
@@ -102,6 +118,7 @@ const HandprintCanvas = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        className: "bg-red-50 bg-opacity-2 border border-black text-black font-serif",
       });
     } catch (error) {
       console.error('Error adding handprint:', error);
@@ -113,6 +130,7 @@ const HandprintCanvas = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        className: "bg-red-50 bg-opacity-2 border border-black text-black font-serif",
       });
     }
   };
@@ -124,65 +142,93 @@ const HandprintCanvas = () => {
 
   return (
     <div className="w-full px-5 flex justify-center flex-col items-center">
-      <div
-        ref={canvasRef}
-        className={`bg-gray-100 relative overflow-hidden ${formPosition ? 'cursor-default' : 'cursor-none'}`}
-        style={{
-          maxWidth: '1400px', // Increased max width
-          minWidth: '300px',
-          aspectRatio: '7 / 2',
-        }}
-        onMouseMove={handleCanvasHover}
-        onClick={handleCanvasClick}
+      <TransformWrapper
+        initialScale={1}
+        initialPositionX={0}
+        initialPositionY={0}
       >
-        {[...handprints, tempHandprint].filter(Boolean).map((handprint, index) => (
-          <div
-            key={index}
-            className="absolute"
-            style={{
-              left: `${handprint.x}%`,
-              top: `${handprint.y}%`,
-              transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
-            }}
-            onMouseEnter={() => setHoveredHandprint(handprint)}
-            onMouseLeave={() => setHoveredHandprint(null)}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (handprint.link) window.open(handprint.link, '_blank');
-            }}
-          >
-            <Image
-              src={`/handprints/${handprint.color}.svg`}
-              width={30}
-              height={30}
-              alt="Handprint"
-            />
-            {hoveredHandprint === handprint && handprint.name && (
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 whitespace-nowrap">
-                {handprint.name}
-                {handprint.link && <span className="ml-1">🔗</span>}
+        {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+          <React.Fragment>
+            <TransformComponent>
+              <div
+                ref={canvasRef}
+                className={`bg-gray-100 relative overflow-hidden ${formPosition ? 'cursor-default' : 'cursor-none'}`}
+                style={{
+                  width: `${canvasSize.width}px`,
+                  height: `${canvasSize.height}px`,
+                }}
+                onClick={(e) => handleCanvasClick(e, rest.state?.scale || 1, rest.state?.positionX || 0, rest.state?.positionY || 0)}
+                onMouseMove={(e) => handleCanvasHover(e, rest.state?.scale || 1, rest.state?.positionX || 0, rest.state?.positionY || 0)}
+              >
+                {[...handprints, tempHandprint].filter(Boolean).map((handprint, index) => (
+                  <div
+                    key={index}
+                    className="absolute"
+                    style={{
+                      left: `${handprint.x}%`,
+                      top: `${handprint.y}%`,
+                      transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
+                    }}
+                    onMouseEnter={() => setHoveredHandprint(handprint)}
+                    onMouseLeave={() => setHoveredHandprint(null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (handprint.link) window.open(handprint.link, '_blank');
+                    }}
+                  >
+                    <Image
+                      src={`/handprints/${handprint.color}.svg`}
+                      width={30}
+                      height={30}
+                      alt="Handprint"
+                    />
+                    {hoveredHandprint === handprint && handprint.name && (
+                      <div 
+                        className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 whitespace-nowrap font-serif"
+                        style={{ 
+                          transform: `translate(-50%, -100%) scale(${1 / (rest.state?.scale || 1)})`,
+                          transformOrigin: 'center bottom'
+                        }}
+                      >
+                        {handprint.name}
+                        {handprint.link && <span className="ml-1">🔗</span>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {!formPosition && (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: `${cursorPosition.x}px`,
+                      top: `${cursorPosition.y}px`,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  >
+                    <Image
+                      src="/handprints/black.svg"
+                      width={30}
+                      height={30}
+                      alt="Cursor"
+                    />
+                  </div>
+                )}
+                <div className="absolute bottom-2 right-2 flex bg-red-50 bg-opacity-2 border border-black p-1">
+                  <button onClick={(e) => { e.stopPropagation(); zoomIn(); }} className="mr-1">
+                    <ZoomIn size={20} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); zoomOut(); }} className="mr-1">
+                    <ZoomOut size={20} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); resetTransform(); }}>
+                    <Maximize size={20} />
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
-        ))}
-        {!formPosition && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: `${cursorPosition.x}px`,
-              top: `${cursorPosition.y}px`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <Image
-              src="/handprints/black.svg"
-              width={30}
-              height={30}
-              alt="Cursor"
-            />
-          </div>
+            </TransformComponent>
+          </React.Fragment>
         )}
-      </div>
+      </TransformWrapper>
       {formPosition && (
         <div
           className="absolute bg-white border border-gray-300 shadow-md"
