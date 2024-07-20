@@ -125,7 +125,7 @@ const HandprintCanvas = () => {
       setFormPosition(null);
       setTempHandprint(null);
       setIsPlacingHandprint(false); // Set to false after placing handprint
-      toast.success("Your mark shall be here, forever...", {
+      toast.success("30,000 years later, we still say: 'I was here.'", {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -137,7 +137,7 @@ const HandprintCanvas = () => {
     } catch (error) {
       console.error('Error adding handprint:', error);
       setTempHandprint(null);
-      toast.error("Failed to save your handprint. Please try again.", {
+      toast.error("Failed to leave a mark. It's okay, some other time.", {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -157,7 +157,7 @@ const HandprintCanvas = () => {
   return (
     <div className="w-full px-5 flex justify-center flex-col items-center">
       <p className="text-sm italic text-gray-600 mb-4">
-        In this tapestry of pixels, weave your silent hello. 🖐️
+        From cave walls to pixels: the human urge to leave a trace endures. 🖐️
       </p>
       <TransformWrapper
         initialScale={1}
