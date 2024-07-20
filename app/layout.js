@@ -1,8 +1,8 @@
-import './globals.css'
+import "./globals.css"
 
    export const metadata = {
-     title: 'siphyshu // jaiyank',
-     description: 'Personal website of Jaiyank',
+     title: "siphyshu // jaiyank",
+     description: "Personal website of Jaiyank",
    }
 
    export default function RootLayout({ children }) {

@@ -1,23 +1,23 @@
-'use client'
+"use client"
 
-import Image from 'next/image'
-import { useEffect } from 'react'
-import HandprintCanvas from '../components/HandprintCanvas'
+import Image from "next/image"
+import { useEffect } from "react"
+import HandprintCanvas from "../components/HandprintCanvas"
 
 export default function Home() {
   useEffect(() => {
-    const lastPopupTime = localStorage.getItem('lastPopupTime');
+    const lastPopupTime = localStorage.getItem("lastPopupTime");
     if (!lastPopupTime || (Date.now() - parseInt(lastPopupTime, 10)) > (24 * 60 * 60 * 1000)) {
       setTimeout(() => {
-        const popup = document.getElementById('popup');
-        popup?.classList.add('active');
-        localStorage.setItem('lastPopupTime', Date.now().toString());
+        const popup = document.getElementById("popup");
+        popup?.classList.add("active");
+        localStorage.setItem("lastPopupTime", Date.now().toString());
       }, 3000);
     }
 
-    const popup = document.getElementById('popup');
-    popup?.addEventListener('click', () => {
-      popup.classList.remove('active');
+    const popup = document.getElementById("popup");
+    popup?.addEventListener("click", () => {
+      popup.classList.remove("active");
     });
   }, []);
 
@@ -28,7 +28,7 @@ export default function Home() {
       </div>
       <main className="flex flex-col items-center justify-center pt-52 px-4">
         <div className="text-center">
-          <p className="text-2xl mb-4">hey, i'm jaiyank!</p>
+          <p className="text-2xl mb-4">hey, i"m jaiyank!</p>
           <Image src="/images/siphyshu.png" alt="siphyshu" width={120} height={120} className="mx-auto mb-4" />
           <p className="text-base mb-4">
             20 y/o <Image src="/images/india_flag_small.png" alt="India flag" width={16} height={16} className="inline" /> ・exploring CS @ VITB
