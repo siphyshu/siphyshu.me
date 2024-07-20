@@ -229,6 +229,9 @@ const HandprintCanvas = () => {
           </React.Fragment>
         )}
       </TransformWrapper>
+      <p className="text-sm italic text-gray-600 mt-4">
+        In this tapestry of pixels, weave your silent hello. 🖐️
+      </p>
       {formPosition && (
         <div
           className="absolute bg-white border border-gray-300 shadow-md"
