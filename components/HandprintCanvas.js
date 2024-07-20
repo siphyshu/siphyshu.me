@@ -111,7 +111,7 @@ const HandprintCanvas = () => {
       setHandprints(prevHandprints => [...prevHandprints, newHandprint]);
       setFormPosition(null);
       setTempHandprint(null);
-      toast.success("Your handprint has been forever imprinted!", {
+      toast.success("Your mark is imprinted here forever!", {
         position: "bottom-center",
         autoClose: 3000,
         hideProgressBar: false,
