@@ -28,7 +28,7 @@ export default function Home() {
       </div>
       <main className="flex flex-col items-center justify-center pt-52 px-4">
         <div className="text-center">
-          <p className="text-2xl mb-4">hey, i"m jaiyank!</p>
+          <p className="text-2xl mb-4">hey, i'm jaiyank!</p>
           <Image src="/images/siphyshu.png" alt="siphyshu" width={120} height={120} className="mx-auto mb-4" />
           <p className="text-base mb-4">
             20 y/o <Image src="/images/india_flag_small.png" alt="India flag" width={16} height={16} className="inline" /> ・exploring CS @ VITB
