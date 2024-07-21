@@ -7,7 +7,7 @@ import WorkInProgressPopup from "@/components/WorkInProgressPopup";
 export default function Home() {
   return (
     <>
-      <main className="flex flex-col h-screen w-screen bg-white text-black items-center justify-around px-4 pt-8">
+      <main className="flex font-serif flex-col h-screen w-screen bg-white text-black items-center justify-around px-4 pt-8">
         <WorkInProgressPopup />
         <div className="text-center">
           <p className="text-2xl mb-4">hey, i'm jaiyank!</p>
