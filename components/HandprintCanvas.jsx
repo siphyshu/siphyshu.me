@@ -29,7 +29,10 @@ const HandprintCanvas = () => {
   const [link, setLink] = useState("");
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [tempHandprint, setTempHandprint] = useState(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 1400, height: 300 });
+  const [canvasSize, setCanvasSize] = useState({
+    width: MIN_WIDTH,
+    height: MIN_HEIGHT,
+  });
   const [selectedColor, setSelectedColor] = useState(null);
   const [isPlacingHandprint, setIsPlacingHandprint] = useState(true);
   const [showCursor, setShowCursor] = useState(true);
