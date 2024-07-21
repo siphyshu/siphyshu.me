@@ -32,6 +32,7 @@ const HandprintCanvas = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 1400, height: 300 });
   const [selectedColor, setSelectedColor] = useState(null);
   const [isPlacingHandprint, setIsPlacingHandprint] = useState(true);
+  const [showCursor, setShowCursor] = useState(true);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -102,6 +103,15 @@ const HandprintCanvas = () => {
       positionY
     );
     setCursorPosition({ x, y });
+    
+    // Check if hovering over a handprint
+    const isOverHandprint = handprints.some(handprint => {
+      const handprintX = (handprint.x / 100) * canvasSize.width;
+      const handprintY = (handprint.y / 100) * canvasSize.height;
+      return Math.abs(x - handprintX) < 15 && Math.abs(y - handprintY) < 15;
+    });
+
+    setShowCursor(!isOverHandprint && isPlacingHandprint);
   };
 
   const handleCanvasClick = (e, scale = 1, positionX = 0, positionY = 0) => {
@@ -134,10 +144,15 @@ const HandprintCanvas = () => {
     e.preventDefault();
     if (!tempHandprint) return;
 
+    let formattedLink = link;
+    if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
+      formattedLink = `https://${link}`;
+    }
+
     const newHandprint = {
       ...tempHandprint,
       name: name || "Anonymous",
-      link: link || null,
+      link: formattedLink || null,
       color: selectedColor,
     };
 
@@ -154,6 +169,8 @@ const HandprintCanvas = () => {
       setFormPosition(null);
       setTempHandprint(null);
       setIsPlacingHandprint(false); // Set to false after placing handprint
+      
+      // Homo Sapiens reference :D
       toast.success("30,000 years later, we still say: 'I was here.'", {
         position: "bottom-right",
         autoClose: 3000,
@@ -167,7 +184,7 @@ const HandprintCanvas = () => {
     } catch (error) {
       console.error("Error adding handprint:", error);
       setTempHandprint(null);
-      toast.error("Failed to leave a mark. It's okay, some other time.", {
+      toast.error("Failed to leave a mark. It's okay, try again later.", {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -185,9 +202,42 @@ const HandprintCanvas = () => {
     setTempHandprint(null);
   };
 
+  const getLabelPosition = (handprint) => {
+    const LABEL_MARGIN = 10; // pixels from edge
+    let labelStyle = {
+      position: 'absolute',
+      whiteSpace: 'nowrap',
+      pointerEvents: 'none',
+    };
+
+    if (handprint.y < 20) {
+      labelStyle.top = '100%';
+      labelStyle.marginTop = '5px';
+    } else {
+      labelStyle.bottom = '100%';
+      labelStyle.marginBottom = '5px';
+    }
+
+    if (handprint.x < LABEL_MARGIN) {
+      labelStyle.left = '0';
+    } else if (handprint.x > 100 - LABEL_MARGIN) {
+      labelStyle.right = '0';
+    } else {
+      labelStyle.left = '50%';
+      labelStyle.transform = 'translateX(-50%)';
+    }
+
+    return labelStyle;
+  };
+
+  const formatLink = (link) => {
+    if (!link) return "";
+    return link.replace(/^https?:\/\//, '').replace(/^www\./, '');
+  };
+
   return (
     <div className="w-full px-5 flex justify-center flex-col items-center">
-      <p className="text-sm italic text-gray-600 mb-4">
+      <p className="text-sm italic text-gray-600 mb-4 text-center w-full">
         From cave walls to pixels: the human urge to leave a trace endures. 🖐️
       </p>
       <TransformWrapper
@@ -197,7 +247,7 @@ const HandprintCanvas = () => {
       >
         {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
           <React.Fragment>
-            <TransformComponent>
+            <TransformComponent wrapperStyle={{}}>
               <div
                 ref={canvasRef}
                 className={`bg-gray-100 relative overflow-hidden ${
@@ -225,49 +275,65 @@ const HandprintCanvas = () => {
                     rest.state?.positionY || 0
                   )
                 }
+                onMouseLeave={() => setShowCursor(false)}
               >
                 {[...handprints, tempHandprint]
                   .filter(Boolean)
-                  .map((handprint, index) => (
-                    <div
-                      key={index}
-                      className="absolute"
-                      style={{
-                        left: `${handprint.x}%`,
-                        top: `${handprint.y}%`,
-                        transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
-                      }}
-                      onMouseEnter={() => setHoveredHandprint(handprint)}
-                      onMouseLeave={() => setHoveredHandprint(null)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (handprint.link)
-                          window.open(handprint.link, "_blank");
-                      }}
-                    >
-                      <Image
-                        src={`/handprints/${handprint.color}.svg`}
-                        width={30}
-                        height={30}
-                        alt="Handprint"
-                      />
-                      {hoveredHandprint === handprint && handprint.name && (
-                        <div
-                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 whitespace-nowrap font-serif"
-                          style={{
-                            transform: `translate(-50%, -100%) scale(${
-                              1 / (rest.state?.scale || 1)
-                            }) rotate(${-handprint.angle}deg)`,
-                            transformOrigin: "center bottom",
-                          }}
-                        >
-                          {handprint.name}
-                          {handprint.link && <span className="ml-1">🔗</span>}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                {isPlacingHandprint && (
+                  .map((handprint, index) => {
+                    const labelStyle = getLabelPosition(handprint);
+                    return (
+                      <div
+                        key={index}
+                        className={`absolute ${handprint.link ? 'cursor-pointer' : 'cursor-default'}`}
+                        style={{
+                          left: `${handprint.x}%`,
+                          top: `${handprint.y}%`,
+                          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
+                        }}
+                        onMouseEnter={() => {
+                          setHoveredHandprint(handprint);
+                          setShowCursor(false);
+                        }}
+                        onMouseLeave={() => {
+                          setHoveredHandprint(null);
+                          setShowCursor(true);
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (handprint.link)
+                            window.open(handprint.link, "_blank");
+                        }}
+                      >
+                        <Image
+                          src={`/handprints/${handprint.color}.svg`}
+                          width={30}
+                          height={30}
+                          alt="Handprint"
+                        />
+                        {hoveredHandprint === handprint && handprint.name && (
+                          <div
+                            className="bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 font-serif"
+                            style={{
+                              ...labelStyle,
+                              transform: `${labelStyle.transform || ''} 
+                              scale(${
+                                1 / (rest.state?.scale || 1)
+                              })
+                              rotate(${-handprint.angle}deg)`,
+                            }}
+                          >
+                            {handprint.name}
+                            {handprint.link && (
+                              <span className="ml-1 text-xs">
+                                ({formatLink(handprint.link)})
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                {isPlacingHandprint && showCursor && (
                   <div
                     className="absolute pointer-events-none"
                     style={{
@@ -312,9 +378,11 @@ const HandprintCanvas = () => {
                     <Maximize size={20} />
                   </button>
                 </div>
-                <div className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1">
-                  <p className="text-sm font-serif">{handprints.length} 🖐️</p>
-                </div>
+                {(handprints.length > 0) && (
+                  <div className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1">
+                    <p className="text-sm font-serif">{handprints.length} were here</p>
+                  </div>
+                )}
               </div>
             </TransformComponent>
           </React.Fragment>
