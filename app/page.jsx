@@ -19,17 +19,16 @@ export default function Home() {
             priority={true}
             className="mx-auto mb-4"
           />
-          <p className="text-base mb-4">
+          <div className="text-base mb-4">
             20 y/o{" "}
             <Image
-              src="/images/india_flag_small.png"
+              src="/images/india.png"
               alt="India flag"
               width={20}
               height={20}
-              className="inline w-auto h-auto"
-            />{" "}
-            ・exploring CS @ VITB
-          </p>
+              className="inline h-auto"
+            />・exploring CS @ VITB
+          </div>
           <LinkPanel />
         </div>
         <HandprintCanvas />
