@@ -157,6 +157,7 @@ const HandprintCanvas = () => {
       name: name || "Anonymous",
       link: formattedLink || null,
       color: selectedColor,
+      timestamp: new Date().toISOString(),
     };
 
     try {
