@@ -31,3 +31,23 @@ body {
     text-wrap: balance;
   }
 }
+
+.cursor-custom {
+  cursor: url('/handprints/black.svg') 15 15, auto;
+}
+
+.relative { position: relative }
+.absolute { position: absolute }
+.pointer-events-none { pointer-events: none }
+.pointer-events-auto { pointer-events: auto }
+
+/* Prevent any accidental image scaling */
+img {
+  max-width: unset !important;
+}
+
+/* Ensure handprint containers maintain exact size */
+.absolute[style*="width: 30px"] {
+  min-width: 30px;
+  min-height: 30px;
+}

@@ -1,15 +1,16 @@
 "use client";
 import Image from "next/image";
 import HandprintCanvas from "@/components/HandprintCanvas";
+import HandprintCanvasDev from "@/components/HandprintCanvasDev";
 import LinkPanel from "@/components/LinkPanel";
 import WorkInProgressPopup from "@/components/WorkInProgressPopup";
 
 export default function Home() {
   return (
     <>
-      <main className="flex font-serif flex-col h-screen w-screen bg-white text-black items-center justify-center px-4 pt-52">
+      <main className="flex font-serif flex-col min-h-screen w-screen bg-white text-black items-center px-4">
         <WorkInProgressPopup />
-        <div className="text-center">
+        <div className="text-center mt-52">
           <p className="text-2xl mb-4">hey, i'm jaiyank!</p>
           <Image
             src="/images/siphyshu.png"
@@ -31,7 +32,8 @@ export default function Home() {
           </div>
           <LinkPanel />
         </div>
-        <HandprintCanvas />
+        <HandprintCanvasDev />
+        {/* <HandprintCanvas /> */}
       </main>
     </>
   );
