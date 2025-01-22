@@ -23,11 +23,11 @@ const initialState = {
   hoveredHandprint: null,
   formPosition: null,
   tempHandprint: null,
-  selectedColor: null,
   showCursor: true,
   canvasSize: { width: MIN_WIDTH, height: MIN_HEIGHT },
   formName: "",
   formLink: "",
+  selectedColor: Object.keys(COLORS)[Math.floor(Math.random() * Object.keys(COLORS).length)],
   formSelectedColor: null,
   cursorPosition: { x: 0, y: 0 },
   isMouseInside: false,
@@ -75,6 +75,7 @@ function reducer(state, action) {
 const HandprintCanvasDev = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const canvasRef = useRef(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     fetchHandprints();
@@ -84,14 +85,51 @@ const HandprintCanvasDev = () => {
   }, []);
 
   useEffect(() => {
-    if (!state.selectedColor) {
-      const randomColor = Object.keys(COLORS)[
-        Math.floor(Math.random() * Object.keys(COLORS).length)
-      ];
-      dispatch({ type: "SET_SELECTED_COLOR", payload: randomColor });
+    if (!state.formSelectedColor) {
+      dispatch({ 
+        type: "SET_FORM_SELECTED_COLOR", 
+        payload: state.selectedColor 
+      });
     }
-  }, [state.selectedColor]);
+  }, [state.formSelectedColor, state.selectedColor]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        dispatch({ type: "RESET_FORM" });
+      }
+    };
+  
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        dispatch({ type: "RESET_FORM" });
+      }
+    };
+  
+    if (state.formPosition) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+  
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [state.formPosition]);
+  
+  useEffect(() => {
+    if (state.tempHandprint && state.formSelectedColor) {
+      dispatch({
+        type: "SET_TEMP_HANDPRINT",
+        payload: {
+          ...state.tempHandprint,
+          color: state.formSelectedColor
+        }
+      });
+    }
+  }, [state.formSelectedColor]);
+  
+  
   const handleResize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -149,69 +187,55 @@ const HandprintCanvasDev = () => {
     }
   };
 
+
   const handleCanvasClick = (e) => {
     if (state.formPosition) return;
   
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // Calculate percentage positions
-    const xPercentage = (x / state.canvasSize.width) * 100;
-    const yPercentage = (y / state.canvasSize.height) * 100;
-    const angle = Math.random() * 120 - 60;
-
-
-    // Calculate form position with viewport boundary checks
+  
+    // Simplified form positioning
+    const formWidth = 280; // Approximate form width
+    const formHeight = 260; // Approximate form height
     const clickX = e.clientX;
     const clickY = e.clientY;
-    const formWidth = 300; // Approximate form width
-    const formHeight = 200; // Approximate form height
-    const offset = 20; // Distance from click point
+    const viewportPadding = 10;
   
-    let formX = clickX;
-    let formY = clickY;
-    let transformOrigin = "top-left";
+    // Calculate initial position (10px offset from click)
+    let formX = clickX + 10;
+    let formY = clickY + 10;
   
-    // Check available space and position form accordingly
-    if (clickX > window.innerWidth - formWidth) {
-      formX = clickX - formWidth + offset;
-      transformOrigin = "top-right";
-    } else {
-      formX += offset;
+    // Adjust for right edge
+    if (formX + formWidth > window.innerWidth - viewportPadding) {
+      formX = clickX - formWidth - 10;
     }
   
-    if (clickY > window.innerHeight - formHeight) {
-      formY = clickY - formHeight + offset;
-      transformOrigin = "bottom-left";
-    } else {
-      formY += offset;
+    // Adjust for bottom edge
+    if (formY + formHeight > window.innerHeight - viewportPadding) {
+      formY = clickY - formHeight - 10;
     }
   
-    // Ensure form stays within viewport boundaries
-    formX = Math.max(10, Math.min(formX, window.innerWidth - formWidth - 10));
-    formY = Math.max(10, Math.min(formY, window.innerHeight - formHeight - 10));
-  
+    // Final clamp to viewport boundaries
+    formX = Math.max(viewportPadding, Math.min(formX, window.innerWidth - formWidth - viewportPadding));
+    formY = Math.max(viewportPadding, Math.min(formY, window.innerHeight - formHeight - viewportPadding));
   
     dispatch({
       type: "SET_TEMP_HANDPRINT",
       payload: {
-        x: xPercentage,
-        y: yPercentage,
-        color: state.selectedColor,
-        angle,
+        x: (x / state.canvasSize.width) * 100,
+        y: (y / state.canvasSize.height) * 100,
+        color: state.formSelectedColor || state.selectedColor,
+        angle: Math.random() * 120 - 60,
       },
     });
-    dispatch({
-      type: "SET_FORM_SELECTED_COLOR",
-      payload: state.selectedColor,
-    });
+  
     dispatch({
       type: "SET_FORM_POSITION",
-      payload: { x: formX, y: formY, origin: transformOrigin },
-    });  
-  };
-  
+      payload: { x: formX, y: formY },
+    });
+  };  
+
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -338,7 +362,7 @@ const HandprintCanvasDev = () => {
             .map((handprint, index) => (
               <div
                 key={`handprint-${index}`}
-                className="absolute"
+                className={`absolute ${handprint.link ? 'cursor-pointer' : 'cursor-default'}`}
                 style={{
                   left: `${handprint.x}%`,
                   top: `${handprint.y}%`,
@@ -352,6 +376,12 @@ const HandprintCanvasDev = () => {
                 onMouseLeave={() =>
                   dispatch({ type: "SET_HOVERED_HANDPRINT", payload: null })
                 }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (handprint.link) {
+                    window.open(handprint.link, "_blank");
+                  }
+                }}
               >
                 <Image
                   src={`/handprints/${handprint.color}.svg`}
@@ -364,8 +394,8 @@ const HandprintCanvasDev = () => {
                   }}
                 />
               </div>
-            )
-          )}
+            ))}
+
 
           {/* Cursor */}
           {state.showCursor && state.isMouseInside && (
@@ -405,6 +435,7 @@ const HandprintCanvasDev = () => {
           {[...state.handprints, state.tempHandprint]
             .filter(Boolean)
             .map((handprint, index) => {
+              // Only show label if hovered and has name
               if (!handprint.name || handprint !== state.hoveredHandprint) return null;
               
               const labelStyle = getLabelPosition(handprint);
@@ -419,7 +450,7 @@ const HandprintCanvasDev = () => {
                   }}
                 >
                   <div
-                    className="bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 font-serif pointer-events-auto"
+                    className="bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 font-serif pointer-events-none"
                     style={{
                       ...labelStyle,
                       transform: `${labelStyle.transform || ""}`,
@@ -434,7 +465,8 @@ const HandprintCanvasDev = () => {
                   </div>
                 </div>
               );
-            })}
+            }
+          )}
   
           {/* "X were here" label */}
           {state.handprints.length > 0 && (
@@ -448,66 +480,88 @@ const HandprintCanvasDev = () => {
       {/* Form */}
       {state.formPosition && (
         <div
-          className="absolute bg-white border border-black shadow-md"
+          ref={formRef}
+          className="absolute bg-white/95 backdrop-blur-sm border border-gray-400 rounded-md shadow-sm w-64 m-3"
           style={{
             left: `${state.formPosition.x}px`,
             top: `${state.formPosition.y}px`,
-            transformOrigin: state.formPosition.origin,
-            transform: `
-              translate(
-                ${state.formPosition.origin.includes("right") ? "-100%" : "0"},
-                ${state.formPosition.origin.includes("bottom") ? "-100%" : "0"}
-              )
-            `,
             zIndex: 20,
           }}
         >
-          <form onSubmit={handleFormSubmit} className="p-4">
-            <input
-              type="text"
-              placeholder="Name / Alias"
-              value={state.formName}
-              onChange={(e) =>
-                dispatch({ type: "SET_FORM_NAME", payload: e.target.value })
-              }
-              className="block w-full mb-2 px-2 py-1 border border-black"
-            />
-            <input
-              type="text"
-              placeholder="Link (Optional)"
-              value={state.formLink}
-              onChange={(e) =>
-                dispatch({ type: "SET_FORM_LINK", payload: e.target.value })
-              }
-              className="block w-full mb-2 px-2 py-1 border border-black"
-            />
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex justify-between w-full">
-                {Object.entries(COLORS).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className={`w-6 h-6 cursor-pointer ${
-                      state.formSelectedColor === key ? "ring-2 ring-black" : ""
-                    }`}
-                    style={{ backgroundColor: value }}
-                    onClick={() =>
-                      dispatch({ type: "SET_FORM_SELECTED_COLOR", payload: key })
-                    }
-                  />
-                ))}
+          <form onSubmit={handleFormSubmit} className="p-4 space-y-4">
+            <div className="space-y-4">
+              {/* Name Field */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600">
+                  Your Name / Alias <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. siphyshu"
+                  value={state.formName}
+                  onChange={(e) =>
+                    dispatch({ type: "SET_FORM_NAME", payload: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {/* Website Field */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600">
+                  Link (Optional)
+                </label>
+                <input
+                  // type="url"
+                  placeholder="e.g. linktr.ee/yourname"
+                  value={state.formLink}
+                  onChange={(e) =>
+                    dispatch({ type: "SET_FORM_LINK", payload: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
+                  pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
+                />
+              </div>
+
+              {/* Color Picker */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600">
+                  Color Picker
+                </label>
+                <div className="grid grid-cols-6 gap-2 py-2 px-3">
+                  {Object.entries(COLORS).map(([key, value]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() =>
+                        dispatch({ type: "SET_FORM_SELECTED_COLOR", payload: key })
+                      }
+                      className={`h-6 w-6 rounded-full transition-all ${
+                        state.formSelectedColor === key 
+                          ? "ring-2 ring-offset-1 ring-gray-800"
+                          : "hover:ring-1 hover:ring-gray-200"
+                      }`}
+                      style={{ backgroundColor: value }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="flex justify-between">
+
+            {/* Buttons */}
+            <div className="flex flex-col space-y-2">
               <button
                 type="submit"
-                className="bg-black text-white px-4 py-2 hover:bg-gray-800"
+                className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
               >
                 Imprint!
               </button>
               <button
                 type="button"
                 onClick={() => dispatch({ type: "RESET_FORM" })}
-                className="bg-gray-300 text-black px-4 py-2 hover:bg-gray-400"
+                className="w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
               >
                 Cancel
               </button>
