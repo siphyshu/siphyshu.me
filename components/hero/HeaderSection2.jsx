@@ -134,7 +134,7 @@ const HeaderSection = () => {
                     </p>
 
                     <p className="text-base mb-1 text-gray-500">
-                        Deep tech generalist, building XYZ
+                        Deep tech generalist, always curious.
                     </p>
                 </div>
                 
