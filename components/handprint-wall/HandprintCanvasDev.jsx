@@ -14,7 +14,7 @@ const COLORS = {
 };
 
 const MIN_WIDTH = 300;
-const MAX_WIDTH = 1200;
+const MAX_WIDTH = 950;
 const MIN_HEIGHT = 250;
 const CANVAS_PADDING = 50;
 
@@ -72,7 +72,7 @@ function reducer(state, action) {
   }
 }
 
-const HandprintCanvasDev = () => {
+const HandprintCanvasDev = ({ className }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const canvasRef = useRef(null);
   const formRef = useRef(null);
@@ -133,10 +133,12 @@ const HandprintCanvasDev = () => {
   const handleResize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const width = Math.min(
-      Math.max(document.body.clientWidth, MIN_WIDTH),
-      MAX_WIDTH
-    ) - CANVAS_PADDING;
+    
+    // Get the actual width of the container element
+    // const containerWidth = canvas.parentElement.getBoundingClientRect().width;
+    // const width = Math.max(MIN_WIDTH, containerWidth - CANVAS_PADDING);
+    const width = Math.min(Math.max(document.body.clientWidth, MIN_WIDTH), MAX_WIDTH) - CANVAS_PADDING;
+    
     dispatch({
       type: "SET_CANVAS_SIZE",
       payload: { width, height: MIN_HEIGHT },
@@ -328,22 +330,22 @@ const HandprintCanvasDev = () => {
   };
 
   return (
-    <div className="w-full px-5 flex justify-center flex-col items-center">
-      <p className="text-sm italic text-gray-600 mb-4 text-center w-full">
+    <div className="w-full flex justify-center flex-col items-center">
+      {/* <p className="italic text-sm text-gray-600 mb-4 text-center w-full px-6 lg:px-0">
         From cave walls to pixels: the human urge to leave a trace endures. 🖐️
-      </p>
+      </p> */}
   
       {/* Canvas Container */}
       <div 
-        className="relative" 
-        style={{ 
+        className={`relative ${className}`}
+        style={{
           width: `${state.canvasSize.width}px`,
         }}
       >
         {/* Handprint Layer */}
         <div
           ref={canvasRef}
-          className={`bg-gray-100 overflow-hidden relative ${
+          className={`bg-gray-100 overflow-hidden relative w-full ${
             state.showCursor ? 'cursor-none' : ''
           }`}
           style={{
@@ -476,6 +478,10 @@ const HandprintCanvasDev = () => {
           )}
         </div>
       </div>
+
+      <p className="italic text-sm text-gray-600 mt-4 text-center md:text-right w-full px-6 lg:px-0">
+        From cave walls to pixels: the human urge to leave a trace endures. 🖐️
+      </p>
   
       {/* Form */}
       {state.formPosition && (
