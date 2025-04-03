@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <>
       <main className="flex font-serif flex-col min-h-screen w-screen bg-white text-black items-center px-4">
-        <WorkInProgressPopup />
+        {/* <WorkInProgressPopup /> */}
         <div className="max-w-4xl w-full mx-auto">
         
           {/* Introduction */}
