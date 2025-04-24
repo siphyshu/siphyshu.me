@@ -15,13 +15,16 @@ export default function RootLayout({ children }) {
         <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
       </head> */}
       <body className="bg-white text-black">
-        <main>
-          <SearchProvider>
-            <div>
-              {children}
+        <SearchProvider>
+          <div className="bg-white font-serif flex flex-col min-h-screen">
+            <main className="flex-grow px-4 flex flex-col items-center">
+              <div className="max-w-4xl w-full mx-auto">{children}</div>
+            </main>
+            <div className="max-w-4xl w-full mx-auto">
+              <Footer />
             </div>
-          </SearchProvider>
-        </main>
+          </div>
+        </SearchProvider>
       </body>
     </html>
   );

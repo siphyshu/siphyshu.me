@@ -1,15 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 import HandprintCanvasDev from "@/components/handprint-wall/HandprintCanvasDev";
-import HeaderSection from "@/components/hero/HeaderSection";
 import HeaderSection2 from "@/components/hero/HeaderSection2";
 import NavBar from "@/components/ui/NavBar";
-import Footer from "@/components/ui/Footer";
-import WorkInProgressPopup from "@/components/ui/WorkInProgressPopup";
 import ProjectGallery from "@/components/projects/ProjectGallery";
 import ArticleList from "@/components/articles/ArticleList";
 import SearchBar from "@/components/search/SearchBar";
@@ -33,48 +28,38 @@ export default function Home() {
 
   return (
     <>
-      <main className="flex font-serif flex-col min-h-screen bg-white text-black items-center px-4">
-        {/* <WorkInProgressPopup /> */}
-        <div className="max-w-4xl w-full mx-auto">
-        
-          {/* Introduction */}
-          {/* <HeaderSection /> */}
-          <HeaderSection2 />
-          
-          {/* Search Section */}
-          <div className="mt-4 mb-8">
-            <SearchBar />
-          </div>
-          
-          {/* Search Results */}
-          <div className={isSearching ? "block" : "hidden"}>
-            <SearchResults />
-          </div>
-          
-          {/* Interactive Artwork - Hide when searching */}
-          {!isSearching && (
-            <div className={`mx-auto my-8`}>
-            {/* <div className={`mx-auto mb-8`}> */}
-              <HandprintCanvasDev className={`${frameStyle}`}/>
-            </div>
-          )}
-
-          {/* Showcase Section - Hide when searching */}
-          {!isSearching && (
-            <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
-              <NavBar 
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
-              
-              <ProjectGallery className={activeTab === "projects" ? "block" : "hidden"} />
-              <ArticleList className={activeTab === "articles" ? "block" : "hidden"} />
-            </div>
-          )}
-
-          <Footer />
+      {/* Introduction */}
+      <HeaderSection2 />
+      
+      {/* Search Section */}
+      <div className="mt-4 mb-8">
+        <SearchBar />
+      </div>
+      
+      {/* Search Results */}
+      <div className={isSearching ? "block" : "hidden"}>
+        <SearchResults />
+      </div>
+      
+      {/* Interactive Artwork - Hide when searching */}
+      {!isSearching && (
+        <div className={`mx-auto my-8`}>
+          <HandprintCanvasDev className={`${frameStyle}`}/>
         </div>
-      </main>
+      )}
+
+      {/* Showcase Section - Hide when searching */}
+      {!isSearching && (
+        <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
+          <NavBar 
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+          
+          <ProjectGallery className={activeTab === "projects" ? "block" : "hidden"} />
+          <ArticleList className={activeTab === "articles" ? "block" : "hidden"} />
+        </div>
+      )}
     </>
   );
 }
