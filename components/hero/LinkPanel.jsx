@@ -35,7 +35,7 @@ const LINKS = [
 
 export default function LinkPanel() {
   return (
-    <div className="flex flex-wrap justify-center gap-4 mb-4">
+    <div className="flex flex-wrap justify-center gap-4">
       {LINKS.map(({ href, text, imgSrc, imgAlt, icon: Icon }) => (
         <a
           key={text}

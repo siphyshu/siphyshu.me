@@ -389,11 +389,12 @@ const HandprintCanvasDev = ({ className }) => {
                   src={`/handprints/${handprint.color}.svg`}
                   width={30}
                   height={30}
-                  alt="Handprint"
+                  alt=""
                   style={{
                     width: '100%',
                     height: '100%',
                   }}
+                  className="select-none"
                 />
               </div>
             ))}
@@ -472,7 +473,7 @@ const HandprintCanvasDev = ({ className }) => {
   
           {/* "X were here" label */}
           {state.handprints.length > 0 && (
-            <div className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1 pointer-events-auto">
+            <div className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1 pointer-events-auto select-none">
               <p className="text-sm font-serif">{state.handprints.length} were here</p>
             </div>
           )}

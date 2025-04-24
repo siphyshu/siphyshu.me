@@ -1,4 +1,5 @@
 import "./globals.css";
+import { SearchProvider } from "@/components/search/SearchContext";
 
 export const metadata = {
   title: "siphyshu // jaiyank",
@@ -12,7 +13,11 @@ export default function RootLayout({ children }) {
       {/* <head>
         <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
       </head> */}
-      <body className="bg-white text-black">{children}</body>
+      <body className="bg-white text-black">
+        <SearchProvider>
+          {children}
+        </SearchProvider>
+      </body>
     </html>
   );
 }

@@ -13,10 +13,13 @@ import WorkInProgressPopup from "@/components/ui/WorkInProgressPopup";
 import ProjectGallery from "@/components/projects/ProjectGallery";
 import ArticleList from "@/components/articles/ArticleList";
 import SearchBar from "@/components/search/SearchBar";
+import SearchResults from "@/components/search/SearchResults";
+import { useSearch } from "@/components/search/SearchContext";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("projects");
   const [frameStyle, setFrameStyle] = useState("wood-frame-lighter-brown");
+  const { isSearching } = useSearch();
 
   const cycleFrame = () => {
     const frames = [
@@ -38,25 +41,31 @@ export default function Home() {
           {/* <HeaderSection /> */}
           <HeaderSection2 />
           
-          {/* <SearchBar /> */}
+          <div className="mt-4">
+            <SearchBar />
+          </div>
+          <SearchResults />
           
           {/* Interactive Artwork */}
-          <div className={`mx-auto mb-2 mt-8`}>
-          {/* <div className={`mx-auto mb-8`}> */}
-            <HandprintCanvasDev className={`${frameStyle}`}/>
-          </div>
+          {!isSearching && (
+            <div className={`my-8`}>
+            {/* <div className={`mx-auto mb-8`}> */}
+              <HandprintCanvasDev className={`${frameStyle}`}/>
+            </div>
+          )}
 
           {/* Showcase Section */}
-          <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
-            <NavBar 
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-            
-            <ProjectGallery className={activeTab === "projects" ? "block" : "hidden"} />
-            <ArticleList className={activeTab === "articles" ? "block" : "hidden"} />
-
-          </div>
+          {!isSearching && (
+            <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
+              <NavBar 
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+              
+              <ProjectGallery className={activeTab === "projects" ? "block" : "hidden"} />
+              <ArticleList className={activeTab === "articles" ? "block" : "hidden"} />
+            </div>
+          )}
 
           <Footer />
         </div>

@@ -9,7 +9,7 @@ const NavBar = ({activeTab, setActiveTab}) => {
                 <li>
                     <button
                     onClick={() => setActiveTab("projects")}
-                    className={`text-2xl ${activeTab === "projects" ? "underline" : "text-gray-500"}`}
+                    className={`text-xl md:text-2xl ${activeTab === "projects" ? "underline" : "text-gray-500"}`}
                     >
                     projects
                     </button>
@@ -17,7 +17,7 @@ const NavBar = ({activeTab, setActiveTab}) => {
                 <li>
                     <button
                     onClick={() => setActiveTab("articles")}
-                    className={`text-2xl ${activeTab === "articles" ? "underline" : "text-gray-500"}`}
+                    className={`text-xl md:text-2xl ${activeTab === "articles" ? "underline" : "text-gray-500"}`}
                     >
                     articles
                     </button>
