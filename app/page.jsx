@@ -32,7 +32,7 @@ export default function Home() {
       <HeaderSection2 />
       
       {/* Search Section */}
-      <div className="mt-4 mb-8">
+      <div className="mt-4 mb-12">
         <SearchBar />
       </div>
       

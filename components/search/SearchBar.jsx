@@ -61,14 +61,14 @@ const SearchBar = () => {
                 {searchQuery ? (
                     <button 
                         onClick={handleClearSearch}
-                        className="text-gray-400 hover:text-black transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-black transition-colors duration-200 p-1 rounded-full hover:bg-gray-100 block sm:hidden"
                         aria-label="Clear search"
                         title="Clear search (ESC)"
                     >
                         <X size={16} />
                     </button>
                 ) : (
-                    <div className="text-xs text-gray-400 flex items-center select-none">
+                    <div className="text-xs text-gray-400 items-center select-none hidden md:flex">
                         <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl</kbd>
                         <span className="mx-1">+</span>
                         <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">K</kbd>

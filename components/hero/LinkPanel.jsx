@@ -42,7 +42,7 @@ export default function LinkPanel() {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center text-blue-600 underline hover:text-blue-800"
+          className="flex text-sm md:text-base items-center text-blue-600 underline hover:text-blue-800"
         >
           {Icon ? (
             <Icon className="mr-1 w-5 h-5 text-black" />
