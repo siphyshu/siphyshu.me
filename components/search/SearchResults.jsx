@@ -47,22 +47,29 @@ const SearchResults = () => {
     });
     
     const hasResults = filteredProjects.length > 0 || filteredArticles.length > 0;
+    const resultCount = filteredProjects.length + filteredArticles.length;
     
     if (!hasResults) {
         return (
-            <div className="text-center py-8">
-                <p className="text-gray-500">No results found for "{searchQuery}"</p>
+            <div className="text-center py-12 my-8 border border-gray-200 rounded-lg bg-gray-50">
+                <p className="text-gray-500">No results found for "<span className="font-medium text-black">{searchQuery}</span>"</p>
+                <p className="text-gray-400 text-sm mt-1">Try different keywords or check for typos</p>
             </div>
         );
     }
     
     return (
-        <div className="mb-16">
-            <h2 className="text-xl font-medium mb-4">Search Results for "{searchQuery}"</h2>
+        <div className="mb-16 mt-4">
+            <div className="mb-8 pb-4 border-b border-gray-200">
+                <div className="flex justify-between items-baseline">
+                    <h2 className="text-lg font-medium">Results for "<span className="italic">{searchQuery}</span>"</h2>
+                    <span className="text-sm text-gray-500">{resultCount} {resultCount === 1 ? 'item' : 'items'} found</span>
+                </div>
+            </div>
             
             {filteredProjects.length > 0 && (
-                <div className="mb-8">
-                    <h3 className="text-lg font-medium mb-2">Projects</h3>
+                <div className="mb-12">
+                    <h3 className="text-sm uppercase tracking-wider text-gray-500 mb-4 font-medium">Projects</h3>
                     <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
                         {filteredProjects.map((project) => (
                             <ProjectCard
@@ -82,10 +89,10 @@ const SearchResults = () => {
             
             {filteredArticles.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-medium mb-2">Articles</h3>
-                    <div className="flex flex-col">
+                    <h3 className="text-sm uppercase tracking-wider text-gray-500 mb-4 font-medium">Articles</h3>
+                    <div className="flex flex-col space-y-6">
                         {filteredArticles.map((article, index) => (
-                            <div key={article.id}>
+                            <div key={article.id} className={index === 0 ? "" : "pt-2"}>
                                 <ArticleItem
                                     date={article.date}
                                     title={article.title}
@@ -95,7 +102,7 @@ const SearchResults = () => {
                                     topics={article.topics}
                                 />
                                 {index < filteredArticles.length - 1 && (
-                                    <hr className="my-4 border-gray-300" />
+                                    <hr className="mt-6 border-gray-200" />
                                 )}
                             </div>
                         ))}

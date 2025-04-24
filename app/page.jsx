@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <>
-      <main className="flex font-serif flex-col min-h-screen w-screen bg-white text-black items-center px-4">
+      <main className="flex font-serif flex-col min-h-screen bg-white text-black items-center px-4">
         {/* <WorkInProgressPopup /> */}
         <div className="max-w-4xl w-full mx-auto">
         
@@ -41,20 +41,25 @@ export default function Home() {
           {/* <HeaderSection /> */}
           <HeaderSection2 />
           
-          <div className="mt-4">
+          {/* Search Section */}
+          <div className="mt-4 mb-8">
             <SearchBar />
           </div>
-          <SearchResults />
           
-          {/* Interactive Artwork */}
+          {/* Search Results */}
+          <div className={isSearching ? "block" : "hidden"}>
+            <SearchResults />
+          </div>
+          
+          {/* Interactive Artwork - Hide when searching */}
           {!isSearching && (
-            <div className={`my-8`}>
+            <div className={`mx-auto my-8`}>
             {/* <div className={`mx-auto mb-8`}> */}
               <HandprintCanvasDev className={`${frameStyle}`}/>
             </div>
           )}
 
-          {/* Showcase Section */}
+          {/* Showcase Section - Hide when searching */}
           {!isSearching && (
             <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
               <NavBar 
