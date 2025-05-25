@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
             <main className="flex-grow px-4 flex flex-col items-center">
               <div className="max-w-4xl w-full mx-auto">{children}</div>
             </main>
-            <div className="max-w-4xl w-full mx-auto">
+            <div className="max-w-4xl w-full mx-auto px-4 md:px-0">
               <Footer />
             </div>
           </div>

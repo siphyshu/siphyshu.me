@@ -22,36 +22,38 @@ export default function ArticleItem({
     };
 
     return (
-        <div className="flex flex-row bg-white min-w-[250px]">
+        <a 
+            href={link} 
+            className="flex flex-row bg-white min-w-[250px] cursor-pointer"
+        >
             {/* Article Thumbnail */}
-            <div className="flex items-start justify-center relative aspect-square">
+            <div className="flex items-start justify-center relative aspect-square w-[20%] min-w-[80px] max-w-[80px]">
                 <Image
                     src={thumbnail}
                     alt="Project Image"
                     width={500}
                     height={500}
-                    className="object-cover rounded-xl border w-[90px] md:w-[120px] border-black"
+                    className="object-cover rounded-xl border w-full border-black"
                 />
             </div>
 
             {/* Article Content */}
-            <div className="flex flex-col justify-between px-4 pb-1">
+            <div className="flex flex-col justify-between px-4 pb-3 pt-0 flex-1">
                 <div>
-                    <h2 className="text-black prose prose-md md:prose-lg leading-tight md:leading-loose">{title}</h2>
-                    <div className="hidden md:block"> { /* DO NOT REMOVE THIS DIV because line-clamp breaks for some reason */ }
-                        <div className="text-gray prose prose-sm line-clamp-3 leading-snug overflow-hidden">
+                    {/* Date */}
+                    {date && (
+                        <div className="text-gray-500 text-xs uppercase leading-none">
+                            {formatDate(date)}
+                        </div>
+                    )}
+                    <h2 className="text-black prose prose-md md:prose-lg leading-tight md:leading-loose max-w-none mt-2 md:mt-1">{title}</h2>
+                    <div className="mt-2 md:mt-0">
+                        <div className="text-gray prose prose-sm leading-snug">
                             <ReactMarkdown>{subtitle}</ReactMarkdown>
                         </div>
                     </div>
                 </div>
-                
-                {/* Date */}
-                {date && (
-                    <div className="text-gray-500 text-xs uppercase mt-auto">
-                        {formatDate(date)}
-                    </div>
-                )}
             </div>
-        </div>
+        </a>
     )
 }

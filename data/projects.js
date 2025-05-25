@@ -1,4 +1,14 @@
 export const projects = [
+    {
+        id: 3,
+        title: "wallpy-sensei",
+        description: "A dynamic wallpaper engine. Schedule wallpaper changes throughout the day and manage wallpacks using a neat CLI.",
+        thumbnail: "/thumbnails/projects/wallpy-thumbnail3.png",
+        links: {
+            "github": "https://github.com/siphyshu/wallpy-sensei"
+        },
+        tags: ["python", "cli"]
+    },
     { 
         id: 1, 
         title: "snake-R4", 
@@ -11,6 +21,17 @@ export const projects = [
         tags: ["electronics", "c++"],
         hiddentags: ["arduino", "game-dev"]
     },
+    {
+        id: 5,
+        title: "pong-R4",
+        description: "The classic pong game on the Arduino R4's LED matrix. Play with friends with 2 joysticks, or solo against the AI.",
+        thumbnail: "/thumbnails/projects/pong-r4-thumbnail.png",
+        links: {
+            "github": "https://github.com/siphyshu/pong-R4"
+        },
+        tags: ["electronics", "c++"],
+        hiddentags: ["arduino", "game-dev"]
+    },  
     { 
         id: 2, 
         title: "VITB-timetable-parser", 
@@ -21,15 +42,5 @@ export const projects = [
             "github": "https://github.com/siphyshu/vitb-timetable-parser",
         },
         tags: ["python", "ocr"]
-    },
-    {
-        id: 3,
-        title: "wallpy-sensei",
-        description: "A dynamic wallpaper engine written in python. Wallpacks that change throughout the day, based on your mood, weather, and more.",
-        thumbnail: "/thumbnails/projects/wallpy-thumbnail.png",
-        links: {
-            "github": "https://github.com/siphyshu/wallpy-sensei"
-        },
-        tags: ["python", "cli"]
     },
 ];

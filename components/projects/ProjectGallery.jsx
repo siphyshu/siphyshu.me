@@ -7,7 +7,7 @@ import { tags } from "@/data/tags";
 const ProjectGallery = ({ className }) => {
     return (
         <div className={`flex justify-start ${className}`}>
-            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
                 {projects.map((project) => (
                     <ProjectCard
                         key={project.id}

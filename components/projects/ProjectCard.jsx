@@ -59,7 +59,7 @@ export default function ProjectCard({
                 </div>
 
                 {/* Project Content */}
-                <div className="font-serif p-2">
+                <div className="font-serif p-4">
                     <div className="flex justify-between items-center">
                         {/* Title */}
                         <h2 className="text-black prose prose-lg">{title}</h2>
