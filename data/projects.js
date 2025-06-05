@@ -7,7 +7,29 @@ export const projects = [
         links: {
             "github": "https://github.com/siphyshu/wallpy-sensei"
         },
-        tags: ["python", "cli"]
+        tags: ["python", "cli", "wip"]
+    },
+    { 
+        id: 2, 
+        title: "VITB-timetable-parser", 
+        description: "Parses VITB _(my uni)_ timetable images to json/csv. Built this to enable easy timetable handling for anyone building VITB projects.", 
+        thumbnail: "/thumbnails/projects/vitb-tt2json-thumbnail.png",
+        links: {
+            "external": "https://vitb-tt2json.streamlit.app/",
+            "github": "https://github.com/siphyshu/vitb-timetable-parser",
+        },
+        tags: ["python", "ocr"]
+    },
+    {
+        id: 9,
+        title: "Siphy's Bounty Board",
+        description: "A place to post fun little tasks for friends, family, and random strangers on the internet. Built for fun for my brother.",
+        thumbnail: "/thumbnails/projects/bounties_thumbnail3.png",
+        links: {
+            "external": "https://bounties.siphyshu.me",
+            "github": "https://github.com/siphyshu/bounties"
+        },
+        tags: ["web", "nextjs", "wip"],
     },
     { 
         id: 1, 
@@ -31,16 +53,5 @@ export const projects = [
         },
         tags: ["electronics", "c++"],
         hiddentags: ["arduino", "game-dev"]
-    },  
-    { 
-        id: 2, 
-        title: "VITB-timetable-parser", 
-        description: "Parses VITB _(my uni)_ timetable images to json/csv. Built this to enable easy timetable handling for anyone building VITB projects.", 
-        thumbnail: "/thumbnails/projects/vitb-tt2json-thumbnail.png",
-        links: {
-            "external": "https://vitb-tt2json.streamlit.app/",
-            "github": "https://github.com/siphyshu/vitb-timetable-parser",
-        },
-        tags: ["python", "ocr"]
-    },
+    }
 ];

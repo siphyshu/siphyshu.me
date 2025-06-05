@@ -84,8 +84,11 @@ export default function ProjectCard({
                             .map((tag, index) => (
                                 <span
                                     key={index}
-                                    className={`px-2 py-1 text-[10px] border rounded-full ${tagColorVariants[tag.color]}`}
+                                    className={`px-2 py-1 text-[10px] border rounded-full ${tagColorVariants[tag.color]} ${tag.special ? 'relative pl-4 bg-emerald-100' : ''}`}
                                 >
+                                    {tag.special && (
+                                        <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    )}
                                     {tag.name}
                                 </span>
                             ))}

@@ -1,4 +1,7 @@
 export const tags = {
+    // Status
+    "wip": { name: "ongoing", color: "emerald", special: true },
+    
     // Domain Specific
     "web": { name: "web", color: "blue" },
     "mobile": { name: "mobile", color: "cyan" },
