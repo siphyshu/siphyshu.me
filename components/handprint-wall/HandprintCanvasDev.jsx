@@ -340,6 +340,7 @@ const HandprintCanvasDev = ({ className }) => {
         className={`relative ${className}`}
         style={{
           width: `${state.canvasSize.width}px`,
+          
         }}
       >
         {/* Handprint Layer */}
@@ -350,6 +351,10 @@ const HandprintCanvasDev = ({ className }) => {
           }`}
           style={{
             height: `${state.canvasSize.height}px`,
+            backgroundImage: 'url(/images/canvasbg2.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            position: 'relative',
           }}
           onClick={handleCanvasClick}
           onMouseMove={handleCanvasHover}
@@ -358,6 +363,12 @@ const HandprintCanvasDev = ({ className }) => {
             dispatch({ type: "SET_CURSOR_POSITION", payload: { x: 0, y: 0 } });
           }}
         >
+          {/* White overlay */}
+          <div 
+            className="absolute inset-0 bg-white bg-opacity-40 pointer-events-none"
+            style={{ zIndex: 0 }}
+          />  
+          
           {/* Handprints */}
           {[...state.handprints, state.tempHandprint]
             .filter(Boolean)
