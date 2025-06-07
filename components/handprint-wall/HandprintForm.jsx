@@ -1,73 +1,95 @@
-import React, { useState } from "react";
+import React from 'react';
+import { COLORS } from './handprintReducer';
 
-const HandprintForm = ({ position, onSubmit, onCancel, availableColors, tempHandprint }) => {
-  const [name, setName] = useState("");
-  const [link, setLink] = useState("");
-  const [selectedColor, setSelectedColor] = useState(tempHandprint.color);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let formattedLink = link;
-    if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
-      formattedLink = `https://${link}`;
-    }
-
-    onSubmit({
-      name: name || "Anonymous",
-      link: formattedLink || null,
-      color: selectedColor,
-    });
-  };
-
+const HandprintForm = ({ 
+  formRef,
+  formPosition,
+  formName,
+  formLink,
+  formSelectedColor,
+  onNameChange,
+  onLinkChange,
+  onColorSelect,
+  onSubmit,
+  onCancel
+}) => {
   return (
     <div
-      className="absolute bg-white border border-black shadow-md"
+      ref={formRef}
+      className="absolute bg-white/95 backdrop-blur-sm border border-gray-400 rounded-md shadow-sm w-64 m-3"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        transform: "translate(-50%, -100%)",
+        left: `${formPosition.x}px`,
+        top: `${formPosition.y}px`,
+        zIndex: 20,
       }}
     >
-      <form onSubmit={handleSubmit} className="p-4">
-        <input
-          type="text"
-          placeholder="Name / Alias"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="block w-full mb-2 px-2 py-1 border border-black"
-        />
-        <input
-          type="text"
-          placeholder="Link (Optional)"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          className="block w-full mb-2 px-2 py-1 border border-black"
-        />
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex justify-between w-full">
-            {Object.entries(availableColors).map(([key, value]) => (
-              <div
-                key={key}
-                className={`w-6 h-6 cursor-pointer ${
-                  selectedColor === key ? "ring-2 ring-black" : ""
-                }`}
-                style={{ backgroundColor: value }}
-                onClick={() => setSelectedColor(key)}
-              />
-            ))}
+      <form onSubmit={onSubmit} className="p-4 space-y-4">
+        <div className="space-y-4">
+          {/* Name Field */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-600">
+              Your Name / Alias <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. siphyshu"
+              value={formName}
+              onChange={(e) => onNameChange(e.target.value)}
+              className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
+              autoFocus
+              required
+            />
+          </div>
+
+          {/* Website Field */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-600">
+              Link (Optional)
+            </label>
+            <input
+              placeholder="e.g. linktr.ee/yourname"
+              value={formLink}
+              onChange={(e) => onLinkChange(e.target.value)}
+              className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
+              pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
+            />
+          </div>
+
+          {/* Color Picker */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-600">
+              Color Picker
+            </label>
+            <div className="grid grid-cols-6 gap-2 py-2 px-3">
+              {Object.entries(COLORS).map(([key, value]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => onColorSelect(key)}
+                  className={`h-6 w-6 rounded-full transition-all ${
+                    formSelectedColor === key 
+                      ? "ring-2 ring-offset-1 ring-gray-800"
+                      : "hover:ring-1 hover:ring-gray-200"
+                  }`}
+                  style={{ backgroundColor: value }}
+                />
+              ))}
+            </div>
           </div>
         </div>
-        <div className="flex justify-between">
+
+        {/* Buttons */}
+        <div className="flex flex-col space-y-2">
           <button
             type="submit"
-            className="bg-black text-white px-4 py-2 hover:bg-gray-800"
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
           >
             Imprint!
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-gray-300 text-black px-4 py-2 hover:bg-gray-400"
+            className="w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
           >
             Cancel
           </button>

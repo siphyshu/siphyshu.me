@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useReducer } from "react";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { reducer, initialState, MIN_WIDTH, MAX_WIDTH, MIN_HEIGHT, CANVAS_PADDING } from "./handprintReducer";
+import HandprintForm from "./HandprintForm";
 
 const COLORS = {
   blue: "#8AC3FF",
@@ -12,65 +14,6 @@ const COLORS = {
   yellow: "#FADFA4",
   skin: "#F4D0B5",
 };
-
-const MIN_WIDTH = 300;
-const MAX_WIDTH = 950;
-const MIN_HEIGHT = 250;
-const CANVAS_PADDING = 50;
-
-const initialState = {
-  handprints: [],
-  hoveredHandprint: null,
-  formPosition: null,
-  tempHandprint: null,
-  showCursor: true,
-  canvasSize: { width: MIN_WIDTH, height: MIN_HEIGHT },
-  formName: "",
-  formLink: "",
-  selectedColor: Object.keys(COLORS)[Math.floor(Math.random() * Object.keys(COLORS).length)],
-  formSelectedColor: null,
-  cursorPosition: { x: 0, y: 0 },
-  isMouseInside: false,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case "SET_HANDPRINTS":
-      return { ...state, handprints: action.payload };
-    case "SET_HOVERED_HANDPRINT":
-      return { ...state, hoveredHandprint: action.payload };
-    case "SET_FORM_POSITION":
-      return { ...state, formPosition: action.payload };
-    case "SET_TEMP_HANDPRINT":
-      return { ...state, tempHandprint: action.payload };
-    case "SET_SELECTED_COLOR":
-      return { ...state, selectedColor: action.payload };
-    case "SET_SHOW_CURSOR":
-      return { ...state, showCursor: action.payload };
-    case "SET_CURSOR_POSITION":
-      return { ...state, cursorPosition: action.payload };  
-    case "SET_CANVAS_SIZE":
-      return { ...state, canvasSize: action.payload };
-    case "SET_FORM_NAME":
-      return { ...state, formName: action.payload };
-    case "SET_FORM_LINK":
-      return { ...state, formLink: action.payload };
-    case "SET_FORM_SELECTED_COLOR":
-      return { ...state, formSelectedColor: action.payload };
-    case "SET_MOUSE_INSIDE":
-      return { ...state, isMouseInside: action.payload };
-    case "RESET_FORM":
-      return {
-        ...state,
-        formPosition: null,
-        tempHandprint: null,
-        formName: "",
-        formLink: "",
-      };
-    default:
-      throw new Error(`Unknown action type: ${action.type}`);
-  }
-}
 
 const HandprintCanvasDev = ({ className }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -129,14 +72,10 @@ const HandprintCanvasDev = ({ className }) => {
     }
   }, [state.formSelectedColor]);
   
-  
   const handleResize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Get the actual width of the container element
-    // const containerWidth = canvas.parentElement.getBoundingClientRect().width;
-    // const width = Math.max(MIN_WIDTH, containerWidth - CANVAS_PADDING);
     const width = Math.min(Math.max(document.body.clientWidth, MIN_WIDTH), MAX_WIDTH) - CANVAS_PADDING;
     
     dispatch({
@@ -161,7 +100,6 @@ const HandprintCanvasDev = ({ className }) => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     
-    // Check if mouse is actually inside canvas
     const isInside = (
       e.clientX >= rect.left &&
       e.clientX <= rect.right &&
@@ -189,7 +127,6 @@ const HandprintCanvasDev = ({ className }) => {
     }
   };
 
-
   const handleCanvasClick = (e) => {
     if (state.formPosition) return;
   
@@ -197,28 +134,23 @@ const HandprintCanvasDev = ({ className }) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
   
-    // Simplified form positioning
-    const formWidth = 280; // Approximate form width
-    const formHeight = 260; // Approximate form height
+    const formWidth = 280;
+    const formHeight = 260;
     const clickX = e.clientX;
     const clickY = e.clientY;
     const viewportPadding = 10;
   
-    // Calculate initial position (10px offset from click)
     let formX = clickX + 10;
     let formY = clickY + 10;
   
-    // Adjust for right edge
     if (formX + formWidth > window.innerWidth - viewportPadding) {
       formX = clickX - formWidth - 10;
     }
   
-    // Adjust for bottom edge
     if (formY + formHeight > window.innerHeight - viewportPadding) {
       formY = clickY - formHeight - 10;
     }
   
-    // Final clamp to viewport boundaries
     formX = Math.max(viewportPadding, Math.min(formX, window.innerWidth - formWidth - viewportPadding));
     formY = Math.max(viewportPadding, Math.min(formY, window.innerHeight - formHeight - viewportPadding));
   
@@ -237,7 +169,6 @@ const HandprintCanvasDev = ({ className }) => {
       payload: { x: formX, y: formY },
     });
   };  
-
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -497,95 +428,18 @@ const HandprintCanvasDev = ({ className }) => {
   
       {/* Form */}
       {state.formPosition && (
-        <div
-          ref={formRef}
-          className="absolute bg-white/95 backdrop-blur-sm border border-gray-400 rounded-md shadow-sm w-64 m-3"
-          style={{
-            left: `${state.formPosition.x}px`,
-            top: `${state.formPosition.y}px`,
-            zIndex: 20,
-          }}
-        >
-          <form onSubmit={handleFormSubmit} className="p-4 space-y-4">
-            <div className="space-y-4">
-              {/* Name Field */}
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600">
-                  Your Name / Alias <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. siphyshu"
-                  value={state.formName}
-                  onChange={(e) =>
-                    dispatch({ type: "SET_FORM_NAME", payload: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
-                  autoFocus
-                  required
-                />
-              </div>
-
-              {/* Website Field */}
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600">
-                  Link (Optional)
-                </label>
-                <input
-                  // type="url"
-                  placeholder="e.g. linktr.ee/yourname"
-                  value={state.formLink}
-                  onChange={(e) =>
-                    dispatch({ type: "SET_FORM_LINK", payload: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
-                  pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
-                />
-              </div>
-
-              {/* Color Picker */}
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600">
-                  Color Picker
-                </label>
-                <div className="grid grid-cols-6 gap-2 py-2 px-3">
-                  {Object.entries(COLORS).map(([key, value]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        dispatch({ type: "SET_FORM_SELECTED_COLOR", payload: key })
-                      }
-                      className={`h-6 w-6 rounded-full transition-all ${
-                        state.formSelectedColor === key 
-                          ? "ring-2 ring-offset-1 ring-gray-800"
-                          : "hover:ring-1 hover:ring-gray-200"
-                      }`}
-                      style={{ backgroundColor: value }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-col space-y-2">
-              <button
-                type="submit"
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
-              >
-                Imprint!
-              </button>
-              <button
-                type="button"
-                onClick={() => dispatch({ type: "RESET_FORM" })}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
+        <HandprintForm
+          formRef={formRef}
+          formPosition={state.formPosition}
+          formName={state.formName}
+          formLink={state.formLink}
+          formSelectedColor={state.formSelectedColor}
+          onNameChange={(value) => dispatch({ type: "SET_FORM_NAME", payload: value })}
+          onLinkChange={(value) => dispatch({ type: "SET_FORM_LINK", payload: value })}
+          onColorSelect={(color) => dispatch({ type: "SET_FORM_SELECTED_COLOR", payload: color })}
+          onSubmit={handleFormSubmit}
+          onCancel={() => dispatch({ type: "RESET_FORM" })}
+        />
       )}
 
       <ToastContainer />
