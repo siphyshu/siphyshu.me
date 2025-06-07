@@ -13,17 +13,28 @@ const HandprintForm = ({
   onSubmit,
   onCancel
 }) => {
+  // Check if we're on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 500;
+
   return (
     <div
       ref={formRef}
-      className="absolute bg-white/95 backdrop-blur-sm border border-gray-400 rounded-md shadow-sm w-64 m-3"
+      className={`bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg
+        ${isMobile 
+          ? 'fixed bottom-0 left-0 right-0 w-full animate-slide-up rounded-t-2xl' 
+          : 'absolute rounded-md border border-gray-400 w-64 m-3'}`}
       style={{
-        left: `${formPosition.x}px`,
-        top: `${formPosition.y}px`,
+        left: isMobile ? undefined : `${formPosition.x}px`,
+        top: isMobile ? undefined : `${formPosition.y}px`,
         zIndex: 20,
       }}
     >
-      <form onSubmit={onSubmit} className="p-4 space-y-4">
+      {/* Mobile handle */}
+      {isMobile && (
+        <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-3" />
+      )}
+
+      <form onSubmit={onSubmit} className={`space-y-4 ${isMobile ? 'p-6' : 'p-4'}`}>
         <div className="space-y-4">
           {/* Name Field */}
           <div className="space-y-1">

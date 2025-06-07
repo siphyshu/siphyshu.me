@@ -124,20 +124,32 @@ const HandprintCanvasDev = ({ className }) => {
     const clickX = e.clientX;
     const clickY = e.clientY;
     const viewportPadding = 10;
+
+    // Check if we're on mobile (sm breakpoint and below)
+    const isMobile = window.innerWidth < 640; // 640px is Tailwind's sm breakpoint
   
-    let formX = clickX + 10;
-    let formY = clickY + 10;
-  
-    if (formX + formWidth > window.innerWidth - viewportPadding) {
-      formX = clickX - formWidth - 10;
+    let formX, formY;
+    
+    if (isMobile) {
+      // On mobile, position at bottom center
+      formX = (window.innerWidth - formWidth) / 2;
+      formY = window.innerHeight - formHeight - viewportPadding;
+    } else {
+      // Desktop behavior remains the same
+      formX = clickX + 10;
+      formY = clickY + 10;
+    
+      if (formX + formWidth > window.innerWidth - viewportPadding) {
+        formX = clickX - formWidth - 10;
+      }
+    
+      if (formY + formHeight > window.innerHeight - viewportPadding) {
+        formY = clickY - formHeight - 10;
+      }
+    
+      formX = Math.max(viewportPadding, Math.min(formX, window.innerWidth - formWidth - viewportPadding));
+      formY = Math.max(viewportPadding, Math.min(formY, window.innerHeight - formHeight - viewportPadding));
     }
-  
-    if (formY + formHeight > window.innerHeight - viewportPadding) {
-      formY = clickY - formHeight - 10;
-    }
-  
-    formX = Math.max(viewportPadding, Math.min(formX, window.innerWidth - formWidth - viewportPadding));
-    formY = Math.max(viewportPadding, Math.min(formY, window.innerHeight - formHeight - viewportPadding));
   
     dispatch({
       type: "SET_TEMP_HANDPRINT",
@@ -153,6 +165,9 @@ const HandprintCanvasDev = ({ className }) => {
       type: "SET_FORM_POSITION",
       payload: { x: formX, y: formY },
     });
+
+    // Hide cursor when form opens
+    dispatch({ type: "SET_SHOW_CURSOR", payload: false });
   };  
 
   const handleFormSubmit = async (e) => {
