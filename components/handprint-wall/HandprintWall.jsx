@@ -381,7 +381,18 @@ const HandprintCanvasDev = ({ className }) => {
                       ...labelStyle,
                       transform: `${labelStyle.transform || ""}`,
                     }}
-                  >
+                    >
+                    {handprint.color === 'paw' && (
+                      <div className="mt-2">
+                        <Image
+                          src="/images/santa.jpg"
+                          width={90}
+                          height={50}
+                          alt="Santa (Billu), My Cat"
+                          className="pb-1"
+                        />
+                      </div>
+                    )}
                     {handprint.name}
                     {handprint.link && (
                       <span className="ml-1 text-xs">
