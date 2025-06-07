@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import HandprintCanvasDev from "@/components/handprint-wall/HandprintCanvasDev";
+import HandprintWall from "@/components/handprint-wall/HandprintWall";
 import HeaderSection2 from "@/components/hero/HeaderSection2";
 import NavBar from "@/components/ui/NavBar";
 import ProjectGallery from "@/components/projects/ProjectGallery";
@@ -44,7 +44,7 @@ export default function Home() {
       {/* Interactive Artwork - Hide when searching */}
       {!isSearching && (
         <div className={`mx-auto my-8`}>
-          <HandprintCanvasDev className={`${frameStyle}`}/>
+          <HandprintWall className={`${frameStyle}`}/>
         </div>
       )}
 

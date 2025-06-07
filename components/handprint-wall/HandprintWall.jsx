@@ -22,9 +22,6 @@ const HandprintCanvasDev = ({ className }) => {
 
   useEffect(() => {
     fetchHandprints();
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -71,18 +68,6 @@ const HandprintCanvasDev = ({ className }) => {
       });
     }
   }, [state.formSelectedColor]);
-  
-  const handleResize = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const width = Math.min(Math.max(document.body.clientWidth, MIN_WIDTH), MAX_WIDTH) - CANVAS_PADDING;
-    
-    dispatch({
-      type: "SET_CANVAS_SIZE",
-      payload: { width, height: MIN_HEIGHT },
-    });
-  };
 
   const fetchHandprints = async () => {
     try {
@@ -115,8 +100,8 @@ const HandprintCanvasDev = ({ className }) => {
       dispatch({ type: "SET_CURSOR_POSITION", payload: { x, y } });
     
       const isOverHandprint = state.handprints.some((handprint) => {
-        const handprintX = (handprint.x / 100) * state.canvasSize.width;
-        const handprintY = (handprint.y / 100) * state.canvasSize.height;
+        const handprintX = (handprint.x / 100) * rect.width;
+        const handprintY = (handprint.y / 100) * rect.height;
         return Math.abs(x - handprintX) < 15 && Math.abs(y - handprintY) < 15;
       });
   
@@ -157,8 +142,8 @@ const HandprintCanvasDev = ({ className }) => {
     dispatch({
       type: "SET_TEMP_HANDPRINT",
       payload: {
-        x: (x / state.canvasSize.width) * 100,
-        y: (y / state.canvasSize.height) * 100,
+        x: (x / rect.width) * 100,
+        y: (y / rect.height) * 100,
         color: state.formSelectedColor || state.selectedColor,
         angle: Math.random() * 120 - 60,
       },
@@ -267,21 +252,14 @@ const HandprintCanvasDev = ({ className }) => {
       </p> */}
   
       {/* Canvas Container */}
-      <div 
-        className={`relative ${className}`}
-        style={{
-          width: `${state.canvasSize.width}px`,
-          
-        }}
-      >
+      <div className={`relative w-full max-w-[950px] min-w-[300px] ${className}`}>
         {/* Handprint Layer */}
         <div
           ref={canvasRef}
-          className={`bg-gray-100 overflow-hidden relative w-full ${
+          className={`bg-gray-100 overflow-hidden relative w-full aspect-[3.5/1] min-h-[200px] ${
             state.showCursor ? 'cursor-none' : ''
           }`}
           style={{
-            height: `${state.canvasSize.height}px`,
             backgroundImage: 'url(/images/canvasbg2.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -296,7 +274,7 @@ const HandprintCanvasDev = ({ className }) => {
         >
           {/* White overlay */}
           <div 
-            className="absolute inset-0 bg-white bg-opacity-40 pointer-events-none"
+            className="absolute inset-0 bg-white bg-opacity-30 pointer-events-none"
             style={{ zIndex: 0 }}
           />  
           
@@ -306,13 +284,11 @@ const HandprintCanvasDev = ({ className }) => {
             .map((handprint, index) => (
               <div
                 key={`handprint-${index}`}
-                className={`absolute ${handprint.link ? 'cursor-pointer' : 'cursor-default'}`}
+                className={`absolute ${handprint.link ? 'cursor-pointer' : 'cursor-default'} w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]`}
                 style={{
                   left: `${handprint.x}%`,
                   top: `${handprint.y}%`,
                   transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
-                  width: '30px',
-                  height: '30px',
                 }}
                 onMouseEnter={() =>
                   dispatch({ type: "SET_HOVERED_HANDPRINT", payload: handprint })
@@ -332,11 +308,7 @@ const HandprintCanvasDev = ({ className }) => {
                   width={30}
                   height={30}
                   alt=""
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                  }}
-                  className="select-none"
+                  className="w-full h-full select-none"
                 />
               </div>
             ))}
@@ -345,15 +317,12 @@ const HandprintCanvasDev = ({ className }) => {
           {/* Cursor */}
           {state.showCursor && state.isMouseInside && (
             <div
-              className="absolute pointer-events-none"
+              className="absolute pointer-events-none w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]"
               style={{
                 left: `${state.cursorPosition.x}px`,
                 top: `${state.cursorPosition.y}px`,
                 transform: "translate(-50%, -50%)",
                 zIndex: 30,
-                // Prevent image scaling
-                width: "30px",
-                height: "30px",
               }}
             >
               <Image
@@ -361,10 +330,7 @@ const HandprintCanvasDev = ({ className }) => {
                 width={30}
                 height={30}
                 alt="Cursor"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
+                className="w-full h-full"
               />
             </div>
           )}

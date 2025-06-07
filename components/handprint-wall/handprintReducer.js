@@ -7,18 +7,12 @@ export const COLORS = {
   skin: "#F4D0B5",
 };
 
-export const MIN_WIDTH = 300;
-export const MAX_WIDTH = 950;
-export const MIN_HEIGHT = 250;
-export const CANVAS_PADDING = 50;
-
 export const initialState = {
   handprints: [],
   hoveredHandprint: null,
   formPosition: null,
   tempHandprint: null,
   showCursor: true,
-  canvasSize: { width: MIN_WIDTH, height: MIN_HEIGHT },
   formName: "",
   formLink: "",
   selectedColor: Object.keys(COLORS)[Math.floor(Math.random() * Object.keys(COLORS).length)],
@@ -43,8 +37,6 @@ export function reducer(state, action) {
       return { ...state, showCursor: action.payload };
     case "SET_CURSOR_POSITION":
       return { ...state, cursorPosition: action.payload };  
-    case "SET_CANVAS_SIZE":
-      return { ...state, canvasSize: action.payload };
     case "SET_FORM_NAME":
       return { ...state, formName: action.payload };
     case "SET_FORM_LINK":
