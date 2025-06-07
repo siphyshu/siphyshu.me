@@ -16,14 +16,14 @@ const LINKS = [
     imgAlt: "Twitter",
     icon: FaTwitterSquare,
   },
-  {
-    href: "https://siphyshu.medium.com",
-    text: "Blog",
-    imgSrc: "/icons/medium_small.png",
-    imgAlt: "Medium",
-    // icon: FaMedium,
-    icon: FaRssSquare,
-  },
+  // {
+  //   href: "https://siphyshu.medium.com",
+  //   text: "Blog",
+  //   imgSrc: "/icons/medium_small.png",
+  //   imgAlt: "Medium",
+  //   // icon: FaMedium,
+  //   icon: FaRssSquare,
+  // },
   {
     href: "https://linkedin.com/in/jaiyank-saxena",
     text: "LinkedIn",

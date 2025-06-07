@@ -48,7 +48,7 @@ export default function ArticleItem({
                     )}
                     <h2 className="text-black prose prose-md md:prose-lg leading-tight md:leading-loose max-w-none mt-2 md:mt-1">{title}</h2>
                     <div className="mt-2 md:mt-0">
-                        <div className="text-gray prose prose-sm leading-snug">
+                        <div className="text-gray prose prose-sm leading-snug text-justify">
                             <ReactMarkdown>{subtitle}</ReactMarkdown>
                         </div>
                     </div>

@@ -95,7 +95,7 @@ export default function ProjectCard({
                     </div>
 
                     {/* Description */}
-                    <div className="text-gray mt-4 line-clamp-3 overflow-hidden prose prose-sm">
+                    <div className="text-gray mt-4 line-clamp-3 overflow-hidden prose prose-sm text-justify">
                         <ReactMarkdown>{description}</ReactMarkdown>
                     </div>
                 </div>
