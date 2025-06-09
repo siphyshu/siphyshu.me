@@ -92,7 +92,7 @@ export default function Footer() {
             setIsBlinking(true)
             setTimeout(() => {
                 setIsBlinking(false)
-                setTimeout(blink, Math.random() * 2000 + 8000)
+                setTimeout(blink, Math.random() * 2000 + 6000)
             }, 150)
         }
 
