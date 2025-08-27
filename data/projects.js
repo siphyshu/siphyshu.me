@@ -31,6 +31,18 @@ export const projects = [
         },
         tags: ["web", "nextjs", "wip"],
     },
+    {
+        id: 10,
+        title: "scattr",
+        description: "Generate visually rich scattered layouts in seconds. Uses the poisson disc sampling algorithm for a natural layout.",
+        thumbnail: "/thumbnails/projects/scattr-thumbnail.png",
+        links: {
+            "external": "https://scattr.siphyshu.me/",
+            "github": "https://github.com/siphyshu/scattr"
+        },
+        tags: ["web", "javascript", "tailwindcss"],
+        hiddentags: ["html", "css"]
+    },
     { 
         id: 1, 
         title: "snake-R4", 
