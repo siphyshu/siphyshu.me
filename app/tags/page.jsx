@@ -29,7 +29,7 @@ const tagColorVariants = {
 // ---------------------------------------------------------------------
 // Domain & Technology Tags with vibe-appropriate colors assigned
 // ---------------------------------------------------------------------
-export const tags = {
+const tags = {
   // Domain Specific
   "web": { name: "web", color: "blue" },
   "mobile": { name: "mobile", color: "cyan" },
