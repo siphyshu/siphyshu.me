@@ -38,3 +38,4 @@ next-env.d.ts
 # unpublished data
 _projects.js
 _articles.js
+.env*
