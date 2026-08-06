@@ -61,28 +61,24 @@ export default function Footer() {
     }, [])
 
     useEffect(() => {
-        if (!isAwake) {
-            // Start continuous Z animation when sleeping
-            zInterval.current = setInterval(() => {
-                setZPositions(prev => {
-                    // Add new Z
-                    const newZ = { id: Date.now(), offset: Math.random() * 7 + 1 }
-                    // Keep only last 4 Z's
-                    return [...prev, newZ].slice(-4)
-                })
-            }, 800)
-        } else {
-            // Clear Z animation when awake
-            if (zInterval.current) {
-                clearInterval(zInterval.current)
-            }
-            setZPositions([])
+        if (isAwake) {
+            return
         }
 
+        // Start continuous Z animation while sleeping
+        zInterval.current = setInterval(() => {
+            setZPositions(prev => {
+                // Add new Z
+                const newZ = { id: Date.now(), offset: Math.random() * 7 + 1 }
+                // Keep only last 4 Z's
+                return [...prev, newZ].slice(-4)
+            })
+        }, 800)
+
+        // Runs when waking up (or unmounting): stop the interval and clear the Z's
         return () => {
-            if (zInterval.current) {
-                clearInterval(zInterval.current)
-            }
+            clearInterval(zInterval.current)
+            setZPositions([])
         }
     }, [isAwake])
 

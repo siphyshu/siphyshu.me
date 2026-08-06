@@ -7,12 +7,11 @@ import { useState, useEffect } from 'react'
 import LinkPanel from "@/components/hero/LinkPanel";
 
 const TextMorph = ({ targetText, isAnimating }) => {
-    const [displayText, setDisplayText] = useState(targetText);
+    const [scrambledText, setScrambledText] = useState(targetText);
     const characters = 'abcdefghijklmnopqrstuvwxyz';
-    
+
     useEffect(() => {
         if (!isAnimating) {
-            setDisplayText(targetText);
             return;
         }
 
@@ -35,7 +34,7 @@ const TextMorph = ({ targetText, isAnimating }) => {
 
         const interval = setInterval(() => {
             if (steps >= maxSteps) {
-                setDisplayText(targetText);
+                setScrambledText(targetText);
                 clearInterval(interval);
                 return;
             }
@@ -58,14 +57,14 @@ const TextMorph = ({ targetText, isAnimating }) => {
                 })
                 .join('');
 
-            setDisplayText(`${scrambled} ${emojiPart}`);
+            setScrambledText(`${scrambled} ${emojiPart}`);
             steps++;
         }, 70); // Adjusted timing for smoother animation
 
         return () => clearInterval(interval);
     }, [targetText, isAnimating]);
 
-    return displayText;
+    return isAnimating ? scrambledText : targetText;
 };
 
 const HeaderSection = () => {
