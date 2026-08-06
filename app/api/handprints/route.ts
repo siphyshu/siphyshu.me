@@ -55,10 +55,12 @@ export async function POST(request: Request) {
     };
     const result = await db.collection(COLLECTION).insertOne(handprint);
 
-    // Bust the cache for everyone, not just this submitter.
-    // "max" preserves the old single-arg behavior (immediate, full invalidation).
-    // updateTag() is Next 16's alternative but is Server-Action-only; this is a Route Handler.
-    revalidateTag("handprints", "max");
+    // Bust the cache for everyone immediately, not just the submitter.
+    // profile "max" (Next 16's default recommendation) is stale-while-revalidate,
+    // NOT immediate — it wouldn't show the new handprint until the next background
+    // revisit. { expire: 0 } is Next's documented pattern for exactly this case:
+    // an external request (this POST) needing tagged data to expire right away.
+    revalidateTag("handprints", { expire: 0 });
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

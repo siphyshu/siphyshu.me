@@ -12,7 +12,6 @@ if (!uri) {
 // module on every save) reuses the existing connection instead of leaking
 // a new one each time.
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 

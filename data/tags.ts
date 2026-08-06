@@ -1,11 +1,4 @@
-"use client";
-
-import React from "react";
-
-// ---------------------------------------------------------------------
-// Tag Color Variants (base palette)
-// ---------------------------------------------------------------------
-const tagColorVariants = {
+export const tagColorVariants = {
   red: "text-red-500 border-red-600 transition-colors duration-200 hover:bg-red-50 hover:border-red-500 cursor-pointer",
   coral: "text-[hsl(12,80%,50%)] border-[hsl(12,80%,45%)] transition-colors duration-200 hover:bg-[hsl(12,80%,95%)] hover:border-[hsl(12,80%,50%)] cursor-pointer",
   orange: "text-orange-500 border-orange-600 transition-colors duration-200 hover:bg-orange-50 hover:border-orange-500 cursor-pointer",
@@ -24,12 +17,20 @@ const tagColorVariants = {
   rose: "text-rose-500 border-rose-600 transition-colors duration-200 hover:bg-rose-50 hover:border-rose-500 cursor-pointer",
   slate: "text-slate-500 border-slate-600 transition-colors duration-200 hover:bg-slate-50 hover:border-slate-500 cursor-pointer",
   zinc: "text-zinc-500 border-zinc-600 transition-colors duration-200 hover:bg-zinc-50 hover:border-zinc-500 cursor-pointer",
-};
+} as const;
 
-// ---------------------------------------------------------------------
-// Domain & Technology Tags with vibe-appropriate colors assigned
-// ---------------------------------------------------------------------
-const tags = {
+export type TagColor = keyof typeof tagColorVariants;
+
+export interface Tag {
+  name: string;
+  color: TagColor;
+  special?: boolean;
+}
+
+export const tags: Record<string, Tag> = {
+  // Status
+  "wip": { name: "ongoing", color: "emerald", special: true },
+
   // Domain Specific
   "web": { name: "web", color: "blue" },
   "mobile": { name: "mobile", color: "cyan" },
@@ -43,6 +44,8 @@ const tags = {
   "automation": { name: "automation", color: "orange" },
   "electronics": { name: "electronics", color: "green" },
   "hardware": { name: "hardware", color: "zinc" },
+  "ocr": { name: "ocr", color: "green" },
+  "cli": { name: "cli", color: "emerald" },
 
   // Tools
   "docker": { name: "docker", color: "blue" },
@@ -64,7 +67,7 @@ const tags = {
   "tailwindcss": { name: "tailwindcss", color: "teal" },
   "flutter": { name: "flutter", color: "indigo" },
   "electron": { name: "electron", color: "cyan" },
-  
+
   // Languages
   "python": { name: "python", color: "blue" },
   "javascript": { name: "javascript", color: "yellow" },
@@ -74,47 +77,3 @@ const tags = {
   "go": { name: "go", color: "cyan" },
   "elixir": { name: "elixir", color: "lavender" },
 };
-
-// ---------------------------------------------------------------------
-// Convert the tags object into an array for rendering
-// ---------------------------------------------------------------------
-const tagList = Object.values(tags);
-
-// ---------------------------------------------------------------------
-// Page Component
-// ---------------------------------------------------------------------
-export default function TagShowcasePage() {
-  return (
-    <div className="min-h-screen bg-gray-50 p-8 space-y-12">
-      {/* Section 1: Base Color Palette */}
-      <section>
-        <h1 className="text-3xl font-bold mb-6">Base Color Palette</h1>
-        <div className="flex mt-2 gap-2 flex-wrap max-w-[500px]">
-          {Object.keys(tagColorVariants).map((color, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 border rounded-full text-[10px] ${tagColorVariants[color]}`}
-            >
-              {color}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Section 2: Tag Showcase */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">Tag Showcase</h2>
-        <div className="flex mt-2 gap-2 flex-wrap max-w-[500px]">
-          {tagList.map((tag, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 border rounded-full text-[10px] ${tagColorVariants[tag.color]}`}
-            >
-              {tag.name}
-            </span>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
