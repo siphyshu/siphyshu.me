@@ -56,7 +56,9 @@ export async function POST(request: Request) {
     const result = await db.collection(COLLECTION).insertOne(handprint);
 
     // Bust the cache for everyone, not just this submitter.
-    revalidateTag("handprints");
+    // "max" preserves the old single-arg behavior (immediate, full invalidation).
+    // updateTag() is Next 16's alternative but is Server-Action-only; this is a Route Handler.
+    revalidateTag("handprints", "max");
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
