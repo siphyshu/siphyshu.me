@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { MouseEvent, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { TempHandprint } from "./useCanvasPlacement";
-import HandprintMarker from "./HandprintMarker";
+import HandprintMarker, { HandprintLabel } from "./HandprintMarker";
 
 interface HandprintCanvasProps {
   className?: string;
@@ -67,7 +67,6 @@ export default function HandprintCanvas({
           <HandprintMarker
             key={index}
             handprint={handprint}
-            isHovered={handprint === hoveredHandprint}
             onHover={() => onHoverHandprint(handprint)}
             onLeave={() => onHoverHandprint(null)}
           />
@@ -102,6 +101,16 @@ export default function HandprintCanvas({
           >
             <p className="text-sm font-serif">{handprints.length} were here</p>
           </div>
+        )}
+      </div>
+
+      {/* Tooltip layer — sits outside the overflow-hidden canvas box (but
+          in the same coordinate space, via inset-0) so a label can pop up
+          in its natural spot without being cropped by the frame. Only the
+          real, named handprints get a label; the temp preview never does. */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
+        {hoveredHandprint && "name" in hoveredHandprint && (
+          <HandprintLabel handprint={hoveredHandprint} />
         )}
       </div>
     </div>
