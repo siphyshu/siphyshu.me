@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 import LinkPanel from "@/components/hero/LinkPanel";
+import { getAge } from "@/lib/age";
 
 const TextMorph = ({ targetText, isAnimating }) => {
     const [scrambledText, setScrambledText] = useState(targetText);
@@ -124,7 +125,7 @@ const HeaderSection = () => {
                     </p>
 
                     <p className="text-sm md:text-base mb-1 text-gray-500">
-                        21 y/o{" "}
+                        {getAge()} y/o{" "}
                         <Image
                             src="/icons/india.png"
                             alt="India flag"

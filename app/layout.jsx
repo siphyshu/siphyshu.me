@@ -1,11 +1,11 @@
 import "./globals.css";
 import { SearchProvider } from "@/components/search/SearchContext";
 import Footer from "@/components/ui/Footer";
+import { getAge } from "@/lib/age";
 
 export const metadata = {
   title: "siphyshu // jaiyank",
-  description:
-    "Personal website of Jaiyank aka Siphyshu. 20y/o computer science student from India.",
+  description: `Personal website of Jaiyank aka Siphyshu. ${getAge()}y/o computer science student from India.`,
 };
 
 export default function RootLayout({ children }) {
