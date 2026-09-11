@@ -99,7 +99,6 @@ const SearchResults = () => {
                                     subtitle={article.subtitle}
                                     thumbnail={article.thumbnail}
                                     link={article.link}
-                                    topics={article.topics}
                                 />
                                 {index < filteredArticles.length - 1 && (
                                     <hr className="mt-6 border-gray-200" />

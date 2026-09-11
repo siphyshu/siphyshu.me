@@ -35,10 +35,6 @@ export default function HandprintCanvas({
   onCanvasHover,
   onCanvasLeave,
 }: HandprintCanvasProps) {
-  const allMarkers = [...handprints, tempHandprint].filter(
-    (h): h is Handprint | TempHandprint => h !== null
-  );
-
   return (
     <div className={`relative w-full max-w-[950px] min-w-[300px] ${className ?? ""}`}>
       <div
@@ -62,15 +58,27 @@ export default function HandprintCanvas({
           style={{ zIndex: 0 }}
         />
 
-        {/* Handprints (+ live temp preview) */}
-        {allMarkers.map((handprint, index) => (
+        {/* Handprints (+ live temp preview). Rendered as two passes rather
+            than one concatenated list so each real print keys off its own id
+            and the preview gets a fixed key of its own — an index key over the
+            combined array hands the preview's identity to a real print the
+            moment an optimistic insert shifts the list. */}
+        {handprints.map((handprint) => (
           <HandprintMarker
-            key={index}
+            key={handprint.id}
             handprint={handprint}
             onHover={() => onHoverHandprint(handprint)}
             onLeave={() => onHoverHandprint(null)}
           />
         ))}
+        {tempHandprint && (
+          <HandprintMarker
+            key="temp-preview"
+            handprint={tempHandprint}
+            onHover={() => onHoverHandprint(tempHandprint)}
+            onLeave={() => onHoverHandprint(null)}
+          />
+        )}
 
         {/* Cursor */}
         {showCursor && isMouseInside && (

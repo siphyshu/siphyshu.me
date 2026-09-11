@@ -7,9 +7,8 @@ export default function ArticleItem({
     date,
     title, 
     subtitle, 
-    thumbnail = "/thumbnails/articles/placeholder-thumbnail.png", 
+    thumbnail = "/thumbnails/articles/placeholder-thumbnail.png",
     link,
-    topics = []
 }) {
     // Function to format the date
     const formatDate = (dateString) => {

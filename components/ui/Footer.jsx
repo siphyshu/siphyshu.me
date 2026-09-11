@@ -9,7 +9,6 @@ export default function Footer() {
     const catRef = useRef(null)
     const zInterval = useRef(null)
     const sleepTimeout = useRef(null)
-    const audioRef = useRef(null)
     const lastMeowTime = useRef(0)
     const MEOW_COOLDOWN = 1000 // 1 second cooldown
 
@@ -83,17 +82,28 @@ export default function Footer() {
     }, [isAwake])
 
     useEffect(() => {
+        if (!isAwake) return
+
+        // The blink chain is setTimeout -> setState -> setTimeout, so it has to
+        // be cancellable from the outside or it keeps scheduling after unmount.
+        let timeoutId
+        let cancelled = false
+
         const blink = () => {
-            if (!isAwake) return
+            if (cancelled) return
             setIsBlinking(true)
-            setTimeout(() => {
+            timeoutId = setTimeout(() => {
+                if (cancelled) return
                 setIsBlinking(false)
-                setTimeout(blink, Math.random() * 2000 + 6000)
+                timeoutId = setTimeout(blink, Math.random() * 2000 + 6000)
             }, 150)
         }
 
-        if (isAwake) {
-            blink()
+        blink()
+
+        return () => {
+            cancelled = true
+            clearTimeout(timeoutId)
         }
     }, [isAwake])
 
@@ -111,7 +121,7 @@ export default function Footer() {
 {' '}/   \/{' '}<br/> 
 (\|||/){' '}
 </pre>
-                    {zPositions.map((z, index) => (
+                    {zPositions.map((z) => (
                         <div 
                             key={z.id}
                             className="absolute -top-4 -right-2 animate-float-z text-gray-300 text-xs font-mono"

@@ -15,7 +15,6 @@ const ArticleList = ({ className }) => {
                             subtitle={article.subtitle}
                             thumbnail={article.thumbnail}
                             link={article.link}
-                            topics={article.topics}
                         />
                         {index < articles.length - 1 && (
                             <hr className="my-4 border-gray-300" />

@@ -1,7 +1,5 @@
 'use client'
 
-import Link from 'next/link';
-
 const NavBar = ({activeTab, setActiveTab}) => {
     return (
         <nav className="mb-8">

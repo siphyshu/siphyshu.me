@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { HANDPRINT_COLORS, type Handprint, type HandprintColor } from "@/lib/schemas/handprint";
+import { FORM_HEIGHT, FORM_WIDTH, MOBILE_BREAKPOINT, VIEWPORT_PADDING } from "./constants";
 
 export interface TempHandprint {
   x: number;
@@ -20,11 +21,6 @@ interface FormPosition {
   x: number;
   y: number;
 }
-
-const FORM_WIDTH = 280;
-const FORM_HEIGHT = 260;
-const VIEWPORT_PADDING = 10;
-const MOBILE_BREAKPOINT = 640; // Tailwind's sm breakpoint
 
 function randomColor(): HandprintColor {
   return HANDPRINT_COLORS[Math.floor(Math.random() * HANDPRINT_COLORS.length)];

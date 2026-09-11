@@ -64,7 +64,10 @@ export default function HandprintMarker({ handprint, onHover, onLeave }: Handpri
       onMouseLeave={onLeave}
       onClick={(e) => {
         e.stopPropagation();
-        if (link) window.open(link, "_blank");
+        // Links here are visitor-submitted, so the opened tab must not get a
+        // window.opener handle back to this one. Unlike <a target="_blank">,
+        // window.open() does not imply noopener.
+        if (link) window.open(link, "_blank", "noopener,noreferrer");
       }}
     >
       <Image

@@ -11,7 +11,11 @@ const getHandprints = unstable_cache(
     const client = await clientPromise;
     const db = client.db(DB_NAME);
     const documents = await db.collection(COLLECTION).find({}).toArray();
-    return documents.map(({ _id, ...rest }) => rest as Handprint);
+    // Expose _id as a plain string `id` rather than dropping it — the client
+    // needs a stable identity per print for React keys and optimistic rollback.
+    return documents.map(
+      ({ _id, ...rest }) => ({ ...rest, id: _id.toString() }) as Handprint
+    );
   },
   ["handprints"],
   { revalidate: 60, tags: ["handprints"] }
@@ -49,7 +53,8 @@ export async function POST(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
-    const handprint: Handprint = {
+    // No `id` here: Mongo assigns _id on insert, and GET derives `id` from it.
+    const handprint: Omit<Handprint, "id"> = {
       ...parsed.data,
       timestamp: new Date().toISOString(),
     };

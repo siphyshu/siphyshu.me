@@ -28,7 +28,9 @@ export function useHandprints() {
   }, []);
 
   const addHandprint = async (input: HandprintInput): Promise<boolean> => {
-    const optimistic: Handprint = { ...input };
+    // Temporary client-side id so the optimistic print has a stable React key
+    // until the next GET replaces it with the real Mongo-derived one.
+    const optimistic: Handprint = { ...input, id: `optimistic-${crypto.randomUUID()}` };
     setHandprints((prev) => [...prev, optimistic]);
 
     try {
@@ -41,7 +43,7 @@ export function useHandprints() {
       return true;
     } catch (error) {
       console.error("Error adding handprint:", error);
-      setHandprints((prev) => prev.filter((h) => h !== optimistic));
+      setHandprints((prev) => prev.filter((h) => h.id !== optimistic.id));
       return false;
     }
   };

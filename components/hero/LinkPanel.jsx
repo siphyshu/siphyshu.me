@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FaGithub, FaMedium, FaLinkedin, FaTwitterSquare, FaRssSquare } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitterSquare } from "react-icons/fa";
 
 const LINKS = [
   {

@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-// The 6 colors selectable in the form's color picker (see
-// components/handprint-wall/handprintReducer.js COLORS). "paw" also exists
-// in public/handprints/ as a one-off Santa easter egg inserted directly in
-// the database, not through this API, so it's intentionally not part of the
-// set POST accepts.
+// The 6 colors selectable in the form's color picker (rendered by
+// components/handprint-wall/HandprintForm.tsx). "paw" also exists in
+// public/handprints/ as a one-off Santa easter egg inserted directly in the
+// database, not through this API, so it's intentionally not part of the set
+// POST accepts.
 export const HANDPRINT_COLORS = [
   "blue",
   "aqua",
@@ -37,7 +37,12 @@ export type HandprintInput = z.infer<typeof handprintInputSchema>;
 // documents like "paw" must still round-trip through reads. `timestamp` is
 // optional because 16 of the 95 documents currently in the DB predate this
 // field being written at all (confirmed via a one-off audit).
+//
+// `id` is the stringified Mongo _id, so the client has a stable React key.
+// It's optimistically generated client-side for a print that hasn't been
+// persisted yet, hence not part of what POST accepts.
 export interface Handprint extends Omit<HandprintInput, "color"> {
+  id: string;
   color: string;
   timestamp?: string;
 }

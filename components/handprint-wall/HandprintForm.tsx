@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type RefObject } from "react";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
+import { MOBILE_BREAKPOINT } from "./constants";
 
 const COLOR_SWATCHES: Record<HandprintColor, string> = {
   blue: "#8AC3FF",
@@ -11,8 +12,6 @@ const COLOR_SWATCHES: Record<HandprintColor, string> = {
   yellow: "#FADFA4",
   skin: "#F4D0B5",
 };
-
-const MOBILE_BREAKPOINT = 500;
 
 export interface HandprintFormSubmitData {
   name: string;
