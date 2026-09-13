@@ -16,16 +16,15 @@ img {
    restore a faded print to full colour in CSS alone — inline styles would
    win over the hover rule and force a re-render to undo.
 
-   `darken` (not `multiply`) is what shows overlap. Multiply compounds the two
-   colours, so two mid-tone hands crossing produced something much darker than
-   either of them and the intersections went nearly black. `darken` takes the
-   darker of the two per channel, so an overlap can never be darker than the
-   darkest hand involved — the layering still reads, but the palette stays
-   inside the colours that are actually on the wall. */
+   No blend mode: overlap is plain occlusion. A later hand simply covers the
+   part of an older one it lands on, the way fresh pigment covers dry. Blend
+   modes were tried first — multiply compounded the colours into near-black
+   intersections, and darken kept the palette honest but tinted every hand
+   against the wall texture. Straight painting keeps each hand its own colour
+   and lets the stacking order do the work. */
 .handprint-marker {
   opacity: var(--hp-opacity, 1);
   filter: saturate(var(--hp-saturate, 1)) sepia(var(--hp-sepia, 0));
-  mix-blend-mode: darken;
   transition:
     opacity 400ms ease,
     filter 400ms ease;
