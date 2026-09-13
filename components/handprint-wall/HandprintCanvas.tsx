@@ -69,6 +69,7 @@ export default function HandprintCanvas({
             key={handprint.id}
             handprint={handprint}
             age={handprint.age}
+            pinned={handprint.pinned}
             onHover={() => onHoverHandprint(handprint)}
             onLeave={() => onHoverHandprint(null)}
           />

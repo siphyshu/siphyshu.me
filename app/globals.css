@@ -31,9 +31,11 @@ img {
     filter 400ms ease;
 }
 
+/* Hover restores a weathered print to how it would look unweathered — which
+   for a pinned print means keeping its boost, not flattening it back to 1. */
 .handprint-marker:hover {
   opacity: 1;
-  filter: saturate(1) sepia(0);
+  filter: saturate(var(--hp-saturate-fresh, 1)) sepia(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -40,17 +40,29 @@ function formatLink(link: string | null | undefined) {
   return link.replace(/^https?:\/\//, "").replace(/^www\./, "");
 }
 
-// How far the oldest print drifts from a brand-new one. Deliberately gentle:
-// pushed harder, the colour drains out of the wall and it reads as washed out
-// rather than aged.
-const AGE_OPACITY_FALLOFF = 0.26;
-const AGE_SATURATE_FALLOFF = 0.24;
-const AGE_SEPIA_MAX = 0.1;
+// Where a fully weathered print bottoms out. Expressed as floors rather than
+// falloffs so the guarantee is readable: nothing on the wall ever renders
+// below WEATHERED_OPACITY, however old it gets. Deliberately gentle — pushed
+// harder, the colour drains out and the wall reads washed out rather than aged.
+const WEATHERED_OPACITY = 0.74;
+const WEATHERED_SATURATION = 0.76;
+const WEATHERED_SEPIA = 0.1;
+
+const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
+
+// A pinned print needs more than just not fading. The weathering range is only
+// 0.74-1.00, so holding one at full colour lifts it by a quarter of a step —
+// invisible against a wall where most prints are already near full. These push
+// it slightly past the baseline so it actually reads as picked out.
+const PINNED_SCALE = 1.14;
+const PINNED_SATURATION = 1.15;
 
 interface HandprintMarkerProps {
   handprint: Handprint | TempHandprint;
   /** 0 = newest, 1 = oldest. The temp preview is always "new". */
   age?: number;
+  /** Held at full colour and picked out slightly. See ./pinned. */
+  pinned?: boolean;
   onHover: () => void;
   onLeave: () => void;
 }
@@ -58,7 +70,13 @@ interface HandprintMarkerProps {
 // The dot itself. Lives inside the canvas's overflow-hidden box, so it
 // stays cropped to the picture frame like the rest of the wall — that
 // clipping is a deliberate part of the look.
-export default function HandprintMarker({ handprint, age = 0, onHover, onLeave }: HandprintMarkerProps) {
+export default function HandprintMarker({
+  handprint,
+  age = 0,
+  pinned = false,
+  onHover,
+  onLeave,
+}: HandprintMarkerProps) {
   const link = "link" in handprint ? handprint.link : undefined;
 
   return (
@@ -68,10 +86,13 @@ export default function HandprintMarker({ handprint, age = 0, onHover, onLeave }
         {
           left: `${handprint.x}%`,
           top: `${handprint.y}%`,
-          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
-          "--hp-opacity": 1 - age * AGE_OPACITY_FALLOFF,
-          "--hp-saturate": 1 - age * AGE_SATURATE_FALLOFF,
-          "--hp-sepia": age * AGE_SEPIA_MAX,
+          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)${
+            pinned ? ` scale(${PINNED_SCALE})` : ""
+          }`,
+          "--hp-opacity": lerp(1, WEATHERED_OPACITY, age),
+          "--hp-saturate": pinned ? PINNED_SATURATION : lerp(1, WEATHERED_SATURATION, age),
+          "--hp-saturate-fresh": pinned ? PINNED_SATURATION : 1,
+          "--hp-sepia": lerp(0, WEATHERED_SEPIA, age),
         } as CSSProperties
       }
       onMouseEnter={onHover}

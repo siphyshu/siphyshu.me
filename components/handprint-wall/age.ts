@@ -1,8 +1,11 @@
 import type { Handprint } from "@/lib/schemas/handprint";
+import { isPinned } from "./pinned";
 
 export interface AgedHandprint extends Handprint {
   /** 0 = looks brand new, 1 = fully weathered. */
   age: number;
+  /** Held at full colour regardless of date. See ./pinned. */
+  pinned: boolean;
 }
 
 const DAY_MS = 86_400_000;
@@ -75,18 +78,25 @@ export function withAges(handprints: Handprint[]): AgedHandprint[] {
 
   return handprints
     .map((h, i) => {
+      const pinned = isPinned(h);
       const t = times[i];
       let age: number;
-      if (known.length === 0) {
-        // No timeline to measure against. Render the wall as current —
-        // uniformly faded hands read as broken, not old.
+      if (pinned || known.length === 0) {
+        // Pinned prints never weather. Also the no-timeline case: nothing to
+        // measure against, and uniformly faded hands read as broken, not old.
         age = 0;
       } else if (t === null) {
         age = weathering(oldestElapsedDays + UNDATED_MARGIN_DAYS);
       } else {
         age = weathering((newest - t) / DAY_MS);
       }
-      return { ...h, age };
+      return { ...h, age, pinned };
     })
-    .sort((a, b) => b.age - a.age);
+    // Oldest first, so newer hands layer over older ones. Pinned prints sort
+    // past everything else rather than relying on their age of 0 — that only
+    // put them level with the newest prints, which could still overlap them.
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? 1 : -1;
+      return b.age - a.age;
+    });
 }
