@@ -1,48 +1,14 @@
-"use client";
+import { notFound } from "next/navigation";
+import TagShowcase from "./TagShowcase";
 
-import { tagColorVariants, tags } from "@/data/tags";
-
-// ---------------------------------------------------------------------
-// Convert the tags object into an array for rendering
-// ---------------------------------------------------------------------
-const tagList = Object.values(tags);
-const colorList = Object.keys(tagColorVariants) as (keyof typeof tagColorVariants)[];
-
-// ---------------------------------------------------------------------
-// Page Component
-// ---------------------------------------------------------------------
-export default function TagShowcasePage() {
-  return (
-    <div className="min-h-screen bg-gray-50 p-8 space-y-12">
-      {/* Section 1: Base Color Palette */}
-      <section>
-        <h1 className="text-3xl font-bold mb-6">Base Color Palette</h1>
-        <div className="flex mt-2 gap-2 flex-wrap max-w-[500px]">
-          {colorList.map((color) => (
-            <span
-              key={color}
-              className={`px-2 py-1 border rounded-full text-[10px] ${tagColorVariants[color]}`}
-            >
-              {color}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Section 2: Tag Showcase */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">Tag Showcase</h2>
-        <div className="flex mt-2 gap-2 flex-wrap max-w-[500px]">
-          {tagList.map((tag, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 border rounded-full text-[10px] ${tagColorVariants[tag.color]}`}
-            >
-              {tag.name}
-            </span>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
+// A palette playground for eyeballing tag colors while editing data/tags.ts —
+// useful locally, but not part of the site. Kept in the repo (it's handy and
+// it's how new tag colors get checked) and 404'd in production rather than
+// deleted or gitignored.
+//
+// The check runs at build time, so the route is simply never generated for a
+// production deploy.
+export default function TagsPage() {
+  if (process.env.NODE_ENV === "production") notFound();
+  return <TagShowcase />;
 }

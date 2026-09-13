@@ -11,20 +11,11 @@ import SearchBar from "@/components/search/SearchBar";
 import SearchResults from "@/components/search/SearchResults";
 import { useSearch } from "@/components/search/SearchContext";
 
+const FRAME_STYLE = "wood-frame-lighter-brown";
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState("projects");
-  const [frameStyle, setFrameStyle] = useState("wood-frame-lighter-brown");
   const { isSearching } = useSearch();
-
-  const cycleFrame = () => {
-    const frames = [
-      "wood-frame-lighter-brown",
-      // "wood-frame-lighter-brown-2",
-    ];
-    const currentIndex = frames.indexOf(frameStyle);
-    const nextIndex = (currentIndex + 1) % frames.length;
-    setFrameStyle(frames[nextIndex]);
-  };
 
   return (
     <>
@@ -44,13 +35,13 @@ export default function Home() {
       {/* Interactive Artwork - Hide when searching */}
       {!isSearching && (
         <div className={`mx-auto my-8`}>
-          <HandprintWall className={`${frameStyle}`}/>
+          <HandprintWall className={FRAME_STYLE}/>
         </div>
       )}
 
       {/* Showcase Section - Hide when searching */}
       {!isSearching && (
-        <div className="max-w-4xl w-full mx-auto mb-16" onClick={cycleFrame}>
+        <div className="max-w-4xl w-full mx-auto mb-16">
           <NavBar 
             activeTab={activeTab}
             setActiveTab={setActiveTab}

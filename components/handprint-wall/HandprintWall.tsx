@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { HandprintInput } from "@/lib/schemas/handprint";
+import { validateLink } from "@/lib/schemas/link";
 import { useHandprints } from "./useHandprints";
 import { useCanvasPlacement } from "./useCanvasPlacement";
 import HandprintCanvas from "./HandprintCanvas";
@@ -36,9 +37,17 @@ export default function HandprintWall({ className }: HandprintWallProps) {
   const handleSubmit = async ({ name, link }: HandprintFormSubmitData) => {
     if (!placement.tempHandprint) return;
 
-    let formattedLink = link;
-    if (link && !link.startsWith("http")) {
-      formattedLink = `https://${link}`;
+    // The form has already blocked an invalid link inline; this re-runs the
+    // same shared validator so the two can't drift, and so a link is never
+    // normalized differently here than the API will normalize it.
+    let normalizedLink: string | null = null;
+    if (link.trim()) {
+      const result = validateLink(link);
+      if (!result.ok) {
+        toast.error(result.reason, TOAST_OPTIONS);
+        return;
+      }
+      normalizedLink = result.value;
     }
 
     const input: HandprintInput = {
@@ -47,7 +56,7 @@ export default function HandprintWall({ className }: HandprintWallProps) {
       angle: placement.tempHandprint.angle,
       color: placement.formSelectedColor,
       name: name || "Anonymous",
-      link: formattedLink || null,
+      link: normalizedLink,
     };
 
     const success = await addHandprint(input);

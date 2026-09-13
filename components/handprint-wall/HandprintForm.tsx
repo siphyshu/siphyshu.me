@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type RefObject } from "react";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
+import { validateLink } from "@/lib/schemas/link";
 import { MOBILE_BREAKPOINT } from "./constants";
 
 const COLOR_SWATCHES: Record<HandprintColor, string> = {
@@ -47,8 +48,22 @@ export default function HandprintForm({
     return () => window.removeEventListener("resize", updateIsMobile);
   }, []);
 
+  // Validated on submit rather than on every keystroke, so the field doesn't
+  // scold you for a half-typed domain.
+  const [linkError, setLinkError] = useState<string | null>(null);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    if (link.trim()) {
+      const result = validateLink(link);
+      if (!result.ok) {
+        setLinkError(result.reason);
+        return;
+      }
+    }
+
+    setLinkError(null);
     onSubmit({ name, link });
   };
 
@@ -96,10 +111,20 @@ export default function HandprintForm({
             <input
               placeholder="e.g. linktr.ee/yourname"
               value={link}
-              onChange={(e) => setLink(e.target.value)}
-              className="w-full px-3 py-2 text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
-              pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
+              onChange={(e) => {
+                setLink(e.target.value);
+                if (linkError) setLinkError(null);
+              }}
+              aria-invalid={linkError !== null}
+              className={`w-full px-3 py-2 text-sm border-b focus:outline-none placeholder-gray-400 bg-transparent ${
+                linkError
+                  ? "border-red-400 focus:border-red-500"
+                  : "border-gray-300 focus:border-blue-500"
+              }`}
             />
+            {linkError && (
+              <p className="text-xs text-red-500 pt-1">{linkError}</p>
+            )}
           </div>
 
           {/* Color Picker */}

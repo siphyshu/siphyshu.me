@@ -7,14 +7,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
-      gridTemplateColumns: {
-        "auto-fit": "repeat(auto-fit, minmax(250px, 1fr))",
-      },
       keyframes: {
         'slide-up': {
           '0%': { transform: 'translateY(100%)' },

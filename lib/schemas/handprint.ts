@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { handprintLinkSchema } from "./link";
 
 // The 6 colors selectable in the form's color picker (rendered by
 // components/handprint-wall/HandprintForm.tsx). "paw" also exists in
@@ -22,7 +23,10 @@ export type HandprintColor = (typeof HANDPRINT_COLORS)[number];
 export const handprintInputSchema = z
   .object({
     name: z.string().trim().min(1).max(40),
-    link: z.url().nullable().optional(),
+    // See ./link — bare z.url() accepts javascript:, data: and file: URLs,
+    // which this endpoint must not store given the value ends up in
+    // window.open on the client.
+    link: handprintLinkSchema.nullable().optional(),
     color: z.enum(HANDPRINT_COLORS),
     x: z.number().min(0).max(100),
     y: z.number().min(0).max(100),
