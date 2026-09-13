@@ -39,3 +39,6 @@ next-env.d.ts
 _projects.js
 _articles.js
 .env*
+
+# local read-only DB snapshot, not for committing
+handprints-snapshot.md

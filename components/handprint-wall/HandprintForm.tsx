@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type RefObject } from "react";
+import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
 import { validateLink } from "@/lib/schemas/link";
 import { MOBILE_BREAKPOINT } from "./constants";
@@ -24,7 +24,9 @@ interface HandprintFormProps {
   formPosition: { x: number; y: number };
   formSelectedColor: HandprintColor;
   onColorSelect: (color: HandprintColor) => void;
-  onSubmit: (data: HandprintFormSubmitData) => void;
+  // May be async — the form awaits it to keep the submit button disabled
+  // until the write actually settles.
+  onSubmit: (data: HandprintFormSubmitData) => void | Promise<void>;
   onCancel: () => void;
 }
 
@@ -51,9 +53,19 @@ export default function HandprintForm({
   // Validated on submit rather than on every keystroke, so the field doesn't
   // scold you for a half-typed domain.
   const [linkError, setLinkError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  // A ref, not the isSubmitting state, is what actually blocks a double
+  // submit: state updates are async, so two clicks landing in the same tick
+  // would both read isSubmitting as false and both fire a POST. The database
+  // has several handprints stored 2-4 times at identical coordinates from
+  // exactly this. The disabled attribute below is the visible half; this is
+  // the half that's race-free.
+  const submittingRef = useRef(false);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
 
     if (link.trim()) {
       const result = validateLink(link);
@@ -64,7 +76,14 @@ export default function HandprintForm({
     }
 
     setLinkError(null);
-    onSubmit({ name, link });
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      await onSubmit({ name, link });
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -154,9 +173,10 @@ export default function HandprintForm({
         <div className="flex flex-col space-y-2">
           <button
             type="submit"
-            className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
+            disabled={isSubmitting}
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400"
           >
-            Imprint!
+            {isSubmitting ? "Imprinting…" : "Imprint!"}
           </button>
           <button
             type="button"
