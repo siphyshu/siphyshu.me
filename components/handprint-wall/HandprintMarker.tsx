@@ -40,8 +40,17 @@ function formatLink(link: string | null | undefined) {
   return link.replace(/^https?:\/\//, "").replace(/^www\./, "");
 }
 
+// How far the oldest print drifts from a brand-new one. Deliberately gentle:
+// pushed harder, the colour drains out of the wall and it reads as washed out
+// rather than aged.
+const AGE_OPACITY_FALLOFF = 0.32;
+const AGE_SATURATE_FALLOFF = 0.3;
+const AGE_SEPIA_MAX = 0.12;
+
 interface HandprintMarkerProps {
   handprint: Handprint | TempHandprint;
+  /** 0 = newest, 1 = oldest. The temp preview is always "new". */
+  age?: number;
   onHover: () => void;
   onLeave: () => void;
 }
@@ -49,17 +58,22 @@ interface HandprintMarkerProps {
 // The dot itself. Lives inside the canvas's overflow-hidden box, so it
 // stays cropped to the picture frame like the rest of the wall — that
 // clipping is a deliberate part of the look.
-export default function HandprintMarker({ handprint, onHover, onLeave }: HandprintMarkerProps) {
+export default function HandprintMarker({ handprint, age = 0, onHover, onLeave }: HandprintMarkerProps) {
   const link = "link" in handprint ? handprint.link : undefined;
 
   return (
     <div
-      className={`absolute ${link ? "cursor-pointer" : "cursor-default"} w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]`}
-      style={{
-        left: `${handprint.x}%`,
-        top: `${handprint.y}%`,
-        transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
-      }}
+      className={`handprint-marker absolute ${link ? "cursor-pointer" : "cursor-default"} w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]`}
+      style={
+        {
+          left: `${handprint.x}%`,
+          top: `${handprint.y}%`,
+          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
+          "--hp-opacity": 1 - age * AGE_OPACITY_FALLOFF,
+          "--hp-saturate": 1 - age * AGE_SATURATE_FALLOFF,
+          "--hp-sepia": age * AGE_SEPIA_MAX,
+        } as CSSProperties
+      }
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       onClick={(e) => {

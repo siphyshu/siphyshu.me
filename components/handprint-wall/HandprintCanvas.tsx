@@ -3,13 +3,14 @@
 import Image from "next/image";
 import type { MouseEvent, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
+import type { AgedHandprint } from "./age";
 import type { TempHandprint } from "./useCanvasPlacement";
 import HandprintMarker, { HandprintLabel } from "./HandprintMarker";
 
 interface HandprintCanvasProps {
   className?: string;
   canvasRef: RefObject<HTMLDivElement | null>;
-  handprints: Handprint[];
+  handprints: AgedHandprint[];
   tempHandprint: TempHandprint | null;
   cursorPosition: { x: number; y: number };
   isMouseInside: boolean;
@@ -67,6 +68,7 @@ export default function HandprintCanvas({
           <HandprintMarker
             key={handprint.id}
             handprint={handprint}
+            age={handprint.age}
             onHover={() => onHoverHandprint(handprint)}
             onLeave={() => onHoverHandprint(null)}
           />

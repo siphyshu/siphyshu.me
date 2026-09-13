@@ -10,6 +10,35 @@ img {
   max-width: unset !important;
 }
 
+/* A handprint's age treatment. The --hp-* values are set per-marker from the
+   print's timestamp; the defaults here are "brand new". Driving it through
+   custom properties (rather than inline opacity/filter) is what lets :hover
+   restore a faded print to full colour in CSS alone — inline styles would
+   win over the hover rule and force a re-render to undo.
+
+   multiply is what makes overlapping hands darken where they cross, the way
+   layered pigment does. The saturation/opacity floors keep the oldest prints
+   present rather than ghostly. */
+.handprint-marker {
+  opacity: var(--hp-opacity, 1);
+  filter: saturate(var(--hp-saturate, 1)) sepia(var(--hp-sepia, 0));
+  mix-blend-mode: multiply;
+  transition:
+    opacity 400ms ease,
+    filter 400ms ease;
+}
+
+.handprint-marker:hover {
+  opacity: 1;
+  filter: saturate(1) sepia(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handprint-marker {
+    transition: none;
+  }
+}
+
 /* Wooden frame around the handprint canvas. */
 .wood-frame-lighter-brown {
   border: 20px solid transparent;
