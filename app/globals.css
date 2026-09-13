@@ -16,13 +16,16 @@ img {
    restore a faded print to full colour in CSS alone — inline styles would
    win over the hover rule and force a re-render to undo.
 
-   multiply is what makes overlapping hands darken where they cross, the way
-   layered pigment does. The saturation/opacity floors keep the oldest prints
-   present rather than ghostly. */
+   `darken` (not `multiply`) is what shows overlap. Multiply compounds the two
+   colours, so two mid-tone hands crossing produced something much darker than
+   either of them and the intersections went nearly black. `darken` takes the
+   darker of the two per channel, so an overlap can never be darker than the
+   darkest hand involved — the layering still reads, but the palette stays
+   inside the colours that are actually on the wall. */
 .handprint-marker {
   opacity: var(--hp-opacity, 1);
   filter: saturate(var(--hp-saturate, 1)) sepia(var(--hp-sepia, 0));
-  mix-blend-mode: multiply;
+  mix-blend-mode: darken;
   transition:
     opacity 400ms ease,
     filter 400ms ease;

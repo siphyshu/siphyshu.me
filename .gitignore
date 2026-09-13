@@ -42,3 +42,4 @@ _articles.js
 
 # local read-only DB snapshot, not for committing
 handprints-snapshot.md
+deleted-handprints-backup.json

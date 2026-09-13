@@ -1,8 +1,38 @@
 import type { Handprint } from "@/lib/schemas/handprint";
 
 export interface AgedHandprint extends Handprint {
-  /** 0 = newest print on the wall, 1 = oldest. */
+  /** 0 = looks brand new, 1 = fully weathered. */
   age: number;
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * How long a print stays completely fresh before it starts to weather.
+ * Without this, only the single most recent print renders at full colour and
+ * everything else is faded to some degree — which is what made the whole wall
+ * look washed out rather than layered.
+ */
+const FRESH_DAYS = 180;
+
+/**
+ * After the fresh window, a print loses half its remaining vividness every
+ * this many days. Decay rather than a linear ramp because the wall's history
+ * is lopsided: most prints cluster in a few bursts, so a linear map crushed
+ * the middle of the distribution into uniform mid-grey. Half-life keeps
+ * recent-ish prints vivid and reserves real fading for the genuinely old.
+ */
+const HALF_LIFE_DAYS = 550;
+
+/**
+ * Weathering for a print, measured against the most recent one on the wall
+ * rather than against today. Anchoring to the newest print means the wall
+ * always has something vivid in it — if the site goes quiet for a year, it
+ * ages gracefully instead of uniformly dimming to nothing.
+ */
+function weathering(elapsedDays: number): number {
+  if (elapsedDays <= FRESH_DAYS) return 0;
+  return 1 - 0.5 ** ((elapsedDays - FRESH_DAYS) / HALF_LIFE_DAYS);
 }
 
 /**
@@ -26,23 +56,19 @@ export function withAges(handprints: Handprint[]): AgedHandprint[] {
   const known = times.filter((t): t is number => t !== null && !Number.isNaN(t));
 
   const newest = known.length ? Math.max(...known) : 0;
-  const oldest = known.length ? Math.min(...known) : 0;
-  const span = newest - oldest;
 
   return handprints
     .map((h, i) => {
       const t = times[i];
       let age: number;
       if (known.length === 0) {
-        // No timeline to interpolate against. Render the wall as current —
+        // No timeline to measure against. Render the wall as current —
         // uniformly faded hands read as broken, not old.
         age = 0;
       } else if (t === null) {
         age = 1;
-      } else if (span === 0) {
-        age = 0;
       } else {
-        age = 1 - (t - oldest) / span;
+        age = weathering((newest - t) / DAY_MS);
       }
       return { ...h, age };
     })

@@ -43,9 +43,9 @@ function formatLink(link: string | null | undefined) {
 // How far the oldest print drifts from a brand-new one. Deliberately gentle:
 // pushed harder, the colour drains out of the wall and it reads as washed out
 // rather than aged.
-const AGE_OPACITY_FALLOFF = 0.32;
-const AGE_SATURATE_FALLOFF = 0.3;
-const AGE_SEPIA_MAX = 0.12;
+const AGE_OPACITY_FALLOFF = 0.26;
+const AGE_SATURATE_FALLOFF = 0.24;
+const AGE_SEPIA_MAX = 0.1;
 
 interface HandprintMarkerProps {
   handprint: Handprint | TempHandprint;
