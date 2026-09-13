@@ -19,10 +19,24 @@ const FRESH_DAYS = 180;
  * After the fresh window, a print loses half its remaining vividness every
  * this many days. Decay rather than a linear ramp because the wall's history
  * is lopsided: most prints cluster in a few bursts, so a linear map crushed
- * the middle of the distribution into uniform mid-grey. Half-life keeps
- * recent-ish prints vivid and reserves real fading for the genuinely old.
+ * the middle of the distribution into uniform mid-grey.
+ *
+ * Has to stay well under the wall's overall span or the curve does nothing.
+ * At 550 days the oldest dated print — 750 days behind the newest — only
+ * reached age 0.51, so every dated print sat in a narrow 0.87-1.00 band and
+ * the only visibly old hands were the undated ones. 300 spreads the dated
+ * prints across a range you can actually see.
  */
-const HALF_LIFE_DAYS = 550;
+const HALF_LIFE_DAYS = 300;
+
+/**
+ * How much older than the oldest dated print to assume an undated one is.
+ * They predate the timestamp field, so "older than everything dated" is all
+ * that's really known. Pinning them to a hard age of 1 put them on the far
+ * side of a visible cliff; placing them just beyond the oldest dated print
+ * keeps the wall one continuous gradient.
+ */
+const UNDATED_MARGIN_DAYS = 90;
 
 /**
  * Weathering for a print, measured against the most recent one on the wall
@@ -45,9 +59,10 @@ function weathering(elapsedDays: number): number {
  * order, which is close to insertion order but not guaranteed to be — sorting
  * here makes the layering actually true rather than incidentally close.
  *
- * The 16 documents that predate the timestamp field are treated as the oldest,
- * which is correct (they are), but flattens them into a single bottom layer
- * rather than a gradient — there's no data to spread them across.
+ * Documents predating the timestamp field share one age just past the oldest
+ * dated print, so they read as the bottom layer without being cut off from
+ * the gradient. They still flatten into a single stratum — there's no data to
+ * spread them across.
  */
 export function withAges(handprints: Handprint[]): AgedHandprint[] {
   const times = handprints.map((h) =>
@@ -56,6 +71,7 @@ export function withAges(handprints: Handprint[]): AgedHandprint[] {
   const known = times.filter((t): t is number => t !== null && !Number.isNaN(t));
 
   const newest = known.length ? Math.max(...known) : 0;
+  const oldestElapsedDays = known.length ? (newest - Math.min(...known)) / DAY_MS : 0;
 
   return handprints
     .map((h, i) => {
@@ -66,7 +82,7 @@ export function withAges(handprints: Handprint[]): AgedHandprint[] {
         // uniformly faded hands read as broken, not old.
         age = 0;
       } else if (t === null) {
-        age = 1;
+        age = weathering(oldestElapsedDays + UNDATED_MARGIN_DAYS);
       } else {
         age = weathering((newest - t) / DAY_MS);
       }
