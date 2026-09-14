@@ -92,7 +92,10 @@ export function useCanvasPlacement(handprints: Handprint[]) {
   useEffect(() => {
     if (!formPosition) return;
 
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
+    // pointerdown, not mousedown: on touch the mouse events are emulated and
+    // only dispatched under conditions that aren't worth relying on, so
+    // dismissing the form by tapping outside it was never dependable.
+    const handlePointerOutside = (e: globalThis.PointerEvent) => {
       if (formRef.current && !formRef.current.contains(e.target as Node)) {
         resetForm();
       }
@@ -101,10 +104,10 @@ export function useCanvasPlacement(handprints: Handprint[]) {
       if (e.key === "Escape") resetForm();
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handlePointerOutside);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handlePointerOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [formPosition]);

@@ -8,10 +8,9 @@ module.exports = {
   theme: {
     extend: {
       keyframes: {
-        'slide-up': {
-          '0%': { transform: 'translateY(100%)' },
-          '100%': { transform: 'translateY(0)' }
-        },
+        // 'slide-up' lived here for the handprint form's entrance. That sheet
+        // is now drag-driven and springs via Motion, and keyframes can't be
+        // interrupted mid-gesture, so the class went with it.
         'float-z': {
           '0%': { 
             transform: 'translateY(10px)',
@@ -28,7 +27,6 @@ module.exports = {
         }
       },
       animation: {
-        'slide-up': 'slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'float-z': 'float-z 3s ease-out forwards'
       }
     },

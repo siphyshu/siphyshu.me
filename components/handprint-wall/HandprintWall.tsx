@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { HandprintInput } from "@/lib/schemas/handprint";
@@ -92,16 +93,42 @@ export default function HandprintWall({ className }: HandprintWallProps) {
         From cave walls to pixels: the human urge to leave a trace endures. 🖐️
       </p>
 
-      {placement.formPosition && (
-        <HandprintForm
-          formRef={placement.formRef}
-          formPosition={placement.formPosition}
-          formSelectedColor={placement.formSelectedColor}
-          onColorSelect={placement.setFormSelectedColor}
-          onSubmit={handleSubmit}
-          onCancel={placement.resetForm}
-        />
-      )}
+      {/* Keeps the sheet mounted long enough to animate out. Without it the
+          form is unmounted the instant formPosition clears and just vanishes,
+          which reads as a glitch next to how deliberately it arrives. */}
+      <AnimatePresence>
+        {placement.formPosition && (
+          <>
+            {/* Scrim behind the mobile sheet. A bottom drawer with nothing
+                behind it leaves the page live, so a touch just outside it
+                scrolls the wall out from under the form. Catching those
+                touches is the job; the tint only makes the modality visible.
+                sm:hidden rather than a JS check — Tailwind's sm breakpoint is
+                640px, the same MOBILE_BREAKPOINT the form switches layout at,
+                and the desktop form is a popover that wants no scrim. */}
+            <motion.div
+              key="scrim"
+              className="fixed inset-0 bg-black/20 sm:hidden"
+              style={{ zIndex: 19, touchAction: "none" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              onClick={placement.resetForm}
+              aria-hidden="true"
+            />
+            <HandprintForm
+              key="sheet"
+              formRef={placement.formRef}
+              formPosition={placement.formPosition}
+              formSelectedColor={placement.formSelectedColor}
+              onColorSelect={placement.setFormSelectedColor}
+              onSubmit={handleSubmit}
+              onCancel={placement.resetForm}
+            />
+          </>
+        )}
+      </AnimatePresence>
 
       <ToastContainer />
     </div>
