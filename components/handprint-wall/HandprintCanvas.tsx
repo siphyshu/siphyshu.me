@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { MouseEvent, RefObject } from "react";
+import type { MouseEvent, PointerEvent, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { AgedHandprint } from "./age";
 import type { TempHandprint } from "./useCanvasPlacement";
@@ -15,11 +15,14 @@ interface HandprintCanvasProps {
   cursorPosition: { x: number; y: number };
   isMouseInside: boolean;
   showCursor: boolean;
-  hoveredHandprint: Handprint | TempHandprint | null;
+  activeHandprint: Handprint | TempHandprint | null;
+  /** Whether the active label was opened by a tap, and so accepts input. */
+  isLabelSticky: boolean;
   onHoverHandprint: (handprint: Handprint | TempHandprint | null) => void;
+  onTapHandprint: (handprint: Handprint | TempHandprint) => void;
   onCanvasClick: (e: MouseEvent<HTMLDivElement>) => void;
-  onCanvasHover: (e: MouseEvent<HTMLDivElement>) => void;
-  onCanvasLeave: () => void;
+  onCanvasPointerMove: (e: PointerEvent<HTMLDivElement>) => void;
+  onCanvasLeave: (e: PointerEvent<HTMLDivElement>) => void;
 }
 
 export default function HandprintCanvas({
@@ -30,10 +33,12 @@ export default function HandprintCanvas({
   cursorPosition,
   isMouseInside,
   showCursor,
-  hoveredHandprint,
+  activeHandprint,
+  isLabelSticky,
   onHoverHandprint,
+  onTapHandprint,
   onCanvasClick,
-  onCanvasHover,
+  onCanvasPointerMove,
   onCanvasLeave,
 }: HandprintCanvasProps) {
   return (
@@ -50,8 +55,8 @@ export default function HandprintCanvas({
           position: "relative",
         }}
         onClick={onCanvasClick}
-        onMouseMove={onCanvasHover}
-        onMouseLeave={onCanvasLeave}
+        onPointerMove={onCanvasPointerMove}
+        onPointerLeave={onCanvasLeave}
       >
         {/* White overlay */}
         <div
@@ -72,6 +77,7 @@ export default function HandprintCanvas({
             pinned={handprint.pinned}
             onHover={() => onHoverHandprint(handprint)}
             onLeave={() => onHoverHandprint(null)}
+            onTap={() => onTapHandprint(handprint)}
           />
         ))}
         {tempHandprint && (
@@ -80,6 +86,7 @@ export default function HandprintCanvas({
             handprint={tempHandprint}
             onHover={() => onHoverHandprint(tempHandprint)}
             onLeave={() => onHoverHandprint(null)}
+            onTap={() => onTapHandprint(tempHandprint)}
           />
         )}
 
@@ -118,10 +125,14 @@ export default function HandprintCanvas({
       {/* Tooltip layer — sits outside the overflow-hidden canvas box (but
           in the same coordinate space, via inset-0) so a label can pop up
           in its natural spot without being cropped by the frame. Only the
-          real, named handprints get a label; the temp preview never does. */}
+          real, named handprints get a label; the temp preview never does.
+
+          The layer stays pointer-events-none; a tapped-open label re-enables
+          input on itself alone, so the rest of the canvas underneath keeps
+          receiving the taps that place a print. */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
-        {hoveredHandprint && "name" in hoveredHandprint && (
-          <HandprintLabel handprint={hoveredHandprint} />
+        {activeHandprint && "name" in activeHandprint && (
+          <HandprintLabel handprint={activeHandprint} interactive={isLabelSticky} />
         )}
       </div>
     </div>

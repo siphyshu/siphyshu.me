@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { HANDPRINT_COLORS, type Handprint, type HandprintColor } from "@/lib/schemas/handprint";
 import { FORM_HEIGHT, FORM_WIDTH, MOBILE_BREAKPOINT, VIEWPORT_PADDING } from "./constants";
 
@@ -35,7 +35,12 @@ export function useCanvasPlacement(handprints: Handprint[]) {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isMouseInside, setIsMouseInside] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
-  const [hoveredHandprint, setHoveredHandprint] = useState<Handprint | TempHandprint | null>(null);
+  // Which print is showing its label, and whether that label was opened by a
+  // tap. One piece of state rather than separate hover/selection so there's no
+  // "hovered and selected at once" case to reconcile; `isLabelSticky` is only
+  // about how it got there and what it takes to close it.
+  const [activeHandprint, setActiveHandprint] = useState<Handprint | TempHandprint | null>(null);
+  const [isLabelSticky, setIsLabelSticky] = useState(false);
   const [formSelectedColor, setFormSelectedColor] = useState<HandprintColor>(randomColor);
 
   // Derived, not stored: the preview always reflects whatever color is
@@ -48,6 +53,40 @@ export function useCanvasPlacement(handprints: Handprint[]) {
     setFormPosition(null);
     setTempHandprintPosition(null);
   };
+
+  const dismissLabel = () => {
+    setActiveHandprint(null);
+    setIsLabelSticky(false);
+  };
+
+  /** Mouse hover. Transient, and never overrides a label opened by a tap. */
+  const hoverHandprint = (handprint: Handprint | TempHandprint | null) => {
+    if (isLabelSticky) return;
+    setActiveHandprint(handprint);
+  };
+
+  /** Touch/pen tap. Holds the label open until something dismisses it. */
+  const tapHandprint = (handprint: Handprint | TempHandprint) => {
+    // Only real, named prints render a label. Letting the temp preview go
+    // sticky would arm a dismiss with nothing on screen to dismiss, and the
+    // next tap on the canvas would be silently eaten.
+    if (!("name" in handprint)) return;
+    setActiveHandprint(handprint);
+    setIsLabelSticky(true);
+  };
+
+  // Escape closes a tapped-open label. Mostly for hybrid devices, where a
+  // keyboard is in reach of something that was opened by touch.
+  useEffect(() => {
+    if (!isLabelSticky) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismissLabel();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isLabelSticky]);
 
   // Click-outside / Escape closes the form.
   useEffect(() => {
@@ -70,7 +109,17 @@ export function useCanvasPlacement(handprints: Handprint[]) {
     };
   }, [formPosition]);
 
-  const handleCanvasHover = (e: MouseEvent<HTMLDivElement>) => {
+  // Pointer events rather than mouse events throughout: touch fires
+  // compatibility mouse events (mouseenter/mouseover/click) with no matching
+  // mouseleave, which is what left labels stuck open. `pointerType` says where
+  // an interaction actually came from, so a hybrid device gets hover from its
+  // trackpad and tap from its screen in the same session, with no device
+  // detection anywhere.
+  const handleCanvasPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    // The custom cursor and its hit-test are meaningless without a real
+    // pointer. Bailing here is also what keeps the per-move O(n) scan off
+    // touch devices entirely.
+    if (e.pointerType !== "mouse") return;
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
 
@@ -96,13 +145,23 @@ export function useCanvasPlacement(handprints: Handprint[]) {
     setShowCursor(!isOverHandprint && !formPosition);
   };
 
-  const handleCanvasLeave = () => {
+  const handleCanvasLeave = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
     setShowCursor(false);
     setCursorPosition({ x: 0, y: 0 });
     setIsMouseInside(false);
   };
 
   const handleCanvasClick = (e: MouseEvent<HTMLDivElement>) => {
+    // A tapped-open label owns the next tap on the canvas: it dismisses rather
+    // than placing a print. Gated on sticky rather than "is anything active" —
+    // with a mouse the pointer sits over a print constantly, and hover state
+    // must never swallow a click.
+    if (isLabelSticky) {
+      dismissLabel();
+      return;
+    }
+
     if (formPosition || !canvasRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
@@ -150,12 +209,14 @@ export function useCanvasPlacement(handprints: Handprint[]) {
     cursorPosition,
     isMouseInside,
     showCursor,
-    hoveredHandprint,
-    setHoveredHandprint,
+    activeHandprint,
+    isLabelSticky,
+    hoverHandprint,
+    tapHandprint,
     formSelectedColor,
     setFormSelectedColor,
     handleCanvasClick,
-    handleCanvasHover,
+    handleCanvasPointerMove,
     handleCanvasLeave,
     resetForm,
   };

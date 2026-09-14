@@ -8,11 +8,17 @@ import type { TempHandprint } from "./useCanvasPlacement";
 const LABEL_MARGIN = 10;
 const VERTICAL_FLIP_THRESHOLD = 20;
 
-function getLabelStyle(handprint: Handprint | TempHandprint): CSSProperties {
+function getLabelStyle(
+  handprint: Handprint | TempHandprint,
+  interactive: boolean
+): CSSProperties {
   const style: CSSProperties = {
     position: "absolute",
     whiteSpace: "nowrap",
-    pointerEvents: "none",
+    // Only a tapped-open label accepts input. A hover label stays inert so it
+    // can't intercept pointer moves meant for the canvas — cursor tracking and
+    // placement both read from events the label would otherwise eat.
+    pointerEvents: interactive ? "auto" : "none",
   };
 
   if (handprint.y < VERTICAL_FLIP_THRESHOLD) {
@@ -63,8 +69,12 @@ interface HandprintMarkerProps {
   age?: number;
   /** Held at full colour and picked out slightly. See ./pinned. */
   pinned?: boolean;
+  /** Mouse only. */
   onHover: () => void;
+  /** Mouse only. */
   onLeave: () => void;
+  /** Touch/pen only — opens the label instead of following the link. */
+  onTap: () => void;
 }
 
 // The dot itself. Lives inside the canvas's overflow-hidden box, so it
@@ -76,6 +86,7 @@ export default function HandprintMarker({
   pinned = false,
   onHover,
   onLeave,
+  onTap,
 }: HandprintMarkerProps) {
   const link = "link" in handprint ? handprint.link : undefined;
 
@@ -95,15 +106,31 @@ export default function HandprintMarker({
           "--hp-sepia": lerp(0, WEATHERED_SEPIA, age),
         } as CSSProperties
       }
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-      onClick={(e) => {
-        e.stopPropagation();
-        // Links here are visitor-submitted, so the opened tab must not get a
-        // window.opener handle back to this one. Unlike <a target="_blank">,
-        // window.open() does not imply noopener.
-        if (link) window.open(link, "_blank", "noopener,noreferrer");
+      // Gating on pointerType is not optional: pointerenter/pointerleave also
+      // fire for touch (on touchstart/touchend), so an ungated handler would
+      // open a label and close it again within the same tap.
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") onHover();
       }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === "mouse") onLeave();
+      }}
+      onPointerUp={(e) => {
+        e.stopPropagation();
+        if (e.pointerType === "mouse") {
+          // Links here are visitor-submitted, so the opened tab must not get a
+          // window.opener handle back to this one. Unlike <a target="_blank">,
+          // window.open() does not imply noopener.
+          if (link) window.open(link, "_blank", "noopener,noreferrer");
+        } else {
+          // Touch has no hover, so the first tap has to be what reveals who
+          // this is. The link moves into the label and is followed from there.
+          onTap();
+        }
+      }}
+      // Keeps the canvas from treating the tail end of a marker interaction as
+      // a click on empty wall. pointerup already did the work.
+      onClick={(e) => e.stopPropagation()}
     >
       <Image
         src={`/handprints/${handprint.color}.svg`}
@@ -122,7 +149,14 @@ export default function HandprintMarker({
 // overflow-hidden frame. A marker dot has a reason to be cropped at the
 // frame edge; a tooltip popping up over the surrounding page doesn't — it's
 // no different from any other tooltip briefly overlaying nearby content.
-export function HandprintLabel({ handprint }: { handprint: Handprint }) {
+export function HandprintLabel({
+  handprint,
+  interactive = false,
+}: {
+  handprint: Handprint;
+  /** Opened by a tap, so the link inside is reachable. See getLabelStyle. */
+  interactive?: boolean;
+}) {
   const { name, link } = handprint;
 
   return (
@@ -136,8 +170,8 @@ export function HandprintLabel({ handprint }: { handprint: Handprint }) {
       }}
     >
       <div
-        className="bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 font-serif pointer-events-none"
-        style={getLabelStyle(handprint)}
+        className="bg-red-50 bg-opacity-2 border border-black text-black px-2 py-1 font-serif"
+        style={getLabelStyle(handprint, interactive)}
       >
         {handprint.color === "paw" && (
           <div className="mt-2">
@@ -151,7 +185,22 @@ export function HandprintLabel({ handprint }: { handprint: Handprint }) {
           </div>
         )}
         {name}
-        {link && <span className="ml-1 text-xs">({formatLink(link)})</span>}
+        {link &&
+          (interactive ? (
+            // A real anchor, not window.open: iOS blocks window.open when it
+            // isn't tied tightly enough to a user gesture, and an anchor is
+            // focusable for free.
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 text-xs underline"
+            >
+              ({formatLink(link)})
+            </a>
+          ) : (
+            <span className="ml-1 text-xs">({formatLink(link)})</span>
+          ))}
       </div>
     </div>
   );

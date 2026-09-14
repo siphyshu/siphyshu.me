@@ -79,10 +79,12 @@ export default function HandprintWall({ className }: HandprintWallProps) {
         cursorPosition={placement.cursorPosition}
         isMouseInside={placement.isMouseInside}
         showCursor={placement.showCursor}
-        hoveredHandprint={placement.hoveredHandprint}
-        onHoverHandprint={placement.setHoveredHandprint}
+        activeHandprint={placement.activeHandprint}
+        isLabelSticky={placement.isLabelSticky}
+        onHoverHandprint={placement.hoverHandprint}
+        onTapHandprint={placement.tapHandprint}
         onCanvasClick={placement.handleCanvasClick}
-        onCanvasHover={placement.handleCanvasHover}
+        onCanvasPointerMove={placement.handleCanvasPointerMove}
         onCanvasLeave={placement.handleCanvasLeave}
       />
 
