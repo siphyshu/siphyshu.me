@@ -5,7 +5,17 @@ import type { CSSProperties } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { TempHandprint } from "./useCanvasPlacement";
 
-const LABEL_MARGIN = 10;
+/**
+ * How close to an edge a print has to be before its label anchors to that edge
+ * instead of centring on the marker.
+ *
+ * Generous, because the label is anchored to the print but is far wider than
+ * it. A label centred on a marker at x=20% runs off the left of the canvas
+ * long before the marker itself gets near it — which is what the old 10%
+ * threshold missed: a 39-character link on a print at x=80% was still being
+ * centred, and ran clean off the right edge.
+ */
+const EDGE_ANCHOR_PCT = 30;
 const VERTICAL_FLIP_THRESHOLD = 20;
 
 function getLabelStyle(
@@ -14,7 +24,14 @@ function getLabelStyle(
 ): CSSProperties {
   const style: CSSProperties = {
     position: "absolute",
+    // One line, always. Wrapping kept the label inside the frame but let it
+    // grow downward into a block covering a third of the wall — worse than the
+    // overflow it fixed. Anything past the width budget below is clipped with
+    // an ellipsis instead; the name leads, so the part that gets cut is the
+    // tail of a URL nobody reads.
     whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     // Only a tapped-open label accepts input. A hover label stays inert so it
     // can't intercept pointer moves meant for the canvas — cursor tracking and
     // placement both read from events the label would otherwise eat.
@@ -29,21 +46,43 @@ function getLabelStyle(
     style.marginBottom = "5px";
   }
 
-  if (handprint.x < LABEL_MARGIN) {
-    style.left = "0";
-  } else if (handprint.x > 100 - LABEL_MARGIN) {
-    style.right = "0";
+  // Percentages below resolve against the full-width wrapper in HandprintLabel,
+  // so each max-width is literally "the canvas space left on the side this
+  // label grows toward". Nothing can overflow the frame regardless of length.
+  const { x } = handprint;
+
+  if (x < EDGE_ANCHOR_PCT) {
+    style.left = `${x}%`;
+    style.maxWidth = `${100 - x}%`;
+  } else if (x > 100 - EDGE_ANCHOR_PCT) {
+    style.right = `${100 - x}%`;
+    style.maxWidth = `${x}%`;
   } else {
-    style.left = "50%";
+    style.left = `${x}%`;
     style.transform = "translateX(-50%)";
+    // Centred, so it grows both ways: the limit is twice the nearer edge.
+    style.maxWidth = `${Math.min(x, 100 - x) * 2}%`;
   }
 
   return style;
 }
 
+/**
+ * Longest link text shown. The full URL still goes in the href — this is only
+ * what's readable. Kept short deliberately: the domain is what tells you where
+ * a link goes, and it comes first, so the characters lost are the tail of a
+ * path or a tracking parameter. This does most of the work; the ellipsis in
+ * getLabelStyle is only the backstop for a long name next to a long link.
+ */
+const MAX_LINK_CHARS = 26;
+
 function formatLink(link: string | null | undefined) {
   if (!link) return "";
-  return link.replace(/^https?:\/\//, "").replace(/^www\./, "");
+  const bare = link
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/$/, "");
+  return bare.length > MAX_LINK_CHARS ? `${bare.slice(0, MAX_LINK_CHARS - 1)}…` : bare;
 }
 
 // Where a fully weathered print bottoms out. Expressed as floors rather than
@@ -160,12 +199,15 @@ export function HandprintLabel({
   const { name, link } = handprint;
 
   return (
+    // Spans the canvas horizontally rather than collapsing to a point at the
+    // marker. It stays zero-height, so the above/below flip is unchanged, but
+    // the label's percentage left/right/max-width now resolve against the
+    // canvas instead of against a 0px-wide box — which is what lets a width
+    // bound exist at all. Horizontal placement moved onto the label itself.
     <div
-      className="absolute"
+      className="absolute inset-x-0"
       style={{
-        left: `${handprint.x}%`,
         top: `${handprint.y}%`,
-        transform: "translate(-50%, -50%)",
         zIndex: 10,
       }}
     >
