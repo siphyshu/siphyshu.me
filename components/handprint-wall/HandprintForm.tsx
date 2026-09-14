@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import { motion, useReducedMotion, type PanInfo } from "motion/react";
+import { useBodyScrollLock } from "./useBodyScrollLock";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
 import { validateLink } from "@/lib/schemas/link";
 import { MOBILE_BREAKPOINT } from "./constants";
@@ -75,6 +76,11 @@ export default function HandprintForm({
 
   const reduceMotion = useReducedMotion();
 
+  // Only the sheet is modal; the desktop popover leaves the page usable. The
+  // lock is what stops iOS scrolling the page to reveal a focused input, which
+  // is what drags the sheet out of alignment with what's actually on screen.
+  useBodyScrollLock(isMobile);
+
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.y > DISMISS_DISTANCE_PX || info.velocity.y > DISMISS_VELOCITY_PX_S) {
       onCancel();
@@ -123,7 +129,7 @@ export default function HandprintForm({
       ref={formRef}
       className={`bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg
         ${isMobile
-          ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl"
+          ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl flex flex-col max-h-[85dvh]"
           : "absolute rounded-md border border-gray-400 w-64 m-3"}`}
       // Enters and leaves by its own height, so the distance is correct
       // whatever the form grows to. Reduced motion keeps the fade and drops
@@ -155,12 +161,23 @@ export default function HandprintForm({
       {/* Mobile handle. Drag is bound to the whole sheet above, so this is
           purely the visual affordance now. */}
       {isMobile && (
-        <div className="flex justify-center py-3">
+        <div className="flex justify-center py-3 shrink-0">
           <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className={`space-y-4 ${isMobile ? "p-6" : "p-4"}`}>
+      {/* The sheet stays anchored to the bottom, so on a phone the keyboard
+          covers its lower part. Rather than chase the keyboard with
+          visualViewport maths — which cost several rounds and kept
+          mispositioning the sheet on iOS — the form simply scrolls inside its
+          own box, and the browser brings a focused field into view within it.
+          The bottom of the form ends up behind the keyboard; you scroll to it.
+          A deliberate compromise, not an oversight.
+
+          min-h-0 is what lets this shrink at all — a flex child won't go below
+          its content height without it, which would defeat the cap above. */}
+      <div className={isMobile ? "overflow-y-auto overscroll-contain min-h-0" : ""}>
+      <form onSubmit={handleSubmit} className={`space-y-4 ${isMobile ? "px-6 pb-6 pt-2" : "p-4"}`}>
         <div className="space-y-4">
           {/* Name Field */}
           <div className="space-y-1">
@@ -252,6 +269,7 @@ export default function HandprintForm({
           </button>
         </div>
       </form>
+      </div>
     </motion.div>
   );
 }
