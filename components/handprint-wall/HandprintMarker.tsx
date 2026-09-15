@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRef, type CSSProperties } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
-import { PINNED_SCALE } from "./constants";
 import type { TempHandprint } from "./useCanvasPlacement";
 
 /**
@@ -101,13 +100,6 @@ const WEATHERED_SEPIA = 0.18;
 
 const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
 
-// A pinned print needs more than just not fading. The weathering range is only
-// 0.74-1.00, so holding one at full colour lifts it by a quarter of a step —
-// invisible against a wall where most prints are already near full. These push
-// it slightly past the baseline so it actually reads as picked out.
-// PINNED_SCALE sits in ./constants because the hit-test needs it too.
-const PINNED_SATURATION = 1.15;
-
 /**
  * Inset of the mouse hit layer, derived from MARKER_HIT_SCALE. Written as a
  * literal because Tailwind only sees class names it can find in the source —
@@ -119,8 +111,6 @@ interface HandprintMarkerProps {
   handprint: Handprint | TempHandprint;
   /** 0 = newest, 1 = oldest. The temp preview is always "new". */
   age?: number;
-  /** Held at full colour and picked out slightly. See ./pinned. */
-  pinned?: boolean;
   /** Mouse only. */
   onHover: () => void;
   /** Mouse only. */
@@ -137,7 +127,6 @@ interface HandprintMarkerProps {
 export default function HandprintMarker({
   handprint,
   age = 0,
-  pinned = false,
   onHover,
   onLeave,
   onTap,
@@ -159,12 +148,9 @@ export default function HandprintMarker({
         {
           left: `${handprint.x}%`,
           top: `${handprint.y}%`,
-          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)${
-            pinned ? ` scale(${PINNED_SCALE})` : ""
-          }`,
+          transform: `translate(-50%, -50%) rotate(${handprint.angle}deg)`,
           "--hp-opacity": lerp(1, WEATHERED_OPACITY, age),
-          "--hp-saturate": pinned ? PINNED_SATURATION : lerp(1, WEATHERED_SATURATION, age),
-          "--hp-saturate-fresh": pinned ? PINNED_SATURATION : 1,
+          "--hp-saturate": lerp(1, WEATHERED_SATURATION, age),
           "--hp-sepia": lerp(0, WEATHERED_SEPIA, age),
           // Stays sharp while the wall behind it softens. Overrides the value
           // the canvas sets on every marker.

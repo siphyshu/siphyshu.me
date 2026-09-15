@@ -8,7 +8,6 @@ import {
   FORM_WIDTH,
   MARKER_HIT_SCALE,
   MOBILE_BREAKPOINT,
-  PINNED_SCALE,
   VIEWPORT_PADDING,
   markerSize,
 } from "./constants";
@@ -35,8 +34,6 @@ function randomColor(): HandprintColor {
   return HANDPRINT_COLORS[Math.floor(Math.random() * HANDPRINT_COLORS.length)];
 }
 
-// Aged rather than plain prints: the hit-test has to know which ones are
-// pinned, because a pinned marker is scaled up and so is a larger target.
 export function useCanvasPlacement(handprints: AgedHandprint[]) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -158,8 +155,7 @@ export function useCanvasPlacement(handprints: AgedHandprint[]) {
     const isOverHandprint = handprints.some((handprint) => {
       const dx = x - (handprint.x / 100) * rect.width;
       const dy = y - (handprint.y / 100) * rect.height;
-      const radius = handprint.pinned ? baseRadius * PINNED_SCALE : baseRadius;
-      return dx * dx + dy * dy < radius * radius;
+      return dx * dx + dy * dy < baseRadius * baseRadius;
     });
 
     setShowCursor(!isOverHandprint && !formPosition);

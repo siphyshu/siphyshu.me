@@ -68,12 +68,3 @@ export function markerSize(viewportWidth: number): number {
  * inset = (1 - MARKER_HIT_SCALE) / 2, so 0.72 here is `inset-[14%]` there.
  */
 export const MARKER_HIT_SCALE = 0.72;
-
-/**
- * How much a pinned print is scaled up. Lives here rather than beside the
- * other pinned styling in HandprintMarker because the canvas hit-test has to
- * account for it too — a pinned marker is a larger target on screen, so the
- * circle the cursor logic tests against has to grow by the same factor or the
- * cursor flickers around the edge of one.
- */
-export const PINNED_SCALE = 1.14;

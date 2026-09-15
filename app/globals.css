@@ -48,12 +48,12 @@ img {
     --hp-blur 400ms ease;
 }
 
-/* Hover restores a weathered print to how it would look unweathered — which
-   for a pinned print means keeping its boost, not flattening it back to 1. */
+/* Hover restores a weathered print to how it would look unweathered. A pinned
+   print is already there — it carries age 0 — so there is nothing special to
+   preserve and no second variable to track. */
 .handprint-marker:hover {
   opacity: 1;
-  filter: saturate(var(--hp-saturate-fresh, 1)) sepia(0)
-    blur(var(--hp-blur, 0px));
+  filter: saturate(1) sepia(0) blur(var(--hp-blur, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {
