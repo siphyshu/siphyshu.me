@@ -1,6 +1,6 @@
 # handprint wall — roadmap
 
-Status: **agreed, not started**. Written 2026-09-14.
+Status: **item 1 done, items 2-8 open**. Written 2026-09-14, updated 2026-09-15.
 
 Features and fixes for the handprint canvas, decided in discussion. Each item
 records the decision *and* the reasoning, so picking one up later doesn't mean
@@ -23,10 +23,17 @@ Things not to relitigate when starting an item:
 - **Arrows/carousel are not built speculatively.** They arrive with layers,
   navigating time. Nav for a single item looks broken.
 - **A date in the hover label was considered and rejected.**
+- **Handprint mirroring was prototyped on the live wall and rejected** — half
+  the prints flipped with `scaleX(-1)` read as unsettling rather than varied.
+  No schema change is pending for it.
+- **The mobile sheet does not track the keyboard.** Several attempts to lift it
+  with visualViewport all mispositioned it on iOS, in three different ways. The
+  sheet stays anchored, the keyboard covers its lower part, and the form scrolls
+  inside its own box. A knowing compromise — see 68b737e for what was tried.
 
 ---
 
-## 1. Touch: labels are unreachable
+## 1. Touch: labels are unreachable — DONE (87bc82f)
 
 **Problem.** Labels are `onMouseEnter`-only. Tapping a marker calls
 `stopPropagation` and opens its link, so a print *without* a link is inert and
@@ -51,6 +58,25 @@ opens the placement form every time.
 
 Also on no-hover devices: drop the custom cursor (`showCursor` is meaningless
 without a pointer) and skip the `handleCanvasHover` mousemove work.
+
+---
+
+## Done, but never on this list
+
+The form was rewritten across a565ca5, 002db2c, 1276ccb and b1e5d18. It came out
+of item 1 and grew well past it:
+
+- **Desktop form moved inside the frame.** It was a popover pinned to wherever
+  you clicked, so it landed somewhere different every time and routinely covered
+  the print it had just created. Now a panel anchored to one side of the canvas,
+  flipping to sit opposite the fresh print.
+- **Both surfaces share one visual language** — serif, lowercase, hairline
+  black, square corners, dashed underlines — and one set of rules, via
+  `useHandprintForm`, `useLinkErrorFeedback` and `usePreviewTilt`.
+- **The panel scales with the canvas** using container queries, not viewport
+  units, so it tracks the artwork rather than the window.
+- A rejected link now recoils and hands the value back selected instead of
+  spending a line on a message.
 
 ---
 
