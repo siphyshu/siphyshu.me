@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
+import { PINNED_SCALE } from "./constants";
 import type { TempHandprint } from "./useCanvasPlacement";
 
 /**
@@ -99,8 +100,15 @@ const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
 // 0.74-1.00, so holding one at full colour lifts it by a quarter of a step —
 // invisible against a wall where most prints are already near full. These push
 // it slightly past the baseline so it actually reads as picked out.
-const PINNED_SCALE = 1.14;
+// PINNED_SCALE sits in ./constants because the hit-test needs it too.
 const PINNED_SATURATION = 1.15;
+
+/**
+ * Inset of the mouse hit layer, derived from MARKER_HIT_SCALE. Written as a
+ * literal because Tailwind only sees class names it can find in the source —
+ * a computed `inset-[${n}%]` would never be generated.
+ */
+const HIT_INSET = "inset-[14%]";
 
 interface HandprintMarkerProps {
   handprint: Handprint | TempHandprint;
@@ -129,9 +137,16 @@ export default function HandprintMarker({
 }: HandprintMarkerProps) {
   const link = "link" in handprint ? handprint.link : undefined;
 
+  // Whether pointerup already acted on this interaction, and so the click
+  // trailing it belongs to the marker rather than to the wall underneath.
+  // A ref rather than something derived in the click handler because `click`
+  // carries no pointerType, and on touch it is a compatibility event fired
+  // after the fact — there is nothing left to inspect by then.
+  const handledRef = useRef(false);
+
   return (
     <div
-      className={`handprint-marker absolute ${link ? "cursor-pointer" : "cursor-default"} w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]`}
+      className="handprint-marker absolute w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] md:w-[28px] md:h-[28px] lg:w-[30px] lg:h-[30px]"
       style={
         {
           left: `${handprint.x}%`,
@@ -145,31 +160,32 @@ export default function HandprintMarker({
           "--hp-sepia": lerp(0, WEATHERED_SEPIA, age),
         } as CSSProperties
       }
-      // Gating on pointerType is not optional: pointerenter/pointerleave also
-      // fire for touch (on touchstart/touchend), so an ungated handler would
-      // open a label and close it again within the same tap.
-      onPointerEnter={(e) => {
-        if (e.pointerType === "mouse") onHover();
+      // Every interaction starts unhandled, so a stale flag from a pointerup
+      // whose click never arrived (the pointer left the marker mid-press)
+      // can't go on to eat the next placement click in the corners.
+      onPointerDown={() => {
+        handledRef.current = false;
       }}
-      onPointerLeave={(e) => {
-        if (e.pointerType === "mouse") onLeave();
-      }}
+      // Touch and pen only — the whole box stays their target. See
+      // MARKER_HIT_SCALE for why they don't get the shrunken circle.
       onPointerUp={(e) => {
+        if (e.pointerType === "mouse") return;
         e.stopPropagation();
-        if (e.pointerType === "mouse") {
-          // Links here are visitor-submitted, so the opened tab must not get a
-          // window.opener handle back to this one. Unlike <a target="_blank">,
-          // window.open() does not imply noopener.
-          if (link) window.open(link, "_blank", "noopener,noreferrer");
-        } else {
-          // Touch has no hover, so the first tap has to be what reveals who
-          // this is. The link moves into the label and is followed from there.
-          onTap();
-        }
+        handledRef.current = true;
+        // Touch has no hover, so the first tap has to be what reveals who
+        // this is. The link moves into the label and is followed from there.
+        onTap();
       }}
       // Keeps the canvas from treating the tail end of a marker interaction as
-      // a click on empty wall. pointerup already did the work.
-      onClick={(e) => e.stopPropagation()}
+      // a click on empty wall. pointerup already did the work. Conditional now
+      // that the corners of this box are deliberately click-through: an
+      // unconditional stop here would swallow exactly the placements the
+      // smaller hit area exists to allow.
+      onClick={(e) => {
+        if (!handledRef.current) return;
+        handledRef.current = false;
+        e.stopPropagation();
+      }}
     >
       <Image
         src={`/handprints/${handprint.color}.svg`}
@@ -177,6 +193,37 @@ export default function HandprintMarker({
         height={30}
         alt=""
         className="w-full h-full select-none"
+      />
+
+      {/* The mouse hit area: a circle inscribed in the box and pulled in, so
+          the transparent corners of a splayed hand stop intercepting clicks
+          meant for the wall. border-radius clips hit-testing, not just paint,
+          which is the whole trick — there is nothing to draw here.
+
+          Rotates with the marker, but a circle doesn't care, so crowding no
+          longer depends on the random angle a print happens to have. */}
+      <div
+        className={`absolute ${HIT_INSET} rounded-full ${
+          link ? "cursor-pointer" : "cursor-default"
+        }`}
+        // Gating on pointerType is not optional: pointerenter/pointerleave
+        // also fire for touch (on touchstart/touchend), so an ungated handler
+        // would open a label and close it again within the same tap.
+        onPointerEnter={(e) => {
+          if (e.pointerType === "mouse") onHover();
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") onLeave();
+        }}
+        onPointerUp={(e) => {
+          if (e.pointerType !== "mouse") return;
+          e.stopPropagation();
+          handledRef.current = true;
+          // Links here are visitor-submitted, so the opened tab must not get a
+          // window.opener handle back to this one. Unlike <a target="_blank">,
+          // window.open() does not imply noopener.
+          if (link) window.open(link, "_blank", "noopener,noreferrer");
+        }}
       />
     </div>
   );

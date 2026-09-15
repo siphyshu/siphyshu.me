@@ -2,7 +2,16 @@
 
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { HANDPRINT_COLORS, type Handprint, type HandprintColor } from "@/lib/schemas/handprint";
-import { FORM_HEIGHT, FORM_WIDTH, MOBILE_BREAKPOINT, VIEWPORT_PADDING } from "./constants";
+import type { AgedHandprint } from "./age";
+import {
+  FORM_HEIGHT,
+  FORM_WIDTH,
+  MARKER_HIT_SCALE,
+  MOBILE_BREAKPOINT,
+  PINNED_SCALE,
+  VIEWPORT_PADDING,
+  markerSize,
+} from "./constants";
 
 export interface TempHandprint {
   x: number;
@@ -26,7 +35,9 @@ function randomColor(): HandprintColor {
   return HANDPRINT_COLORS[Math.floor(Math.random() * HANDPRINT_COLORS.length)];
 }
 
-export function useCanvasPlacement(handprints: Handprint[]) {
+// Aged rather than plain prints: the hit-test has to know which ones are
+// pinned, because a pinned marker is scaled up and so is a larger target.
+export function useCanvasPlacement(handprints: AgedHandprint[]) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -139,10 +150,16 @@ export function useCanvasPlacement(handprints: Handprint[]) {
     const y = e.clientY - rect.top;
     setCursorPosition({ x, y });
 
+    // Has to be the same circle the markers expose to the mouse, or the
+    // cursor lies about where a print can go: hiding it says "not here", and
+    // it was previously hidden across a ring where a click still placed one.
+    const baseRadius = (markerSize(window.innerWidth) * MARKER_HIT_SCALE) / 2;
+
     const isOverHandprint = handprints.some((handprint) => {
-      const handprintX = (handprint.x / 100) * rect.width;
-      const handprintY = (handprint.y / 100) * rect.height;
-      return Math.abs(x - handprintX) < 15 && Math.abs(y - handprintY) < 15;
+      const dx = x - (handprint.x / 100) * rect.width;
+      const dy = y - (handprint.y / 100) * rect.height;
+      const radius = handprint.pinned ? baseRadius * PINNED_SCALE : baseRadius;
+      return dx * dx + dy * dy < radius * radius;
     });
 
     setShowCursor(!isOverHandprint && !formPosition);
