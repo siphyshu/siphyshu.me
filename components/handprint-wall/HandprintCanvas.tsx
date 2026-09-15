@@ -6,6 +6,7 @@ import type { Handprint } from "@/lib/schemas/handprint";
 import type { AgedHandprint } from "./age";
 import type { TempHandprint } from "./useCanvasPlacement";
 import HandprintMarker, { HandprintLabel } from "./HandprintMarker";
+import { EDGE_CLIP_PX } from "./constants";
 
 interface HandprintCanvasProps {
   className?: string;
@@ -98,27 +99,45 @@ export default function HandprintCanvas({
             than one concatenated list so each real print keys off its own id
             and the preview gets a fixed key of its own — an index key over the
             combined array hands the preview's identity to a real print the
-            moment an optimistic insert shifts the list. */}
-        {handprints.map((handprint) => (
-          <HandprintMarker
-            key={handprint.id}
-            handprint={handprint}
-            age={handprint.age}
-            onHover={() => onHoverHandprint(handprint)}
-            onLeave={() => onHoverHandprint(null)}
-            onTap={() => onTapHandprint(handprint)}
-          />
-        ))}
-        {tempHandprint && (
-          <HandprintMarker
-            key="temp-preview"
-            handprint={tempHandprint}
-            onHover={() => onHoverHandprint(tempHandprint)}
-            onLeave={() => onHoverHandprint(null)}
-            onTap={() => onTapHandprint(tempHandprint)}
-            isPreview
-          />
-        )}
+            moment an optimistic insert shifts the list.
+
+            The clip layer gives the wall a margin: prints stop being drawn
+            just short of the wood instead of running into it. It wraps the
+            markers alone and not the canvas, because the canvas carries the
+            wall texture and the white wash — clipping those would open a bare
+            ring inside the frame rather than a margin.
+
+            Markers keep their percentage coordinates, since this box is
+            inset-0 like the canvas; only the painting is cut. And because the
+            layer neither stops propagation nor draws anything, a click that
+            lands on it still bubbles to the canvas and places a print exactly
+            as before — including inside the strip, where the new hand simply
+            arrives already cropped. */}
+        <div
+          className="absolute inset-0"
+          style={{ clipPath: `inset(${EDGE_CLIP_PX}px)` }}
+        >
+          {handprints.map((handprint) => (
+            <HandprintMarker
+              key={handprint.id}
+              handprint={handprint}
+              age={handprint.age}
+              onHover={() => onHoverHandprint(handprint)}
+              onLeave={() => onHoverHandprint(null)}
+              onTap={() => onTapHandprint(handprint)}
+            />
+          ))}
+          {tempHandprint && (
+            <HandprintMarker
+              key="temp-preview"
+              handprint={tempHandprint}
+              onHover={() => onHoverHandprint(tempHandprint)}
+              onLeave={() => onHoverHandprint(null)}
+              onTap={() => onTapHandprint(tempHandprint)}
+              isPreview
+            />
+          )}
+        </div>
 
         {/* Cursor */}
         {showCursor && isMouseInside && (

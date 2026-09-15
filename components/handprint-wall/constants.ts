@@ -30,6 +30,27 @@ export const COLOR_SWATCHES: Record<string, string> = {
 export const PANEL_WIDTH_PCT = 48;
 
 /**
+ * A thin strip inside the frame where handprints are cut off, so the wall has
+ * a clean margin instead of hands running hard into the wood.
+ *
+ * Clips rather than restricting placement: a print can still go anywhere, it
+ * just stops being drawn once it reaches the strip. The prints already crop at
+ * the frame edge and always have — this only moves that boundary inward.
+ *
+ * Tuned by eye. A hairline is enough to stop a hand touching the wood; going
+ * much thicker starts reading as a mount board rather than as the wall
+ * continuing past the frame, which is a different look entirely.
+ *
+ * Applied to a layer wrapping the markers alone, not to the canvas. Clipping
+ * the canvas would cut the wall texture too and leave a bare ring inside the
+ * frame, which is the opposite of the intent.
+ *
+ * Pixels, not a percentage: the canvas is 3.5:1, so a single percentage would
+ * come out three and a half times thicker down the sides than along the top.
+ */
+export const EDGE_CLIP_PX = 1;
+
+/**
  * Rendered marker size in px at a given viewport width, mirroring the
  * responsive classes on the marker in HandprintMarker.
  *
