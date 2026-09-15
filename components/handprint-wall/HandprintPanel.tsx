@@ -70,25 +70,18 @@ export default function HandprintPanel({
         // but so that a sixth degrades into a scrollbar rather than a redesign.
         className="flex flex-col gap-[8px] h-full overflow-y-auto px-6 py-[14px]"
       >
-        {/* Greeting and subtext are one block rather than two rows. Merging
-            them removes a gap from the column, which is what pays for the
-            colour label sitting above its swatches instead of beside them. */}
+        {/* One block rather than two rows, so the error below can appear and
+            disappear without adding or removing a gap from the column. */}
         <div>
           <p className="text-[15px] leading-tight">
             hi, you&apos;re about to leave a mark on my wall!
           </p>
-          {/* The error takes the subtext's place rather than adding a row.
-              The panel has ~20px spare, so a sixth row would push the actions
-              out of view at exactly the moment you need them — and the subtext
-              is the most expendable thing on screen while something is wrong. */}
-          {linkError ? (
+          {/* Only occupies space when something is wrong. With no subtext the
+              panel has room for this to push in, so the error gets its own
+              line rather than displacing anything. */}
+          {linkError && (
             <p role="alert" className="text-[11.5px] leading-snug text-red-600 mt-1.5">
               {linkError}
-            </p>
-          ) : (
-            <p className="text-[11.5px] leading-snug text-gray-500 mt-1.5">
-              it stays as long as this site does, and fades slowly over the years —
-              like the faintest ones already have.
             </p>
           )}
         </div>
