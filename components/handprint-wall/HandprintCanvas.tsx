@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { MouseEvent, PointerEvent, RefObject } from "react";
+import type { MouseEvent, PointerEvent, ReactNode, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { AgedHandprint } from "./age";
 import type { TempHandprint } from "./useCanvasPlacement";
@@ -23,6 +23,13 @@ interface HandprintCanvasProps {
   onCanvasClick: (e: MouseEvent<HTMLDivElement>) => void;
   onCanvasPointerMove: (e: PointerEvent<HTMLDivElement>) => void;
   onCanvasLeave: (e: PointerEvent<HTMLDivElement>) => void;
+  /**
+   * The in-frame form, on viewports wide enough for it. Rendered here rather
+   * than by the wall because it has to sit inside the frame: this component's
+   * outer element carries the frame's border-image, so an absolutely
+   * positioned child of it lands exactly on the canvas.
+   */
+  panel?: ReactNode;
 }
 
 export default function HandprintCanvas({
@@ -40,6 +47,7 @@ export default function HandprintCanvas({
   onCanvasClick,
   onCanvasPointerMove,
   onCanvasLeave,
+  panel,
 }: HandprintCanvasProps) {
   return (
     <div className={`relative w-full max-w-[950px] min-w-[300px] ${className ?? ""}`}>
@@ -111,8 +119,11 @@ export default function HandprintCanvas({
           </div>
         )}
 
-        {/* "N were here" counter */}
-        {handprints.length > 0 && (
+        {/* "N were here" counter. Hidden while the panel is open: the panel
+            takes one full side of the frame and the counter is always in the
+            bottom-left, so they collide whenever the panel flips left. Nobody
+            needs a visitor count mid-signature anyway. */}
+        {handprints.length > 0 && !panel && (
           <div
             className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1 pointer-events-auto select-none"
             style={{ zIndex: 10 }}
@@ -135,6 +146,8 @@ export default function HandprintCanvas({
           <HandprintLabel handprint={activeHandprint} interactive={isLabelSticky} />
         )}
       </div>
+
+      {panel}
     </div>
   );
 }

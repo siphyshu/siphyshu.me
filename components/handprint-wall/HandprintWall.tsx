@@ -9,7 +9,10 @@ import { validateLink } from "@/lib/schemas/link";
 import { useHandprints } from "./useHandprints";
 import { useCanvasPlacement } from "./useCanvasPlacement";
 import HandprintCanvas from "./HandprintCanvas";
-import HandprintForm, { type HandprintFormSubmitData } from "./HandprintForm";
+import HandprintForm from "./HandprintForm";
+import HandprintPanel from "./HandprintPanel";
+import { useIsMobile } from "./useIsMobile";
+import type { HandprintFormSubmitData } from "./useHandprintForm";
 
 interface HandprintWallProps {
   className?: string;
@@ -28,6 +31,9 @@ const TOAST_OPTIONS = {
 export default function HandprintWall({ className }: HandprintWallProps) {
   const { handprints, loadError, addHandprint } = useHandprints();
   const placement = useCanvasPlacement(handprints);
+  // Hoisted out of the form: two different components now branch on it, and
+  // the canvas needs to know whether to make room for the in-frame panel.
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (loadError) {
@@ -87,6 +93,17 @@ export default function HandprintWall({ className }: HandprintWallProps) {
         onCanvasClick={placement.handleCanvasClick}
         onCanvasPointerMove={placement.handleCanvasPointerMove}
         onCanvasLeave={placement.handleCanvasLeave}
+        panel={
+          !isMobile && placement.tempHandprint ? (
+            <HandprintPanel
+              printX={placement.tempHandprint.x}
+              formSelectedColor={placement.formSelectedColor}
+              onColorSelect={placement.setFormSelectedColor}
+              onSubmit={handleSubmit}
+              onCancel={placement.resetForm}
+            />
+          ) : null
+        }
       />
 
       <p className="italic text-sm text-gray-600 mt-4 text-center md:text-right w-full px-6 lg:px-0">
@@ -97,7 +114,7 @@ export default function HandprintWall({ className }: HandprintWallProps) {
           form is unmounted the instant formPosition clears and just vanishes,
           which reads as a glitch next to how deliberately it arrives. */}
       <AnimatePresence>
-        {placement.formPosition && (
+        {isMobile && placement.formPosition && (
           <>
             {/* Scrim behind the mobile sheet. A bottom drawer with nothing
                 behind it leaves the page live, so a touch just outside it
@@ -120,7 +137,6 @@ export default function HandprintWall({ className }: HandprintWallProps) {
             <HandprintForm
               key="sheet"
               formRef={placement.formRef}
-              formPosition={placement.formPosition}
               formSelectedColor={placement.formSelectedColor}
               onColorSelect={placement.setFormSelectedColor}
               onSubmit={handleSubmit}
