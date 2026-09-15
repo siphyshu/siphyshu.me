@@ -10,6 +10,18 @@ img {
   max-width: unset !important;
 }
 
+/* Registered so it's a real <length> rather than an untyped token. Without
+   this the blur below is stuck: `filter` is transitioned, and a transitioned
+   property that reads an unregistered var() caches its start value and never
+   recomputes when the var changes. The variable resolved to 1.4px on every
+   marker while the filter still reported blur(0px). Registering also makes the
+   variable itself animatable, so the softening can be transitioned directly. */
+@property --hp-blur {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 /* A handprint's age treatment. The --hp-* values are set per-marker from the
    print's timestamp; the defaults here are "brand new". Driving it through
    custom properties (rather than inline opacity/filter) is what lets :hover
@@ -24,22 +36,85 @@ img {
    and lets the stacking order do the work. */
 .handprint-marker {
   opacity: var(--hp-opacity, 1);
-  filter: saturate(var(--hp-saturate, 1)) sepia(var(--hp-sepia, 0));
+  /* --hp-blur is set on the canvas while the form is open, so the wall
+     recedes behind the hand being placed. Part of the same filter chain as the
+     weathering rather than a second one: two filters on one element compose
+     into two passes, and the transition below then has to drive both. */
+  filter: saturate(var(--hp-saturate, 1)) sepia(var(--hp-sepia, 0))
+    blur(var(--hp-blur, 0px));
   transition:
     opacity 400ms ease,
-    filter 400ms ease;
+    filter 400ms ease,
+    --hp-blur 400ms ease;
 }
 
 /* Hover restores a weathered print to how it would look unweathered — which
    for a pinned print means keeping its boost, not flattening it back to 1. */
 .handprint-marker:hover {
   opacity: 1;
-  filter: saturate(var(--hp-saturate-fresh, 1)) sepia(0);
+  filter: saturate(var(--hp-saturate-fresh, 1)) sepia(0)
+    blur(var(--hp-blur, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {
   .handprint-marker {
     transition: none;
+  }
+}
+
+/* The hand you're placing, pressed onto the wall.
+
+   Motion rather than contrast, because opacity and saturation already mean
+   "age" here — dimming the rest of the wall to pick one out would read as the
+   whole wall suddenly getting old, not as a spotlight. A press borrows a
+   channel nothing else uses, and it's over before it can compete with the
+   composition.
+
+   On the image rather than the marker: the marker's transform already carries
+   the print's position, rotation and pinned scale, and animating transform
+   there would throw all three away. */
+@keyframes handprint-press {
+  0% {
+    transform: scale(1.45);
+    opacity: 0.35;
+  }
+  55% {
+    transform: scale(0.94);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.handprint-press {
+  animation: handprint-press 340ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* The ring that keeps it findable once the press has finished. Sits behind the
+   hand and reads as annotation rather than as a change to the print itself —
+   the same distinction that keeps a pinned print's treatment separate from a
+   "this one is yours" treatment. */
+.handprint-ring {
+  animation: handprint-ring 340ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes handprint-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handprint-press,
+  .handprint-ring {
+    animation: none;
   }
 }
 

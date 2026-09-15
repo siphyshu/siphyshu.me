@@ -122,6 +122,8 @@ interface HandprintMarkerProps {
   onLeave: () => void;
   /** Touch/pen only — opens the label instead of following the link. */
   onTap: () => void;
+  /** The live preview of the print being placed, not one already on the wall. */
+  isPreview?: boolean;
 }
 
 // The dot itself. Lives inside the canvas's overflow-hidden box, so it
@@ -134,6 +136,7 @@ export default function HandprintMarker({
   onHover,
   onLeave,
   onTap,
+  isPreview = false,
 }: HandprintMarkerProps) {
   const link = "link" in handprint ? handprint.link : undefined;
 
@@ -158,6 +161,9 @@ export default function HandprintMarker({
           "--hp-saturate": pinned ? PINNED_SATURATION : lerp(1, WEATHERED_SATURATION, age),
           "--hp-saturate-fresh": pinned ? PINNED_SATURATION : 1,
           "--hp-sepia": lerp(0, WEATHERED_SEPIA, age),
+          // Stays sharp while the wall behind it softens. Overrides the value
+          // the canvas sets on every marker.
+          ...(isPreview ? { "--hp-blur": "0px" } : {}),
         } as CSSProperties
       }
       // Every interaction starts unhandled, so a stale flag from a pointerup
@@ -187,12 +193,22 @@ export default function HandprintMarker({
         e.stopPropagation();
       }}
     >
+      {/* Behind the hand, and inset negatively so it reads as a halo on the
+          wall rather than an outline on the print. Only while you're placing:
+          it marks this moment, not a property of the mark. */}
+      {isPreview && (
+        <span
+          aria-hidden="true"
+          className="handprint-ring absolute inset-[-38%] rounded-full border border-black/25"
+        />
+      )}
+
       <Image
         src={`/handprints/${handprint.color}.svg`}
         width={30}
         height={30}
         alt=""
-        className="w-full h-full select-none"
+        className={`w-full h-full select-none ${isPreview ? "handprint-press" : ""}`}
       />
 
       {/* The mouse hit area: a circle inscribed in the box and pulled in, so

@@ -37,6 +37,11 @@ interface HandprintCanvasProps {
   onDismissPanel?: () => void;
 }
 
+/** How far the rest of the wall recedes while a print is being placed. Small
+ *  on purpose: enough to separate the fresh hand, not enough to read as the
+ *  artwork being obscured. */
+const WALL_BLUR_PX = 1.4;
+
 export default function HandprintCanvas({
   className,
   canvasRef,
@@ -75,6 +80,9 @@ export default function HandprintCanvas({
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
+          // Inherited by every marker; the one being placed overrides it back
+          // to 0 so it stays sharp while the rest of the wall softens.
+          ["--hp-blur" as string]: panelOpen ? `${WALL_BLUR_PX}px` : "0px",
         }}
         onClick={onCanvasClick}
         onPointerMove={onCanvasPointerMove}
@@ -109,6 +117,7 @@ export default function HandprintCanvas({
             onHover={() => onHoverHandprint(tempHandprint)}
             onLeave={() => onHoverHandprint(null)}
             onTap={() => onTapHandprint(tempHandprint)}
+            isPreview
           />
         )}
 
