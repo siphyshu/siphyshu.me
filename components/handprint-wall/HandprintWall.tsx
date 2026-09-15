@@ -96,6 +96,12 @@ export default function HandprintWall({ className }: HandprintWallProps) {
         panel={
           !isMobile && placement.tempHandprint ? (
             <HandprintPanel
+              // AnimatePresence in HandprintCanvas tracks its children by key.
+              // Without one it can't tell that this element has gone, so the
+              // exit never completes and the panel is left orphaned in the DOM
+              // — state clears underneath it, but it stays on screen and no
+              // further dismissal does anything.
+              key="handprint-panel"
               printX={placement.tempHandprint.x}
               formSelectedColor={placement.formSelectedColor}
               onColorSelect={placement.setFormSelectedColor}

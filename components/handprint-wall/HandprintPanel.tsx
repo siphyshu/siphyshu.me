@@ -55,6 +55,7 @@ export default function HandprintPanel({
   } = useHandprintForm(onSubmit);
   const reduceMotion = useReducedMotion();
 
+
   const { inputRef: linkRef, shakeScope } = useLinkErrorFeedback(linkErrorAt);
 
   const { tilt: previewTilt, reroll: rerollTilt } = usePreviewTilt(printX);
@@ -70,17 +71,18 @@ export default function HandprintPanel({
 
   return (
     <motion.div
-      className={`absolute inset-y-0 bg-white flex flex-col ${
+      // pointer-events-auto: the clip box in HandprintCanvas is
+      // pointer-events-none so it can't swallow clicks on the wall.
+      className={`absolute inset-y-0 bg-white flex flex-col pointer-events-auto ${
         side === "left" ? "left-0 border-r" : "right-0 border-l"
       } border-black`}
-      style={{ width: `${PANEL_WIDTH_PCT}%`, zIndex: 25 }}
+      style={{ width: `${PANEL_WIDTH_PCT}%` }}
       // Enters from the edge it's anchored to, so it reads as sliding out of
       // the frame rather than appearing on top of the artwork. Deliberately a
       // short travel, not a full-width slide — the panel lives inside a picture
       // frame, and a dramatic sweep would fight the stillness of the wall.
       initial={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
       transition={{ duration: reduceMotion ? 0.12 : 0.24, ease: EASE_DRAWER }}
     >
       <form

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence } from "motion/react";
 import type { MouseEvent, PointerEvent, ReactNode, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { AgedHandprint } from "./age";
@@ -155,10 +154,30 @@ export default function HandprintCanvas({
         )}
       </div>
 
-      {/* Keeps the panel mounted long enough to animate out — without it the
-          form vanishes the instant it's dismissed, which reads as a glitch
-          next to how deliberately it arrives. */}
-      <AnimatePresence>{panel}</AnimatePresence>
+      {/* Clips the panel to the canvas. It slides in from the edge it's
+          anchored to, and that travel takes it briefly outside the padding box
+          and over the wooden border — visible for a fraction of a second if
+          you're watching for it.
+
+          Scoped to the panel rather than put on the wrapper: the tooltip layer
+          above deliberately escapes the canvas so a hover label isn't cropped
+          at the frame, and clipping the wrapper would undo that.
+
+          pointer-events-none so this box doesn't swallow clicks on the wall
+          while no panel is open; the panel itself takes them back.
+
+          No AnimatePresence. It ran the exit animation but did not unmount
+          the panel afterwards, leaving it at opacity 0 — invisible, still
+          hit-testable, and swallowing every click across its half of the wall.
+          Making the exiting node inert narrowed the symptom without curing it.
+          The panel now simply unmounts on dismiss: the entry animation is what
+          this needed, and an exit isn't worth a ghost that eats clicks. */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ zIndex: 25 }}
+      >
+        {panel}
+      </div>
     </div>
   );
 }
