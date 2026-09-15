@@ -88,11 +88,16 @@ function formatLink(link: string | null | undefined) {
 
 // Where a fully weathered print bottoms out. Expressed as floors rather than
 // falloffs so the guarantee is readable: nothing on the wall ever renders
-// below WEATHERED_OPACITY, however old it gets. Deliberately gentle — pushed
-// harder, the colour drains out and the wall reads washed out rather than aged.
-const WEATHERED_OPACITY = 0.74;
-const WEATHERED_SATURATION = 0.76;
-const WEATHERED_SEPIA = 0.1;
+// below WEATHERED_OPACITY, however old it gets.
+//
+// Deepened from 0.74/0.76/0.10 once the curve in ./age could actually reach
+// them. Under half-life decay the oldest print only ever got to age 0.78, so
+// the floors were unreachable and the wall used a 0.20 opacity range against a
+// configured 0.26 — deepening them alone would have changed nothing. Against a
+// linear map the full range is always in use, and these give 0.45.
+const WEATHERED_OPACITY = 0.55;
+const WEATHERED_SATURATION = 0.6;
+const WEATHERED_SEPIA = 0.18;
 
 const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
 
