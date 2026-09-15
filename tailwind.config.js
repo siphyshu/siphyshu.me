@@ -4,6 +4,11 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    // The MDX body renderers. `mdx-components.tsx` sits at the repo root by
+    // Next's file convention, so none of the globs above reach it, and every
+    // class it names would otherwise be purged from the production CSS.
+    "./mdx-components.tsx",
+    "./content/**/*.mdx",
   ],
   theme: {
     extend: {

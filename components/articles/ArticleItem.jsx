@@ -1,30 +1,22 @@
 "use client"
 
 import Image from "next/image";
+import Link from "next/link";
 import ReactMarkdown from 'react-markdown';
+import { formatContentDate } from "@/lib/format";
 
 export default function ArticleItem({
     date,
-    title, 
-    subtitle, 
+    title,
+    subtitle,
     thumbnail = "/thumbnails/articles/placeholder-thumbnail.png",
-    link,
+    href,
+    // Pieces published on Medium link straight out; ones hosted here route
+    // through next/link so the transition is client-side.
+    isExternal = false,
 }) {
-    // Function to format the date
-    const formatDate = (dateString) => {
-        const months = [
-            "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-        ];
-        const [day, month, year] = dateString.split("-");
-        return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
-    };
-
-    return (
-        <a 
-            href={link} 
-            className="flex flex-row bg-white min-w-[250px] cursor-pointer"
-        >
+    const body = (
+        <>
             {/* Article Thumbnail */}
             <div className="flex items-start justify-center relative aspect-square w-[20%] min-w-[80px] max-w-[80px]">
                 <Image
@@ -42,7 +34,7 @@ export default function ArticleItem({
                     {/* Date */}
                     {date && (
                         <div className="text-gray-500 text-xs uppercase leading-none">
-                            {formatDate(date)}
+                            {formatContentDate(date)}
                         </div>
                     )}
                     <h2 className="text-black prose prose-md md:prose-lg leading-tight md:leading-loose max-w-none mt-2 md:mt-1">{title}</h2>
@@ -53,6 +45,14 @@ export default function ArticleItem({
                     </div>
                 </div>
             </div>
-        </a>
-    )
+        </>
+    );
+
+    const className = "flex flex-row bg-white min-w-[250px] cursor-pointer";
+
+    if (isExternal) {
+        return <a href={href} className={className}>{body}</a>;
+    }
+
+    return <Link href={href} className={className}>{body}</Link>;
 }

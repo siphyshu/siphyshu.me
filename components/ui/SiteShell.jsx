@@ -12,7 +12,10 @@ const FRAME_STYLE = "wood-frame-lighter-brown";
 // Everything that stays put while you move between sections. Lives in the
 // route group's layout, so navigating projects <-> articles swaps only the
 // children — the wall keeps its state instead of remounting.
-export default function SiteShell({ children }) {
+// `projects` and `articles` are only here to reach SearchResults, which is a
+// client component and so cannot read content/ itself. They are passed down
+// from the layout rather than fetched, so the read happens once per render.
+export default function SiteShell({ children, projects = [], articles = [] }) {
   const { isSearching } = useSearch();
 
   return (
@@ -27,7 +30,7 @@ export default function SiteShell({ children }) {
 
       {/* Search Results */}
       <div className={isSearching ? "block" : "hidden"}>
-        <SearchResults />
+        <SearchResults projects={projects} articles={articles} />
       </div>
 
       {/* Interactive Artwork - Hide when searching */}
