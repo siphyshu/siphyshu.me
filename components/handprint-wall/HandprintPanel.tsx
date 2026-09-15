@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
+import type { RefObject } from "react";
+import { motion, useIsPresent, useReducedMotion } from "motion/react";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
 import { COLOR_SWATCHES, PANEL_WIDTH_PCT } from "./constants";
 import {
@@ -16,6 +17,9 @@ const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 const ENTER_SLIDE_PX = 22;
 
 interface HandprintPanelProps {
+  /** Lets the outside-click handler in useCanvasPlacement tell "inside the
+   *  form" from "on the wall". Without it, clicking away never dismissed. */
+  formRef: RefObject<HTMLDivElement | null>;
   /** Where the print was placed, 0-100 across the canvas. Decides which side. */
   printX: number;
   formSelectedColor: HandprintColor;
@@ -37,6 +41,7 @@ interface HandprintPanelProps {
  * onto one row is what makes a four-row layout fit at all.
  */
 export default function HandprintPanel({
+  formRef,
   printX,
   formSelectedColor,
   onColorSelect,
@@ -55,6 +60,12 @@ export default function HandprintPanel({
   } = useHandprintForm(onSubmit);
   const reduceMotion = useReducedMotion();
 
+  // False from the moment dismissal begins. AnimatePresence does not reliably
+  // unmount this node after its exit finishes, and a leftover at opacity 0 is
+  // invisible but still hit-testable — it swallowed every click across its half
+  // of the wall. Dropping pointer events on exit makes any straggler inert.
+  const isPresent = useIsPresent();
+
 
   const { inputRef: linkRef, shakeScope } = useLinkErrorFeedback(linkErrorAt);
 
@@ -71,11 +82,13 @@ export default function HandprintPanel({
 
   return (
     <motion.div
-      // pointer-events-auto: the clip box in HandprintCanvas is
-      // pointer-events-none so it can't swallow clicks on the wall.
-      className={`absolute inset-y-0 bg-white flex flex-col pointer-events-auto ${
-        side === "left" ? "left-0 border-r" : "right-0 border-l"
-      } border-black`}
+      ref={formRef}
+      // pointer-events-auto because the clip box in HandprintCanvas is
+      // pointer-events-none and would otherwise swallow clicks on the wall —
+      // but only while present. See isPresent above.
+      className={`absolute inset-y-0 bg-white flex flex-col ${
+        isPresent ? "pointer-events-auto" : "pointer-events-none"
+      } ${side === "left" ? "left-0 border-r" : "right-0 border-l"} border-black`}
       style={{ width: `${PANEL_WIDTH_PCT}%` }}
       // Enters from the edge it's anchored to, so it reads as sliding out of
       // the frame rather than appearing on top of the artwork. Deliberately a
@@ -83,6 +96,7 @@ export default function HandprintPanel({
       // frame, and a dramatic sweep would fight the stillness of the wall.
       initial={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
       animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
       transition={{ duration: reduceMotion ? 0.12 : 0.24, ease: EASE_DRAWER }}
     >
       <form

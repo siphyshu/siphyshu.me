@@ -30,6 +30,11 @@ interface HandprintCanvasProps {
    * positioned child of it lands exactly on the canvas.
    */
   panel?: ReactNode;
+  /** Whether the panel is actually showing. `panel` is now always a truthy
+   *  AnimatePresence wrapper, so it can no longer stand in for "open". */
+  panelOpen?: boolean;
+  /** Dismiss, for the backdrop below. */
+  onDismissPanel?: () => void;
 }
 
 export default function HandprintCanvas({
@@ -48,6 +53,8 @@ export default function HandprintCanvas({
   onCanvasPointerMove,
   onCanvasLeave,
   panel,
+  panelOpen,
+  onDismissPanel,
 }: HandprintCanvasProps) {
   return (
     // container-type makes this the reference for the panel's cqw sizing, so
@@ -130,7 +137,7 @@ export default function HandprintCanvas({
             takes one full side of the frame and the counter is always in the
             bottom-left, so they collide whenever the panel flips left. Nobody
             needs a visitor count mid-signature anyway. */}
-        {handprints.length > 0 && !panel && (
+        {handprints.length > 0 && !panelOpen && (
           <div
             className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1 pointer-events-auto select-none"
             style={{ zIndex: 10 }}
@@ -166,16 +173,31 @@ export default function HandprintCanvas({
           pointer-events-none so this box doesn't swallow clicks on the wall
           while no panel is open; the panel itself takes them back.
 
-          No AnimatePresence. It ran the exit animation but did not unmount
-          the panel afterwards, leaving it at opacity 0 — invisible, still
-          hit-testable, and swallowing every click across its half of the wall.
-          Making the exiting node inert narrowed the symptom without curing it.
-          The panel now simply unmounts on dismiss: the entry animation is what
-          this needed, and an exit isn't worth a ghost that eats clicks. */}
+          The AnimatePresence that keeps it mounted through its exit lives in
+          HandprintWall, beside the condition it tracks — handed down as a
+          rendered prop it never saw the child come or go, and the exit snapped
+          instead of animating. The panel also drops pointer events as soon as
+          it stops being present, so a node left behind at opacity 0 is inert
+          rather than an invisible trap over half the wall. */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ zIndex: 25 }}
       >
+        {/* Backdrop. Without it a click beside the panel dismissed it *and*
+            went through to whatever was underneath — placing a print, or
+            following a handprint's link. One gesture, two outcomes, and the
+            second one was never intended. Catching it here means the click
+            that closes the form does only that.
+
+            Transparent: the panel is opaque and already inside the frame, so
+            there's nothing to dim. It exists purely to absorb the click. */}
+        {panelOpen && (
+          <div
+            className="absolute inset-0 pointer-events-auto"
+            onClick={onDismissPanel}
+            aria-hidden="true"
+          />
+        )}
         {panel}
       </div>
     </div>
