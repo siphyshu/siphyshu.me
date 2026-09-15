@@ -27,6 +27,14 @@ export function useHandprintForm(
   const [linkError, setLinkError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Bumped on every failed validation, including the same failure twice in a
+   * row. The message alone can't drive a reaction — resubmitting an unchanged
+   * bad link sets identical state, so nothing re-renders and the field would
+   * sit there looking ignored. A counter always changes.
+   */
+  const [linkErrorAt, setLinkErrorAt] = useState(0);
+
   // A ref, not the isSubmitting state, is what actually blocks a double
   // submit: state updates are async, so two clicks landing in the same tick
   // would both read isSubmitting as false and both fire a POST. The database
@@ -43,6 +51,7 @@ export function useHandprintForm(
       const result = validateLink(link);
       if (!result.ok) {
         setLinkError(result.reason);
+        setLinkErrorAt((n) => n + 1);
         return;
       }
     }
@@ -69,6 +78,7 @@ export function useHandprintForm(
     link,
     changeLink,
     linkError,
+    linkErrorAt,
     isSubmitting,
     handleSubmit,
   };

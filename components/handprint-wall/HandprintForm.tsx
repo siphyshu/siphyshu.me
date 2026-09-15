@@ -1,8 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import type { RefObject } from "react";
 import { motion, useReducedMotion, type PanInfo } from "motion/react";
 import { useBodyScrollLock } from "./useBodyScrollLock";
+import { useLinkErrorFeedback } from "./useLinkErrorFeedback";
+import { usePreviewTilt } from "./usePreviewTilt";
 import { useHandprintForm, type HandprintFormSubmitData } from "./useHandprintForm";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
 import { COLOR_SWATCHES } from "./constants";
@@ -40,8 +43,25 @@ export default function HandprintForm({
   onSubmit,
   onCancel,
 }: HandprintFormProps) {
-  const { name, setName, link, changeLink, linkError, isSubmitting, handleSubmit } =
-    useHandprintForm(onSubmit);
+  const {
+    name,
+    setName,
+    link,
+    changeLink,
+    linkError,
+    linkErrorAt,
+    isSubmitting,
+    handleSubmit,
+  } = useHandprintForm(onSubmit);
+
+  const { inputRef: linkInputRef, shakeScope } = useLinkErrorFeedback(linkErrorAt);
+
+  const { tilt: previewTilt, reroll: rerollTilt } = usePreviewTilt();
+
+  const selectColor = (color: HandprintColor) => {
+    onColorSelect(color);
+    rerollTilt();
+  };
 
   const reduceMotion = useReducedMotion();
 
@@ -103,92 +123,121 @@ export default function HandprintForm({
           min-h-0 is what lets this shrink at all — a flex child won't go below
           its content height without it, which would defeat the cap above. */}
       <div className="overflow-y-auto overscroll-contain min-h-0">
-      <form onSubmit={handleSubmit} className="space-y-4 px-6 pb-6 pt-2">
+      <form onSubmit={handleSubmit} className="space-y-5 px-6 pb-6 pt-2">
+        {/* Same greeting as the in-frame panel. The sheet used to open straight
+            onto form fields with no idea what it was for. */}
+        <div>
+          <p className="text-[17px] leading-tight">
+            hi, you&apos;re about to leave a mark on my wall!
+          </p>
+          {/* The field itself carries the error — red, a recoil, and the bad
+              value handed back selected. Kept here for screen readers, where
+              none of that lands: aria-invalid says something is wrong but
+              never what. */}
+          {linkError && (
+            <p role="alert" className="sr-only">
+              {linkError}
+            </p>
+          )}
+        </div>
+
         <div className="space-y-4">
-          {/* Name Field */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600">
-              Your Name / Alias <span className="text-red-500">*</span>
-            </label>
+          <label className="block">
+            <span className="block text-[12px] text-gray-500 mb-1.5">
+              name <span aria-hidden="true">*</span>
+            </span>
             <input
               type="text"
               placeholder="e.g. siphyshu"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              // text-base below sm: iOS Safari zooms the page whenever a
-              // focused input computes under 16px. The breakpoint is
-              // Tailwind's 640px, which is MOBILE_BREAKPOINT — so 16px applies
-              // exactly where the drawer layout does, and desktop keeps 14px.
-              className="w-full px-3 py-2 text-base sm:text-sm border-b border-gray-300 focus:outline-none focus:border-blue-500 placeholder-gray-400 bg-transparent"
-              // Never autofocused here: on a phone that summons the keyboard
-              // at the same moment the sheet slides up — two surfaces animating
+              // 16px minimum: iOS Safari zooms the page whenever a focused
+              // input computes under it.
+              className="w-full text-[16px] pb-1.5 bg-transparent border-b border-dashed border-black focus:outline-none focus:border-solid placeholder-gray-400"
+              // Never autofocused here: on a phone that summons the keyboard at
+              // the same moment the sheet slides up — two surfaces animating
               // over each other, and the keyboard covers the sheet it just
               // opened. Let the visitor tap the field when they're ready.
               autoFocus={false}
               required
             />
-          </div>
+          </label>
 
-          {/* Website Field */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600">
-              Link (Optional)
-            </label>
+          {/* Shaken as a unit, label included. See ./useLinkErrorFeedback. */}
+          <label className="block" ref={shakeScope}>
+            <span
+              className={`block text-[12px] mb-1.5 ${
+                linkError ? "text-red-600" : "text-gray-500"
+              }`}
+            >
+              your link
+            </span>
             <input
-              placeholder="e.g. linktr.ee/yourname"
+              ref={linkInputRef}
+              placeholder="e.g. linktr.ee/you"
               value={link}
               onChange={(e) => changeLink(e.target.value)}
               aria-invalid={linkError !== null}
-              // text-base below sm for the same reason as the name field.
-              className={`w-full px-3 py-2 text-base sm:text-sm border-b focus:outline-none placeholder-gray-400 bg-transparent ${
-                linkError
-                  ? "border-red-400 focus:border-red-500"
-                  : "border-gray-300 focus:border-blue-500"
+              className={`w-full text-[16px] pb-1.5 bg-transparent border-b border-dashed focus:outline-none focus:border-solid placeholder-gray-400 ${
+                linkError ? "border-red-500 text-red-600" : "border-black"
               }`}
             />
-            {linkError && (
-              <p className="text-xs text-red-500 pt-1">{linkError}</p>
-            )}
-          </div>
+          </label>
 
-          {/* Color Picker */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600">
-              Color Picker
-            </label>
-            <div className="grid grid-cols-6 gap-2 py-2 px-3">
-              {HANDPRINT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => onColorSelect(color)}
-                  className={`h-6 w-6 rounded-full transition-all ${
-                    formSelectedColor === color
-                      ? "ring-2 ring-offset-1 ring-gray-800"
-                      : "hover:ring-1 hover:ring-gray-200"
-                  }`}
-                  style={{ backgroundColor: COLOR_SWATCHES[color] }}
-                />
-              ))}
+          {/* The selected swatch becomes the handprint, as in the panel. Bigger
+              boxes than the desktop equivalent — these are touch targets. */}
+          <fieldset>
+            <legend className="text-[12px] text-gray-500 mb-2">colour</legend>
+            <div className="flex items-center gap-3">
+              {HANDPRINT_COLORS.map((color) => {
+                const selected = formSelectedColor === color;
+                return (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => selectColor(color)}
+                    aria-label={color}
+                    aria-pressed={selected}
+                    className="h-11 w-11 flex items-center justify-center shrink-0"
+                  >
+                    {selected ? (
+                      <Image
+                        src={`/handprints/${color}.svg`}
+                        width={36}
+                        height={36}
+                        alt=""
+                        className="select-none"
+                        style={{ transform: `rotate(${previewTilt}deg)` }}
+                      />
+                    ) : (
+                      <span
+                        className="h-6 w-6 rounded-full"
+                        style={{ backgroundColor: COLOR_SWATCHES[color] }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          </fieldset>
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col space-y-2">
+        {/* Stacked rather than side by side: full-width targets are easier to
+            hit with a thumb, and imprint leads because it's the likely one. */}
+        <div className="flex flex-col gap-2 pt-1">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400"
+            className="w-full text-[15px] py-3 border border-black bg-black text-white disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Imprinting…" : "Imprint!"}
+            {isSubmitting ? "imprinting\u2026" : "imprint"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            className="w-full text-[15px] py-2 text-gray-500"
           >
-            Cancel
+            cancel
           </button>
         </div>
       </form>

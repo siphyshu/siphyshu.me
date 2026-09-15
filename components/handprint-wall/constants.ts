@@ -27,4 +27,4 @@ export const COLOR_SWATCHES: Record<string, string> = {
  * takes. It sits opposite the print you just placed, so a fresh hand is never
  * hidden behind the form that created it.
  */
-export const PANEL_WIDTH_PCT = 54;
+export const PANEL_WIDTH_PCT = 48;

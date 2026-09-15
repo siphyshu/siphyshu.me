@@ -51,7 +51,14 @@ export default function HandprintCanvas({
   panel,
 }: HandprintCanvasProps) {
   return (
-    <div className={`relative w-full max-w-[950px] min-w-[300px] ${className ?? ""}`}>
+    // container-type makes this the reference for the panel's cqw sizing, so
+    // the form scales with the frame instead of staying fixed while the
+    // artwork around it grows. Safe here: the only fixed-position element in
+    // the wall (the mobile sheet) is a sibling, not a descendant — containment
+    // would otherwise make this its containing block.
+    <div
+      className={`relative w-full max-w-[950px] min-w-[300px] [container-type:inline-size] ${className ?? ""}`}
+    >
       <div
         ref={canvasRef}
         className={`bg-gray-100 overflow-hidden relative w-full aspect-[3.5/1] min-h-[200px] ${
