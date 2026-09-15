@@ -32,7 +32,17 @@ export function useHandprints() {
     };
   }, []);
 
-  const addHandprint = async (input: HandprintInput): Promise<boolean> => {
+  /**
+   * `turnstileToken` is a credential for this one request, not part of the
+   * handprint — it's a separate argument rather than a field on the input so
+   * it can't be mistaken for something that gets stored. The server strips it
+   * before validating, and validation is strict, so a token that leaked into
+   * the input object would fail the request outright.
+   */
+  const addHandprint = async (
+    input: HandprintInput,
+    turnstileToken?: string | null
+  ): Promise<boolean> => {
     // Temporary client-side id so the optimistic print has a stable React key
     // until the next GET replaces it with the real Mongo-derived one. The
     // timestamp is local-only and gets replaced by the server's on the next
@@ -49,7 +59,9 @@ export function useHandprints() {
       const response = await fetch("/api/handprints", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
+        body: JSON.stringify(
+          turnstileToken ? { ...input, turnstileToken } : input
+        ),
       });
       if (!response.ok) throw new Error("Failed to save handprint");
       return true;

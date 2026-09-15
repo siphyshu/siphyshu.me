@@ -12,6 +12,7 @@ import HandprintCanvas from "./HandprintCanvas";
 import HandprintForm from "./HandprintForm";
 import HandprintPanel from "./HandprintPanel";
 import { useIsMobile } from "./useIsMobile";
+import { useTurnstile } from "./useTurnstile";
 import type { HandprintFormSubmitData } from "./useHandprintForm";
 
 interface HandprintWallProps {
@@ -34,6 +35,15 @@ export default function HandprintWall({ className }: HandprintWallProps) {
   // Hoisted out of the form: two different components now branch on it, and
   // the canvas needs to know whether to make room for the in-frame panel.
   const isMobile = useIsMobile();
+  // Mounted at the wall rather than inside either form, so one widget serves
+  // the sheet and the panel and neither has to make room for it. Destructured
+  // rather than kept as an object: react-hooks/refs reads any property access
+  // on a ref-carrying object as a ref read during render.
+  const {
+    containerRef: turnstileRef,
+    challenging: turnstileChallenging,
+    getToken: getTurnstileToken,
+  } = useTurnstile();
 
   useEffect(() => {
     if (loadError) {
@@ -66,7 +76,15 @@ export default function HandprintWall({ className }: HandprintWallProps) {
       link: normalizedLink,
     };
 
-    const success = await addHandprint(input);
+    // Minted here, immediately before the write, rather than when the form
+    // opened: tokens last five minutes, and someone deciding what to type can
+    // easily spend longer than that. Almost always resolves instantly and
+    // invisibly — see ./useTurnstile. A null token is passed straight through
+    // and refused by the server if verification is switched on, which keeps
+    // the decision in exactly one place.
+    const token = await getTurnstileToken();
+
+    const success = await addHandprint(input, token);
 
     if (success) {
       placement.resetForm();
@@ -160,6 +178,31 @@ export default function HandprintWall({ className }: HandprintWallProps) {
           </>
         )}
       </AnimatePresence>
+
+      {/* The Turnstile widget's home. Always mounted — the widget is rendered
+          into it once and reused, so it can't be tied to the form's lifetime —
+          but it occupies nothing and shows nothing until Cloudflare decides a
+          visitor has to click something, which is rare.
+
+          Centred on the viewport rather than placed in either form: the panel
+          lives inside a 245px picture frame with no room for it, and the sheet
+          would have to reflow around a control that almost never appears. When
+          it does appear, a small box over a dimmed page is the conventional
+          shape for "answer this before continuing", and it reads the same on
+          both layouts.
+
+          Above the sheet (z-20) and its scrim (z-19), or the challenge would
+          open behind the very form that triggered it. */}
+      <div
+        className={`fixed inset-0 flex items-center justify-center transition-colors ${
+          turnstileChallenging
+            ? "bg-black/40 pointer-events-auto"
+            : "pointer-events-none"
+        }`}
+        style={{ zIndex: 60 }}
+      >
+        <div ref={turnstileRef} />
+      </div>
 
       <ToastContainer />
     </div>
