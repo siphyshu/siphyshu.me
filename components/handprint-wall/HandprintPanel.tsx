@@ -1,12 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import { motion, useReducedMotion } from "motion/react";
 import { HANDPRINT_COLORS, type HandprintColor } from "@/lib/schemas/handprint";
 import { COLOR_SWATCHES, PANEL_WIDTH_PCT } from "./constants";
 import {
   useHandprintForm,
   type HandprintFormSubmitData,
 } from "./useHandprintForm";
+
+/** iOS sheet curve, by way of Ionic. Strong ease-out without a bounce. */
+const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
+const ENTER_SLIDE_PX = 22;
 
 interface HandprintPanelProps {
   /** Where the print was placed, 0-100 across the canvas. Decides which side. */
@@ -38,28 +43,55 @@ export default function HandprintPanel({
 }: HandprintPanelProps) {
   const { name, setName, link, changeLink, linkError, isSubmitting, handleSubmit } =
     useHandprintForm(onSubmit);
+  const reduceMotion = useReducedMotion();
 
   // Sit opposite the fresh print so it stays visible.
   const side = printX < 50 ? "right" : "left";
+  const enterFrom = side === "left" ? -ENTER_SLIDE_PX : ENTER_SLIDE_PX;
 
   return (
-    <div
+    <motion.div
       className={`absolute inset-y-0 bg-white flex flex-col ${
         side === "left" ? "left-0 border-r" : "right-0 border-l"
       } border-black`}
       style={{ width: `${PANEL_WIDTH_PCT}%`, zIndex: 25 }}
+      // Enters from the edge it's anchored to, so it reads as sliding out of
+      // the frame rather than appearing on top of the artwork. Deliberately a
+      // short travel, not a full-width slide — the panel lives inside a picture
+      // frame, and a dramatic sweep would fight the stillness of the wall.
+      initial={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: reduceMotion ? 0 : enterFrom }}
+      transition={{ duration: reduceMotion ? 0.12 : 0.24, ease: EASE_DRAWER }}
     >
       <form
         onSubmit={handleSubmit}
-        // overflow-y-auto from the start, not because it's needed at four rows
-        // but so that a fifth degrades into a scrollbar rather than a redesign.
-        className="flex flex-col gap-[14px] h-full overflow-y-auto px-6 py-[18px]"
+        // overflow-y-auto from the start, not because it's needed at five rows
+        // but so that a sixth degrades into a scrollbar rather than a redesign.
+        className="flex flex-col gap-[8px] h-full overflow-y-auto px-6 py-[14px]"
       >
-        {/* The error replaces this line rather than adding a row — the panel
-            has no spare height, and the message is transient. */}
-        <p className={`text-[15px] leading-snug ${linkError ? "text-red-600" : ""}`}>
-          {linkError ?? "hi, you're about to leave a mark on my wall!"}
-        </p>
+        {/* Greeting and subtext are one block rather than two rows. Merging
+            them removes a gap from the column, which is what pays for the
+            colour label sitting above its swatches instead of beside them. */}
+        <div>
+          <p className="text-[15px] leading-tight">
+            hi, you&apos;re about to leave a mark on my wall!
+          </p>
+          {/* The error takes the subtext's place rather than adding a row.
+              The panel has ~20px spare, so a sixth row would push the actions
+              out of view at exactly the moment you need them — and the subtext
+              is the most expendable thing on screen while something is wrong. */}
+          {linkError ? (
+            <p role="alert" className="text-[11.5px] leading-snug text-red-600 mt-1.5">
+              {linkError}
+            </p>
+          ) : (
+            <p className="text-[11.5px] leading-snug text-gray-500 mt-1.5">
+              it stays as long as this site does, and fades slowly over the years —
+              like the faintest ones already have.
+            </p>
+          )}
+        </div>
 
         <div className="flex gap-[22px]">
           <label className="flex-1">
@@ -88,34 +120,47 @@ export default function HandprintPanel({
           </label>
         </div>
 
-        {/* Preview plus swatches. The preview is what actually reads as the
-            colour indicator — you're choosing a hand, so it shows the hand. */}
-        <div className="flex items-center gap-[14px]">
-          <Image
-            src={`/handprints/${formSelectedColor}.svg`}
-            width={34}
-            height={34}
-            alt=""
-            className="-rotate-[9deg] select-none"
-          />
-          <div className="flex gap-[9px]">
-            {HANDPRINT_COLORS.map((color) => (
-              <button
-                key={color}
-                type="button"
-                onClick={() => onColorSelect(color)}
-                aria-label={color}
-                aria-pressed={formSelectedColor === color}
-                className={`h-[18px] w-[18px] rounded-full ${
-                  formSelectedColor === color
-                    ? "outline outline-[1.5px] outline-offset-2 outline-black"
-                    : ""
-                }`}
-                style={{ backgroundColor: COLOR_SWATCHES[color] }}
-              />
-            ))}
+        {/* The selected swatch becomes the handprint itself rather than sitting
+            next to a separate preview. That removes the size mismatch between
+            a 34px hand and an 18px dot by deleting the element causing it, and
+            it says what's being chosen more directly than a ring does. Circles
+            stay for the rest — six small hands read as clutter and make the
+            fills harder to compare. */}
+        <fieldset>
+          <legend className="text-[11px] text-gray-500 mb-[5px]">colour</legend>
+          <div className="flex items-center gap-[10px] h-[26px]">
+            {HANDPRINT_COLORS.map((color) => {
+              const selected = formSelectedColor === color;
+              return (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => onColorSelect(color)}
+                  aria-label={color}
+                  aria-pressed={selected}
+                  // Fixed box whatever's inside, so promoting one to a hand
+                  // doesn't shuffle the others along the row.
+                  className="h-[26px] w-[26px] flex items-center justify-center shrink-0"
+                >
+                  {selected ? (
+                    <Image
+                      src={`/handprints/${color}.svg`}
+                      width={26}
+                      height={26}
+                      alt=""
+                      className="-rotate-[8deg] select-none"
+                    />
+                  ) : (
+                    <span
+                      className="h-[18px] w-[18px] rounded-full"
+                      style={{ backgroundColor: COLOR_SWATCHES[color] }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        </div>
+        </fieldset>
 
         {/* Actions get their own row. Mixing a selection control with a commit
             action reads as one undifferentiated strip of things to press. */}
@@ -136,6 +181,6 @@ export default function HandprintPanel({
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

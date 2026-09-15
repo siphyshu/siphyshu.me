@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { AnimatePresence } from "motion/react";
 import type { MouseEvent, PointerEvent, ReactNode, RefObject } from "react";
 import type { Handprint } from "@/lib/schemas/handprint";
 import type { AgedHandprint } from "./age";
@@ -147,7 +148,10 @@ export default function HandprintCanvas({
         )}
       </div>
 
-      {panel}
+      {/* Keeps the panel mounted long enough to animate out — without it the
+          form vanishes the instant it's dismissed, which reads as a glitch
+          next to how deliberately it arrives. */}
+      <AnimatePresence>{panel}</AnimatePresence>
     </div>
   );
 }
