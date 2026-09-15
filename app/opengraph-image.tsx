@@ -2,52 +2,58 @@ import { ImageResponse } from "next/og";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import clientPromise from "@/lib/mongodb";
+import { getAge } from "@/lib/age";
 import { withAges } from "@/components/handprint-wall/age";
 import type { Handprint } from "@/lib/schemas/handprint";
 
-export const alt = "The handprint wall on siphyshu.me";
+export const alt = "siphyshu.me — Jaiyank's personal site";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Laid out in absolute pixels rather than percentages — Satori supports a
-// subset of CSS and this leaves nothing to interpret.
-const PAD = 40;
-const FRAME = 20;
-const WALL_W = size.width - PAD * 2;
-const CANVAS_W = WALL_W - FRAME * 2;
-const CANVAS_H = Math.round(CANVAS_W / 3.5); // the wall's own aspect
-const HAND = 34; // scaled from 30px against the site's 950px canvas
-
 /**
- * Weathering here is opacity only. The wall also drains saturation and adds
- * sepia with age, but Satori doesn't implement CSS filters, so those two
- * channels are unavailable. Opacity carries most of the effect and is the one
- * that reads at card size.
+ * Laid out in absolute pixels rather than percentages — Satori implements a
+ * subset of CSS, and this leaves nothing for it to interpret.
+ *
+ * The card leads with who this is, not with the handprint wall. The wall is
+ * the site's one piece of personality, so it earns a band along the bottom,
+ * but it's a signature rather than the subject.
  */
+const PAD = 64;
+const BAND_H = 236;
+/** The wall's own aspect at full card width, so the band is a true crop of it
+ *  rather than a squashed copy. */
+const WALL_H = Math.round(size.width / 3.5);
+const HAND = 34;
+
+/** Weathering is opacity only: Satori doesn't implement CSS filters, so the
+ *  wall's saturation and sepia channels are unavailable here. */
 const WEATHERED_OPACITY = 0.55;
 
 /**
  * Satori ships no system fonts — `fontFamily: "serif"` silently falls back to a
- * default sans, which is how the first render came out. The site itself uses
- * the system serif stack (ui-serif/Georgia), so there was no webfont to reuse
- * and one has to be vendored.
+ * default sans. The site uses the system serif stack, so there was no webfont
+ * to reuse and one had to be vendored.
  *
- * Static weights, not a variable font. Gelasio was the closer match to Georgia
- * but ships only as a variable font, and Satori's parser killed the render
- * process outright on it rather than erroring — a blank reply from the server
- * with nothing in the response. PT Serif is static, and close enough at the
- * size a share card is actually viewed.
+ * Static weights, not variable. Gelasio was the closer match to Georgia but
+ * ships only as a variable font, and Satori's parser killed the render process
+ * outright on it — an empty reply from the server, nothing logged.
  */
-const fontRegular = readFileSync(path.join(process.cwd(), "public", "fonts", "PTSerif-Regular.ttf"));
-const fontBold = readFileSync(path.join(process.cwd(), "public", "fonts", "PTSerif-Bold.ttf"));
+const asset = (...p: string[]) => readFileSync(path.join(process.cwd(), "public", ...p));
+const fontRegular = asset("fonts", "PTSerif-Regular.ttf");
+const fontBold = asset("fonts", "PTSerif-Bold.ttf");
 
-/** Read once per process rather than per request; these never change. */
+const dataUri = (file: Buffer, mime: string) =>
+  `data:${mime};base64,${file.toString("base64")}`;
+
+const avatar = dataUri(asset("images", "jaiyank.jpg"), "image/jpeg");
+const avatarAlt = dataUri(asset("images", "siphyshu.jpg"), "image/jpeg");
+
+/** Read once per process; these never change. */
 const handSvg = new Map<string, string>();
 function handSrc(color: string): string {
   const cached = handSvg.get(color);
   if (cached) return cached;
-  const file = path.join(process.cwd(), "public", "handprints", `${color}.svg`);
-  const uri = `data:image/svg+xml;base64,${readFileSync(file).toString("base64")}`;
+  const uri = dataUri(asset("handprints", `${color}.svg`), "image/svg+xml");
   handSvg.set(color, uri);
   return uri;
 }
@@ -60,8 +66,19 @@ async function getHandprints(): Promise<Handprint[]> {
 
 export default async function OpengraphImage() {
   const aged = withAges(await getHandprints());
-  // Off-canvas rows exist from before the schema clamped x and y.
-  const onWall = aged.filter((h) => h.x >= 0 && h.x <= 100 && h.y >= 0 && h.y <= 100);
+  // The band shows the lower part of the wall, so anything above it simply
+  // isn't drawn — cheaper than asking Satori to clip, and identical on screen.
+  // The x/y guard also drops the off-canvas rows that predate the schema
+  // clamping coordinates to 0-100.
+  const bandTop = WALL_H - BAND_H;
+  const onWall = aged.filter(
+    (h) =>
+      h.x >= 0 &&
+      h.x <= 100 &&
+      h.y >= 0 &&
+      h.y <= 100 &&
+      (h.y / 100) * WALL_H > bandTop - HAND
+  );
 
   return new ImageResponse(
     (
@@ -71,83 +88,96 @@ export default async function OpengraphImage() {
           height: size.height,
           display: "flex",
           flexDirection: "column",
-          // Centred rather than space-between: the wall and the footer together
-          // are shorter than the card, and pushing them to the edges left a
-          // void in the middle that read as a missing element. Centring splits
-          // the slack evenly above and below, where it reads as margin.
-          justifyContent: "center",
-          padding: PAD,
+          justifyContent: "space-between",
           background: "#ffffff",
           fontFamily: "PT Serif",
         }}
       >
-        {/* Frame. A gradient stands in for the wood: the real frame is a
-            border-image, which Satori doesn't support, and the PNG is 260KB to
-            inline for something that reads as a brown edge at card size. */}
-        <div
-          style={{
-            display: "flex",
-            padding: FRAME,
-            background: "linear-gradient(160deg, #e0b063 0%, #c8913f 45%, #dfae5f 100%)",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: 36, padding: PAD }}>
+          {/* The avatar pair from the site's header, small one overlapping. */}
+          <div style={{ display: "flex", position: "relative", width: 172, height: 172 }}>
+            <img src={avatar} alt="" width={172} height={172} style={{ borderRadius: 86 }} />
+            <img
+              src={avatarAlt}
+              alt=""
+              width={74}
+              height={74}
+              style={{
+                position: "absolute",
+                right: -2,
+                bottom: -2,
+                borderRadius: 37,
+                border: "5px solid #ffffff",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* No emoji: PT Serif carries no emoji glyphs, and Satori needs an
+                emoji font supplied separately — a network dependency for a
+                wave isn't worth it. */}
+            <div style={{ fontSize: 60, fontWeight: 700, color: "#111" }}>
+              hey, i&apos;m jaiyank
+            </div>
+            {/* display:flex because this has two children — the expression
+                and the text beside it. Satori throws on any element with more
+                than one child that doesn't declare it, and the failure surfaces
+                only as a dropped response with nothing logged. */}
+            <div style={{ display: "flex", fontSize: 27, color: "#666", paddingTop: 14 }}>
+              {getAge()} y/o · exploring CS @ VITB
+            </div>
+            <div style={{ fontSize: 27, color: "#666", paddingTop: 6 }}>
+              Developer, generalist, always curious.
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              padding: `0 ${PAD}px 22px`,
+            }}
+          >
+            <div style={{ fontSize: 30, color: "#111" }}>siphyshu.me</div>
+            <div style={{ display: "flex", fontSize: 20, color: "#999" }}>{aged.length} were here</div>
+          </div>
+
+          {/* Full-bleed band: the bottom of the wall, no frame. Cropped rather
+              than scaled, so the prints keep the size and spacing they have on
+              the site instead of being squashed into a strip. */}
           <div
             style={{
               display: "flex",
               position: "relative",
-              width: CANVAS_W,
-              height: CANVAS_H,
+              width: size.width,
+              height: BAND_H,
+              // Without this the prints sitting at negative offsets — the ones
+              // whose centres are above the crop line — draw up over the white
+              // and across the wordmark.
+              overflow: "hidden",
               background: "#f6f2e8",
+              borderTop: "1px solid #e8e2d4",
             }}
           >
             {onWall.map((h) => (
               <img
                 key={h.id}
                 src={handSrc(h.color)}
-                // Satori renders to a flat image; there is nothing for a
-                // screen reader to reach. The card's alt text is the exported
-                // `alt` above.
                 alt=""
                 width={HAND}
                 height={HAND}
                 style={{
                   position: "absolute",
-                  // Offset by half rather than translate(-50%): one fewer
-                  // transform for Satori to resolve.
-                  left: Math.round((h.x / 100) * CANVAS_W - HAND / 2),
-                  top: Math.round((h.y / 100) * CANVAS_H - HAND / 2),
+                  left: Math.round((h.x / 100) * size.width - HAND / 2),
+                  top: Math.round((h.y / 100) * WALL_H - bandTop - HAND / 2),
                   transform: `rotate(${h.angle.toFixed(1)}deg)`,
                   opacity: 1 + (WEATHERED_OPACITY - 1) * h.age,
                 }}
               />
             ))}
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            paddingTop: 28,
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 46, fontWeight: 700, color: "#111" }}>siphyshu.me</div>
-            <div style={{ fontSize: 22, color: "#666", paddingTop: 6 }}>
-              from cave walls to pixels — leave a mark
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 26,
-              color: "#111",
-              border: "1px solid #111",
-              padding: "8px 16px",
-            }}
-          >
-            {onWall.length} were here
           </div>
         </div>
       </div>
