@@ -186,3 +186,263 @@ img {
   border-image-repeat: stretch;
   border-image-source: url("/images/frames/wood-frame-lighter-brown.png");
 }
+
+/* ---------------------------------------------------------------------------
+   Backstage: the prompt book.
+
+   A stage manager's binder. Plans are pencilled in, what's running is
+   highlighted, what's finished is struck through, and anything stuck gets a
+   note in red pencil. Status shows as a mark on the words themselves rather
+   than as a badge beside them — the same way the handprint wall shows age as
+   weathering instead of a date.
+
+   Colour is signal only: highlighter means on stage, red pencil means held.
+   Everything else is ink and graphite. */
+
+.promptbook {
+  --pb-ink: #000;
+  /* #737373 rather than a lighter grey: notes are body text, and this is the
+     lightest grey that still clears 4.5:1 on white. */
+  --pb-graphite: #737373;
+  --pb-highlighter: #fff09a;
+  --pb-red-pencil: #c8352e;
+  --pb-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pb-graphite {
+  color: var(--pb-graphite);
+}
+
+.pb-title {
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  text-align: left;
+  /* It opens an editor, so the cursor says "text", not "link". */
+  cursor: text;
+}
+
+/* The button only. The title *input* shares .pb-title for its type size, but
+   its focus is the pencil line thickening (see .pb-input) — an outline box on
+   top of that read as a second, heavier field around the first. */
+button.pb-title:focus-visible {
+  outline: 2px solid var(--pb-ink);
+  outline-offset: 3px;
+}
+
+/* Both marks are background layers that always exist and only change size.
+   background-image can't be transitioned; background-size can — so a strike
+   that is already there at 0% width is what lets it draw on.
+
+   `display: inline` with the default `box-decoration-break: slice` lays the
+   background along the unbroken run of text. Growing it to 100% sweeps across
+   a wrapped title line by line, the way a pen would, instead of striking every
+   line at once. It animates background-size rather than a transform; that
+   paints but doesn't reflow, and it's a one-shot on a single element that
+   happens when you tick something off, so it's allowed the cost. */
+.pb-text {
+  background-image:
+    linear-gradient(var(--pb-graphite), var(--pb-graphite)),
+    linear-gradient(var(--pb-highlighter), var(--pb-highlighter));
+  background-repeat: no-repeat;
+  background-position:
+    0 58%,
+    0 78%;
+  background-size:
+    0% 0.075em,
+    0% 0.6em;
+  transition:
+    color 160ms ease,
+    background-size 320ms var(--pb-ease-out);
+}
+
+.pb-text[data-status="idea"] {
+  color: var(--pb-graphite);
+}
+
+.pb-text[data-status="doing"] {
+  background-size:
+    0% 0.075em,
+    100% 0.6em;
+}
+
+.pb-text[data-status="done"] {
+  color: var(--pb-graphite);
+  background-size:
+    100% 0.075em,
+    0% 0.6em;
+}
+
+.pb-note {
+  margin-top: 0.125rem;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--pb-graphite);
+  white-space: pre-line;
+}
+
+.pb-held {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--pb-red-pencil);
+}
+
+/* The margin mark: a ring that becomes a tick. */
+.pb-mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  /* One title line tall, so the ring sits beside the first line of a wrapped
+     title rather than centring against the whole block. */
+  height: 1.54rem;
+  color: var(--pb-ink);
+  transition: transform 100ms var(--pb-ease-out);
+}
+
+/* A bigger target than the 16px drawing, without making the drawing bigger. */
+.pb-mark::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -0.25rem;
+}
+
+.pb-mark:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+.pb-mark:focus-visible {
+  outline: 2px solid var(--pb-ink);
+  outline-offset: 1px;
+  border-radius: 999px;
+}
+
+.pb-mark:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.pb-mark circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  transition: opacity 120ms ease;
+}
+
+.pb-mark path {
+  fill: none;
+  stroke: var(--pb-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.pb-mark[data-status="idea"] {
+  color: var(--pb-graphite);
+}
+
+.pb-mark[data-held="true"] {
+  color: var(--pb-red-pencil);
+}
+
+.pb-mark[data-status="done"] circle {
+  opacity: 0;
+}
+
+.pb-mark[data-status="done"] path {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* A faint tick on hover previews what the click will do. */
+  .pb-mark:not([data-status="done"]):not(:disabled):hover path {
+    opacity: 0.35;
+  }
+
+  .pb-choice:hover,
+  .pb-quiet:hover {
+    color: var(--pb-ink);
+  }
+}
+
+/* Inputs are a pencil line on the page — plain fields that look like fields,
+   with the focus state carried by the line thickening, not a glow. */
+.pb-input {
+  width: 100%;
+  padding: 0.125rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--pb-graphite);
+  border-radius: 0;
+  background: transparent;
+  color: var(--pb-ink);
+  outline: none;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.pb-input:focus {
+  border-bottom-color: var(--pb-ink);
+  box-shadow: 0 1px 0 0 var(--pb-ink);
+}
+
+.pb-input::placeholder {
+  color: var(--pb-graphite);
+  font-style: italic;
+}
+
+textarea.pb-input {
+  resize: none;
+  field-sizing: content;
+  min-height: 1.55em;
+  font-style: italic;
+}
+
+.pb-choice,
+.pb-quiet {
+  color: var(--pb-graphite);
+}
+
+.pb-choice[aria-pressed="true"] {
+  color: var(--pb-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.pb-link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.pb-rail a {
+  color: var(--pb-graphite);
+  transition: color 120ms ease;
+}
+
+.pb-rail a[aria-current="true"],
+.pb-rail a:hover {
+  color: var(--pb-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The marks still change — status is information — they just arrive rather
+     than draw. */
+  .pb-text {
+    transition: color 160ms ease;
+  }
+
+  .pb-mark {
+    transition: none;
+  }
+
+  .pb-mark:active:not(:disabled) {
+    transform: none;
+  }
+}

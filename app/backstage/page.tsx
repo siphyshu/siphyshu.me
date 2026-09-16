@@ -1,16 +1,15 @@
+import Board from "@/components/backstage/Board";
 import PasswordGate from "@/components/backstage/PasswordGate";
-import Roadmap from "@/components/backstage/Roadmap";
 import { backstageConfigured, isUnlocked } from "@/lib/backstage";
+import { ensureSeeded, getBoard } from "@/lib/backstage-store";
 
 // Sits outside both (site) and (reader): no hero, no handprint wall, no
-// "← articles". It is not part of the site's navigation and nothing links to
-// it — you get here by typing the URL.
+// "← articles". Nothing links here — you type the URL, or you know the code.
 export const metadata = {
   title: "backstage",
-  // Belt and braces alongside the password. A noindex header is what keeps the
-  // URL out of search results if it is ever pasted somewhere public — the
-  // password stops people reading the page, not crawlers recording that it
-  // exists.
+  // Alongside the password, not instead of it. The password stops people
+  // reading the page; noindex keeps the URL itself out of search results if it's
+  // ever pasted somewhere public.
   robots: { index: false, follow: false },
 };
 
@@ -29,10 +28,10 @@ export default async function BackstagePage() {
     );
   }
 
-  // The roadmap is never sent to a locked client: this is a server component,
-  // so the branch not taken is not in the payload at all. A client-side check
-  // would ship the whole thing and merely decline to display it.
+  // The board is never sent to a locked client, and never even read from the
+  // database for one: this check runs before the query does.
   if (!(await isUnlocked())) return <PasswordGate />;
 
-  return <Roadmap />;
+  await ensureSeeded();
+  return <Board sections={await getBoard()} />;
 }
