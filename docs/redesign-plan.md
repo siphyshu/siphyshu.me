@@ -1,6 +1,7 @@
 # siphyshu.me — redesign plan
 
-Status: **parked**. Written 2026-09-12. Nothing here is started.
+Status: **in progress**. Written 2026-09-12. Step 1 (routing skeleton) is done;
+steps 2–6 are not started.
 
 A plan for growing the site from a single-route portfolio into a fuller
 multi-section site, without diluting the existing minimal/sharp/white look.
@@ -131,7 +132,10 @@ This also decides the homepage:
 
 ## Build order
 
-1. **Routing skeleton** — unblocks everything else
+1. ~~**Routing skeleton** — unblocks everything else~~ — done. The shell lives in
+   `app/(site)/layout.jsx`, sections are pages under it. `/` and `/projects`
+   render the same grid; `/` is canonical so the bare domain still opens on
+   projects.
 2. **Tags clickable → `/tags/[tag]`** — small, kills a dead affordance
 3. **Cmd+K palette** — replaces the disliked search, needs routes first
 4. **MDX + article view** — biggest single lift

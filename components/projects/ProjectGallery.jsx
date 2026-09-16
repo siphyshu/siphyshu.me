@@ -4,7 +4,7 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import { projects } from "@/data/projects";
 import { tags } from "@/data/tags";
 
-const ProjectGallery = ({ className }) => {
+const ProjectGallery = ({ className = "" }) => {
     return (
         <div className={`flex justify-start ${className}`}>
             <div className="grid gap-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">

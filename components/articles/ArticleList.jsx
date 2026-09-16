@@ -3,7 +3,7 @@
 import ArticleItem from "@/components/articles/ArticleItem";
 import { articles } from "@/data/articles";
 
-const ArticleList = ({ className }) => {
+const ArticleList = ({ className = "" }) => {
     return (
         <div className={`flex flex-col justify-start ${className}`}>
             <div>
