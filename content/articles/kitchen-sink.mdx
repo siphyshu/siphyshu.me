@@ -1,0 +1,75 @@
+---
+title: Kitchen sink
+subtitle: "Every element the reader knows how to render, on one page. A fixture for checking the prose styles — and the file to copy when starting a real article."
+date: 2026-09-16
+draft: true
+tags: [web, nextjs]
+keywords: [test, fixture]
+---
+
+This file is a **draft**, so it renders under `next dev` and is absent from a
+production build. That is the whole draft mechanism: set `draft: true`, write
+until it's ready, delete the line to publish.
+
+Copy this file to start a new article. Delete everything below the frontmatter.
+
+## Headings are linkable
+
+Every heading gets an `id` and becomes its own anchor — hover one and the URL
+fragment is there to copy. That is `rehype-slug` plus `rehype-autolink-headings`
+doing the work at build time.
+
+### A third-level heading
+
+Text can be _emphasised_, **strong**, `inline code`, ~~struck through~~, or a
+[link to another page](/projects) on this site. An [external
+link](https://example.com) opens in a new tab and carries `rel="noopener
+noreferrer"`; an [anchor](#headings-are-linkable) stays put.
+
+## Code gets highlighted at build time
+
+Syntax highlighting runs through Shiki while the site builds, so the HTML ships
+already coloured and no highlighter is sent to the browser.
+
+```ts
+// The publish system's only gate: a file that fails this fails the build.
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
+```
+
+```bash
+npm run dev   # drafts visible
+npm run build # drafts gone
+```
+
+## Lists, quotes, and rules
+
+- An unordered item
+- Another, with `code` inside it
+  - And one nested beneath it
+
+1. Ordered items work too
+2. Counting continues
+
+- [x] Task lists come from GitHub-flavoured markdown
+- [ ] So do tables and literal autolinks like https://siphyshu.me
+
+> A blockquote, for when something is worth setting apart from the paragraph
+> around it.
+
+| Field      | Required | Notes                                    |
+| ---------- | -------- | ---------------------------------------- |
+| `title`    | yes      | Shown in the index and the browser tab   |
+| `subtitle` | yes      | Doubles as the meta description          |
+| `date`     | yes      | `YYYY-MM-DD`, validated as a real date   |
+| `tags`     | no       | Must already exist in `data/tags.ts`     |
+| `draft`    | no       | Defaults to `false`                      |
+
+---
+
+Images are constrained to the column width, which needs a rule in `globals.css`
+to beat the global `img { max-width: unset !important }` that the handprint wall
+still depends on.
+
+![The wooden frame around the handprint wall](/images/frames/wood-frame-lighter-brown.png)

@@ -10,6 +10,65 @@ img {
   max-width: unset !important;
 }
 
+/* Article and project bodies. Everything here is an override of something that
+   would otherwise win, so it is all scoped to .prose-article rather than added
+   to the typography plugin's theme. */
+
+/* Puts back what the rule above takes away, for content images only. The global
+   `img` rule is `!important`, so matching that is the only way to beat it; the
+   class makes this selector more specific, so it wins without needing to touch
+   the wall's images. This is the narrowing the comment above asks for, done for
+   the one case that can be reasoned about in isolation. */
+.prose-article img {
+  max-width: 100% !important;
+  height: auto;
+}
+
+/* Headings are wrapped in their own anchor by rehype-autolink-headings, which
+   the typography plugin then styles as a link — every heading would arrive
+   underlined and coloured. The marker appears on hover instead, outside the
+   text so it never reflows the heading. */
+.prose-article :is(h1, h2, h3, h4, h5, h6) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.prose-article :is(h1, h2, h3, h4, h5, h6) a:hover::before {
+  content: "#";
+  position: absolute;
+  margin-left: -1em;
+  color: #9ca3af;
+}
+
+.prose-article :is(h1, h2, h3, h4, h5, h6) {
+  position: relative;
+}
+
+/* Sharp corners and hairline borders, per the site's existing containers. Shiki
+   sets the code block's background inline, so only the frame is set here. */
+.prose-article :is(pre, table, img) {
+  border-radius: 0;
+}
+
+.prose-article pre {
+  border: 1px solid #000;
+}
+
+/* The typography plugin wraps inline code in literal backticks via ::before and
+   ::after. That reads as a typo in prose that already sets code in mono. */
+.prose-article :not(pre) > code::before,
+.prose-article :not(pre) > code::after {
+  content: none;
+}
+
+/* Wide code scrolls inside its own box rather than widening the page. Tables
+   get the same treatment from a wrapper in mdx-components.tsx instead: making
+   the table itself a scroll container needs `display: block`, which drops the
+   table layout algorithm and collapses it to shrink-to-fit. */
+.prose-article pre {
+  overflow-x: auto;
+}
+
 /* Registered so it's a real <length> rather than an untyped token. Without
    this the blur below is stuck: `filter` is transitioned, and a transitioned
    property that reads an unregistered var() caches its start value and never

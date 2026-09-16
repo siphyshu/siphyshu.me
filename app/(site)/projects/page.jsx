@@ -1,4 +1,5 @@
 import ProjectGallery from "@/components/projects/ProjectGallery";
+import { getProjects } from "@/lib/content";
 
 // Same view as "/", which is where the nav points and what search engines
 // should index — this route exists so the section is linkable on its own.
@@ -7,6 +8,6 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function ProjectsPage() {
-  return <ProjectGallery />;
+export default async function ProjectsPage() {
+  return <ProjectGallery projects={await getProjects()} />;
 }
