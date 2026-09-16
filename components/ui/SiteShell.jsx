@@ -1,6 +1,7 @@
 "use client";
 
 import HandprintWall from "@/components/handprint-wall/HandprintWall";
+import KonamiCode from "@/components/backstage/KonamiCode";
 import HeaderSection2 from "@/components/hero/HeaderSection2";
 import NavBar from "@/components/ui/NavBar";
 import SearchBar from "@/components/search/SearchBar";
@@ -20,6 +21,11 @@ export default function SiteShell({ children, projects = [], articles = [] }) {
 
   return (
     <>
+      {/* Renders nothing — a keydown listener scoped to the shell, so the
+          sequence works anywhere on the front of the site but not while
+          reading an article. */}
+      <KonamiCode />
+
       {/* Introduction */}
       <HeaderSection2 />
 
