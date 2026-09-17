@@ -25,18 +25,12 @@ symptoms of one cause. Fix routing and most of them fall out.
 
 ---
 
-## Design rules to hold
+## Design principles
 
-"More features" is how this aesthetic dies. The rules that define it:
-
-1. White bg, black hairline borders, **no rounded corners on containers** — pills only.
-2. Serif everywhere, lowercase for nav and labels.
-3. **Color appears only in tag pills and thumbnails.** All chrome is black/white/gray.
-4. One shadow depth (`shadow-md`), never layered.
-5. **One moment of personality per screen.** Home gets the handprint wall, the
-   footer gets the cat. Section pages stay quiet.
-
-Rule 5 is the one that will be tempting to break.
+See [`design-principles.md`](./design-principles.md). The five rules that used
+to be here were written ahead of the site and were stricter than it — they
+banned rounded containers and colour outside pills while the homepage has
+both. The replacements are inferred from what's actually there.
 
 ---
 

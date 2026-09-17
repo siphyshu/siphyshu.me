@@ -25,7 +25,7 @@ export default function PasswordGate() {
           type="password"
           autoComplete="current-password"
           autoFocus
-          placeholder="password"
+          placeholder="Password"
           aria-invalid={state.error ? true : undefined}
           aria-describedby={state.error ? "backstage-error" : undefined}
           className={`w-full border px-4 py-2.5 bg-white text-sm focus:outline-none focus:border-black transition-colors ${
@@ -38,7 +38,7 @@ export default function PasswordGate() {
           disabled={pending}
           className="mt-3 w-full border border-black px-4 py-2.5 text-sm hover:bg-black hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-black"
         >
-          {pending ? "checking…" : "let me in"}
+          {pending ? "Checking…" : "Unlock"}
         </button>
 
         {/* Reserves its own line whether or not there's an error, so the

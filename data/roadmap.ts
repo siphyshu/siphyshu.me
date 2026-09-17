@@ -1,36 +1,22 @@
-// The backstage roadmap. Edit this file to tick something off — the status is
-// a word, the change is one line, and git keeps the history of when a thing
-// moved and why. That is deliberately not a database: the page is read by one
-// person, and a checkbox whose state lives in Mongo would be a feature to
-// maintain rather than a decision that got recorded.
+// The seed for the backstage board — not the live source.
+//
+// The board lives in MongoDB now, where it can be edited from the page itself.
+// This file is read exactly once, the first time the board is opened against
+// an empty database (see lib/backstage-store.ts), and never again: editing it
+// after that changes nothing. It stays in the repo as the record of where the
+// board started, and so a fresh database elsewhere starts from the same place.
+//
+// The statuses here are the old six. The store maps them onto the four the
+// board uses — "building" becomes doing, "later" folds into idea, and
+// "blocked" becomes next-up with the held flag set.
 
-export type Status = "done" | "building" | "next" | "later" | "idea" | "blocked";
-
-export const statusLabels: Record<Status, string> = {
-  done: "done",
-  building: "building",
-  next: "next up",
-  later: "later",
-  idea: "idea",
-  blocked: "blocked",
-};
-
-// Pills, so colour is allowed here — the design rule is that colour appears
-// only in tag pills and thumbnails, not that pills must be tag-coloured.
-export const statusStyles: Record<Status, string> = {
-  done: "text-gray-400 border-gray-300 line-through",
-  building: "text-emerald-600 border-emerald-500 bg-emerald-50",
-  next: "text-blue-600 border-blue-500",
-  later: "text-gray-500 border-gray-400",
-  idea: "text-[hsl(240,50%,60%)] border-[hsl(240,50%,75%)]",
-  blocked: "text-red-500 border-red-400",
-};
+export type SeedStatus = "done" | "building" | "next" | "later" | "idea" | "blocked";
 
 export interface RoadmapItem {
   title: string;
   /** Why it matters, or what's undecided. Kept short. */
   note?: string;
-  status: Status;
+  status: SeedStatus;
 }
 
 export interface RoadmapArea {
