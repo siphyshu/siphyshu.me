@@ -188,261 +188,429 @@ img {
 }
 
 /* ---------------------------------------------------------------------------
-   Backstage: the prompt book.
+   Backstage.
 
-   A stage manager's binder. Plans are pencilled in, what's running is
-   highlighted, what's finished is struck through, and anything stuck gets a
-   note in red pencil. Status shows as a mark on the words themselves rather
-   than as a badge beside them — the same way the handprint wall shows age as
-   weathering instead of a date.
+   Three text sizes (32 / 17 / 15), one spacing scale (Tailwind's 4px steps),
+   and one left edge: headings, the add field and every title start on the
+   same line, with cue numbers and ticks hanging in the margin to its left.
+   Colour is signal only — red means held, or destructive. */
 
-   Colour is signal only: highlighter means on stage, red pencil means held.
-   Everything else is ink and graphite. */
-
-.promptbook {
-  --pb-ink: #000;
-  /* #737373 rather than a lighter grey: notes are body text, and this is the
-     lightest grey that still clears 4.5:1 on white. */
-  --pb-graphite: #737373;
-  --pb-highlighter: #fff09a;
-  --pb-red-pencil: #c8352e;
-  --pb-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.pb-graphite {
-  color: var(--pb-graphite);
-}
-
-.pb-title {
+.backstage {
+  --bs-ink: #0a0a0a;
+  --bs-muted: #6b6b6b;
+  --bs-line: #e5e5e5;
+  --bs-hover: #f5f5f5;
+  --bs-red: #c8352e;
+  --bs-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  max-width: 42rem;
+  margin-inline: auto;
+  color: var(--bs-ink);
   font-size: 1.0625rem;
-  line-height: 1.45;
-  text-align: left;
-  /* It opens an editor, so the cursor says "text", not "link". */
-  cursor: text;
+  line-height: 1.5;
 }
 
-/* The button only. The title *input* shares .pb-title for its type size, but
-   its focus is the pencil line thickening (see .pb-input) — an outline box on
-   top of that read as a second, heavier field around the first. */
-button.pb-title:focus-visible {
-  outline: 2px solid var(--pb-ink);
-  outline-offset: 3px;
+.backstage :focus-visible {
+  outline: 2px solid var(--bs-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-/* Both marks are background layers that always exist and only change size.
-   background-image can't be transitioned; background-size can — so a strike
-   that is already there at 0% width is what lets it draw on.
-
-   `display: inline` with the default `box-decoration-break: slice` lays the
-   background along the unbroken run of text. Growing it to 100% sweeps across
-   a wrapped title line by line, the way a pen would, instead of striking every
-   line at once. It animates background-size rather than a transform; that
-   paints but doesn't reflow, and it's a one-shot on a single element that
-   happens when you tick something off, so it's allowed the cost. */
-.pb-text {
-  background-image:
-    linear-gradient(var(--pb-graphite), var(--pb-graphite)),
-    linear-gradient(var(--pb-highlighter), var(--pb-highlighter));
-  background-repeat: no-repeat;
-  background-position:
-    0 58%,
-    0 78%;
-  background-size:
-    0% 0.075em,
-    0% 0.6em;
-  transition:
-    color 160ms ease,
-    background-size 320ms var(--pb-ease-out);
+.bs-h1 {
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-.pb-text[data-status="idea"] {
-  color: var(--pb-graphite);
-}
-
-.pb-text[data-status="doing"] {
-  background-size:
-    0% 0.075em,
-    100% 0.6em;
-}
-
-.pb-text[data-status="done"] {
-  color: var(--pb-graphite);
-  background-size:
-    100% 0.075em,
-    0% 0.6em;
-}
-
-.pb-note {
-  margin-top: 0.125rem;
-  max-width: 62ch;
+.bs-h2 {
   font-size: 0.9375rem;
-  line-height: 1.55;
-  font-style: italic;
-  color: var(--pb-graphite);
-  white-space: pre-line;
+  font-weight: 600;
 }
 
-.pb-held {
+.bs-count,
+.bs-meta {
+  color: var(--bs-muted);
   font-size: 0.9375rem;
-  line-height: 1.55;
-  font-style: italic;
-  color: var(--pb-red-pencil);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
-/* The margin mark: a ring that becomes a tick. */
-.pb-mark {
-  position: relative;
+.bs-error,
+.bs-held,
+.bs-danger {
+  color: var(--bs-red);
+  font-size: 0.9375rem;
+}
+
+/* Quiet text buttons: lock, back, delete. */
+.bs-button {
+  color: var(--bs-muted);
+  font-size: 0.9375rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  margin: -0.25rem -0.625rem;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.bs-button:hover {
+  color: var(--bs-ink);
+  background: var(--bs-hover);
+}
+
+.bs-button.bs-danger:hover {
+  color: var(--bs-red);
+}
+
+.bs-disclosure {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-weight: 600;
+}
+
+.bs-disclosure:hover .bs-chevron {
+  color: var(--bs-ink);
+}
+
+.bs-chevron {
+  display: inline-block;
+  color: var(--bs-muted);
+  transition: transform 160ms var(--bs-ease);
+}
+
+.bs-disclosure[aria-expanded="true"] .bs-chevron {
+  transform: rotate(90deg);
+}
+
+/* --- Add field ---------------------------------------------------------- */
+
+.bs-add {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 2rem;
-  /* One title line tall, so the ring sits beside the first line of a wrapped
-     title rather than centring against the whole block. */
-  height: 1.54rem;
-  color: var(--pb-ink);
-  transition: transform 100ms var(--pb-ease-out);
+  gap: 0.75rem;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--bs-line);
+  border-radius: 999px;
+  transition: border-color 120ms ease;
 }
 
-/* A bigger target than the 16px drawing, without making the drawing bigger. */
-.pb-mark::before {
+.bs-add:hover {
+  border-color: #cfcfcf;
+}
+
+.bs-add:focus-within {
+  border-color: var(--bs-ink);
+}
+
+.bs-add-icon {
+  color: var(--bs-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.bs-add-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  outline: none;
+}
+
+.backstage .bs-add-input:focus-visible {
+  outline: none;
+}
+
+.bs-add-input::placeholder,
+.bs-field::placeholder,
+.bs-notes-input::placeholder {
+  color: var(--bs-muted);
+}
+
+.bs-kbd {
+  padding: 0 0.375rem;
+  border: 1px solid var(--bs-line);
+  border-radius: 4px;
+  color: var(--bs-muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+.bs-add:focus-within .bs-kbd {
+  visibility: hidden;
+}
+
+/* --- Rows --------------------------------------------------------------- */
+
+.bs-row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.25rem;
+}
+
+.bs-cue {
+  display: none;
+}
+
+/* With room to spare, cue numbers and ticks hang in the margin. */
+@media (min-width: 900px) {
+  .bs-row {
+    grid-template-columns: 2rem 1.75rem minmax(0, 1fr);
+    margin-left: calc(-1 * (2rem + 1.75rem + 0.5rem));
+  }
+
+  .bs-cue {
+    display: block;
+    padding-top: 0.3rem;
+    padding-right: 0.25rem;
+    color: var(--bs-muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+.bs-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 2.0625rem;
+  color: #a3a3a3;
+  transition: color 120ms ease, transform 120ms var(--bs-ease);
+}
+
+/* A 44px hit area around a 16px circle. */
+.bs-mark::before {
   content: "";
   position: absolute;
-  inset: -0.5rem -0.25rem;
+  inset: -0.25rem -0.5rem;
 }
 
-.pb-mark:active:not(:disabled) {
-  transform: scale(0.88);
+.bs-mark:hover:not(:disabled) {
+  color: var(--bs-ink);
 }
 
-.pb-mark:focus-visible {
-  outline: 2px solid var(--pb-ink);
-  outline-offset: 1px;
-  border-radius: 999px;
+.bs-mark:active:not(:disabled) {
+  transform: scale(0.9);
 }
 
-.pb-mark:disabled {
-  cursor: default;
-  opacity: 0.5;
-}
-
-.pb-mark circle {
+.bs-mark circle {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.25;
-  transition: opacity 120ms ease;
 }
 
-.pb-mark path {
+.bs-mark path {
   fill: none;
-  stroke: var(--pb-ink);
-  stroke-width: 1.6;
+  stroke: #fff;
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0;
-  transition: opacity 120ms ease;
 }
 
-.pb-mark[data-status="idea"] {
-  color: var(--pb-graphite);
+.bs-mark[data-done="true"] {
+  color: var(--bs-ink);
 }
 
-.pb-mark[data-held="true"] {
-  color: var(--pb-red-pencil);
+.bs-mark[data-done="true"] circle {
+  fill: currentColor;
 }
 
-.pb-mark[data-status="done"] circle {
-  opacity: 0;
-}
-
-.pb-mark[data-status="done"] path {
+.bs-mark[data-done="true"] path {
   opacity: 1;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  /* A faint tick on hover previews what the click will do. */
-  .pb-mark:not([data-status="done"]):not(:disabled):hover path {
-    opacity: 0.35;
-  }
-
-  .pb-choice:hover,
-  .pb-quiet:hover {
-    color: var(--pb-ink);
-  }
+.bs-title {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 120ms ease, color 120ms ease;
 }
 
-/* Inputs are a pencil line on the page — plain fields that look like fields,
-   with the focus state carried by the line thickening, not a glow. */
-.pb-input {
+a.bs-title:hover {
+  text-decoration-color: currentColor;
+}
+
+.bs-title[data-done="true"] {
+  color: var(--bs-muted);
+  text-decoration-line: line-through;
+  text-decoration-color: var(--bs-muted);
+}
+
+/* --- Cue page ----------------------------------------------------------- */
+
+.bs-cue-label {
+  color: var(--bs-muted);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bs-title-input {
+  display: block;
   width: 100%;
-  padding: 0.125rem 0;
-  border: 0;
-  border-bottom: 1px solid var(--pb-graphite);
-  border-radius: 0;
-  background: transparent;
-  color: var(--pb-ink);
-  outline: none;
-  transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.pb-input:focus {
-  border-bottom-color: var(--pb-ink);
-  box-shadow: 0 1px 0 0 var(--pb-ink);
-}
-
-.pb-input::placeholder {
-  color: var(--pb-graphite);
-  font-style: italic;
-}
-
-textarea.pb-input {
   resize: none;
   field-sizing: content;
-  min-height: 1.55em;
-  font-style: italic;
+  background: transparent;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  border-radius: 4px;
 }
 
-.pb-choice,
-.pb-quiet {
-  color: var(--pb-graphite);
+.backstage .bs-title-input:focus-visible {
+  outline-offset: 6px;
 }
 
-.pb-choice[aria-pressed="true"] {
-  color: var(--pb-ink);
+/* Status: one control, four options. Controls are round. */
+.bs-segmented {
+  display: inline-flex;
+  padding: 0.1875rem;
+  border: 1px solid var(--bs-line);
+  border-radius: 999px;
+}
+
+.bs-segmented button,
+.bs-toggle {
+  padding: 0.25rem 0.875rem;
+  border-radius: 999px;
+  color: var(--bs-muted);
+  font-size: 0.9375rem;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.bs-segmented button:hover,
+.bs-toggle:hover {
+  color: var(--bs-ink);
+}
+
+.bs-segmented button[aria-pressed="true"] {
+  background: var(--bs-ink);
+  color: #fff;
+}
+
+.bs-toggle {
+  border: 1px solid var(--bs-line);
+  padding: 0.4375rem 0.875rem;
+}
+
+.bs-toggle[aria-pressed="true"] {
+  border-color: var(--bs-red);
+  background: var(--bs-red);
+  color: #fff;
+}
+
+.bs-field {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid var(--bs-line);
+  background: transparent;
+  font-size: 0.9375rem;
+  outline: none;
+}
+
+.bs-field:focus {
+  border-color: var(--bs-ink);
+}
+
+.backstage .bs-field:focus-visible {
+  outline: none;
+}
+
+.bs-notes,
+.bs-notes-input {
+  display: block;
+  width: 100%;
+  min-height: 10rem;
+  padding: 0.75rem 1rem;
+  margin-left: -1rem;
+  width: calc(100% + 2rem);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  line-height: 1.65;
+}
+
+.bs-notes {
+  cursor: text;
+  transition: background-color 120ms ease;
+}
+
+.bs-notes:hover {
+  background: var(--bs-hover);
+}
+
+.bs-notes-input {
+  resize: none;
+  field-sizing: content;
+  border-color: var(--bs-line);
+  background: transparent;
+  outline: none;
+}
+
+.bs-notes-input:focus {
+  border-color: var(--bs-ink);
+}
+
+.backstage .bs-notes-input:focus-visible {
+  outline: none;
+}
+
+.bs-notes > * + * {
+  margin-top: 0.75em;
+}
+
+.bs-notes h1,
+.bs-notes h2,
+.bs-notes h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.bs-notes ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.bs-notes ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.bs-notes li.task-list-item {
+  list-style: none;
+  margin-left: -1.25rem;
+}
+
+.bs-notes input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--bs-ink);
+}
+
+.bs-notes a {
+  color: #0000ee;
   text-decoration: underline;
-  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
-.pb-link {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+.bs-notes code {
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  background: var(--bs-hover);
+  font-size: 0.875em;
 }
 
-.pb-rail a {
-  color: var(--pb-graphite);
-  transition: color 120ms ease;
-}
-
-.pb-rail a[aria-current="true"],
-.pb-rail a:hover {
-  color: var(--pb-ink);
+.bs-notes blockquote {
+  padding-left: 1rem;
+  border-left: 2px solid var(--bs-line);
+  color: var(--bs-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The marks still change — status is information — they just arrive rather
-     than draw. */
-  .pb-text {
-    transition: color 160ms ease;
-  }
-
-  .pb-mark {
+  .bs-mark,
+  .bs-chevron {
     transition: none;
-  }
-
-  .pb-mark:active:not(:disabled) {
-    transform: none;
   }
 }

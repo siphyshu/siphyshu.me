@@ -1,334 +1,200 @@
 "use client";
 
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useOptimistic,
-  useRef,
-  useState,
-} from "react";
+import { startTransition, useEffect, useOptimistic, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   createItemAction,
-  deleteItemAction,
   lockAction,
   restoreItemAction,
   toggleDoneAction,
-  updateItemAction,
 } from "@/app/backstage/actions";
-import ItemRow, { type Patch } from "@/components/backstage/ItemRow";
-import type {
-  ActionResult,
-  BoardItem,
-  BoardSection,
-} from "@/lib/schemas/backstage";
+import { useCurtain } from "@/components/backstage/Curtain";
+import type { ActionResult, BoardItem, Status } from "@/lib/schemas/backstage";
 
-// --- Optimistic model --------------------------------------------------------
-//
 // Every edit is applied here first and sent to the server second, so a tick
-// lands on the frame you click rather than a round trip later. When the
-// action finishes, revalidatePath hands the page fresh sections from the
-// database and React drops these pending ops in favour of the real state —
-// there's no manual reconciliation to get wrong.
+// lands on the frame you click. When the action finishes, revalidatePath hands
+// the page fresh items and React drops the pending ops for the real state.
 
-type Op =
-  | { type: "toggle"; id: string }
-  | { type: "update"; id: string; patch: Patch }
-  | { type: "create"; item: BoardItem }
-  | { type: "delete"; id: string }
-  | { type: "restore"; item: BoardItem; index: number };
+type Op = { type: "toggle"; id: string } | { type: "create"; item: BoardItem };
 
-function mapItems(
-  sections: BoardSection[],
-  fn: (items: BoardItem[], section: BoardSection) => BoardItem[]
-): BoardSection[] {
-  return sections.map((section) => ({ ...section, items: fn(section.items, section) }));
+function reduce(items: BoardItem[], op: Op): BoardItem[] {
+  if (op.type === "create") return [...items, op.item];
+  return items.map((item) => {
+    if (item.id !== op.id) return item;
+    // Mirrors the store: un-ticking restores what it was before.
+    return item.status === "done"
+      ? { ...item, status: item.previousStatus ?? "next", previousStatus: null }
+      : { ...item, status: "done", previousStatus: item.status };
+  });
 }
 
-/** Mirrors the store's rules, so the optimistic state matches what the server will write. */
-function applyPatch(item: BoardItem, patch: Patch): BoardItem {
-  const next: BoardItem = { ...item, ...patch };
-  if (patch.status && patch.status !== item.status) {
-    next.previousStatus =
-      patch.status === "done" && item.status !== "done" ? item.status : null;
-  }
-  if (patch.held === false) next.heldReason = "";
-  return next;
-}
-
-function reduce(sections: BoardSection[], op: Op): BoardSection[] {
-  switch (op.type) {
-    case "create":
-      return mapItems(sections, (items, section) =>
-        section.slug === op.item.section ? [...items, op.item] : items
-      );
-    case "restore":
-      return mapItems(sections, (items, section) => {
-        if (section.slug !== op.item.section) return items;
-        if (items.some((item) => item.id === op.item.id)) return items;
-        const copy = [...items];
-        copy.splice(Math.min(op.index, copy.length), 0, op.item);
-        return copy;
-      });
-    case "delete":
-      return mapItems(sections, (items) => items.filter((item) => item.id !== op.id));
-    case "toggle":
-      return mapItems(sections, (items) =>
-        items.map((item) => {
-          if (item.id !== op.id) return item;
-          return item.status === "done"
-            ? applyPatch(item, { status: item.previousStatus ?? "next" })
-            : applyPatch(item, { status: "done" });
-        })
-      );
-    case "update":
-      return mapItems(sections, (items) =>
-        items.map((item) => (item.id === op.id ? applyPatch(item, op.patch) : item))
-      );
-  }
-}
-
-// --- Summary -----------------------------------------------------------------
-
-function summarize(sections: BoardSection[]): string {
-  const all = sections.flatMap((section) => section.items);
-  if (all.length === 0) return "Nothing pencilled in yet.";
-
-  const struck = all.filter((item) => item.status === "done").length;
-  const onStage = all.filter((item) => item.status === "doing").length;
-  const held = all.filter((item) => item.held && item.status !== "done").length;
-
-  // Zero clauses are dropped rather than printed as "0 held" — except struck,
-  // which is the one number that means something even at zero.
-  const clauses = [`${struck} struck`];
-  if (onStage > 0) clauses.push(`${onStage} on stage`);
-  if (held > 0) clauses.push(`${held} held`);
-  return `${clauses.join(", ")}.`;
-}
-
-// --- Board -------------------------------------------------------------------
-
-interface Undo {
-  item: BoardItem;
-  index: number;
-  /** Undo stays disabled until the delete has actually landed, or a fast undo
-   *  could race it — restore first, then the delete arrives and wins. */
-  ready: boolean;
-}
+const GROUPS: { status: Status; label: string }[] = [
+  { status: "doing", label: "doing" },
+  { status: "next", label: "next" },
+  { status: "idea", label: "ideas" },
+];
 
 const UNDO_MS = 8000;
 
-export default function Board({ sections }: { sections: BoardSection[] }) {
-  const [board, apply] = useOptimistic(sections, reduce);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [undo, setUndo] = useState<Undo | null>(null);
+export default function Board({
+  items: serverItems,
+  deletedId,
+}: {
+  items: BoardItem[];
+  deletedId: string | null;
+}) {
+  const [items, apply] = useOptimistic(serverItems, reduce);
   const [error, setError] = useState<string | null>(null);
-  const [activeSlug, setActiveSlug] = useState<string | null>(
-    sections[0]?.slug ?? null
-  );
+  const [undoId, setUndoId] = useState(deletedId);
+  const [showDone, setShowDone] = useState(false);
+  // An item ticked during this visit stays where it was, so you see it struck
+  // instead of watching it jump to the bottom.
+  const [justDone, setJustDone] = useState<Set<string>>(() => new Set());
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
+  const curtain = useCurtain();
 
-  const run = useCallback(
-    <T,>(op: Op, send: () => Promise<ActionResult<T>>, after?: (result: ActionResult<T>) => void) => {
-      startTransition(async () => {
-        apply(op);
-        const result = await send();
-        setError(result.ok ? null : result.error);
-        after?.(result);
-      });
-    },
-    [apply]
-  );
+  const run = <T,>(op: Op | null, send: () => Promise<ActionResult<T>>) =>
+    startTransition(async () => {
+      if (op) apply(op);
+      const result = await send();
+      setError(result.ok ? null : result.error);
+    });
 
-  const toggleDone = (item: BoardItem) =>
+  const toggle = (item: BoardItem) => {
+    if (item.status !== "done") setJustDone((set) => new Set(set).add(item.id));
     run({ type: "toggle", id: item.id }, () => toggleDoneAction(item.id));
+  };
 
-  const update = (item: BoardItem, patch: Patch) =>
-    run({ type: "update", id: item.id, patch }, () =>
-      updateItemAction({ id: item.id, ...patch })
-    );
-
-  const create = (section: string, title: string) =>
+  const create = (title: string) =>
     run(
       {
         type: "create",
         item: {
           id: `temp-${crypto.randomUUID()}`,
-          section,
           title,
-          note: "",
           status: "idea",
           previousStatus: null,
           held: false,
           heldReason: "",
+          cue: 0,
+          tasks: { done: 0, total: 0 },
         },
       },
-      () => createItemAction({ section, title })
+      () => createItemAction({ title })
     );
 
-  const remove = (item: BoardItem) => {
-    const section = board.find((candidate) => candidate.slug === item.section);
-    const index = section?.items.findIndex((candidate) => candidate.id === item.id) ?? 0;
-    setEditingId(null);
-    setUndo({ item, index, ready: false });
-    run({ type: "delete", id: item.id }, () => deleteItemAction(item.id), (result) => {
-      setUndo((current) =>
-        current?.item.id === item.id
-          ? result.ok
-            ? { ...current, ready: true }
-            : null
-          : current
-      );
-    });
+  const clearUndo = () => {
+    setUndoId(null);
+    router.replace("/backstage", { scroll: false });
   };
 
   const restore = () => {
-    if (!undo?.ready) return;
-    const { item, index } = undo;
-    setUndo(null);
-    run({ type: "restore", item, index }, () => restoreItemAction(item.id));
+    if (!undoId) return;
+    const id = undoId;
+    clearUndo();
+    run(null, () => restoreItemAction(id));
   };
 
   useEffect(() => {
-    if (!undo) return;
-    const timer = setTimeout(() => setUndo(null), UNDO_MS);
+    if (!undoId) return;
+    const timer = setTimeout(clearUndo, UNDO_MS);
     return () => clearTimeout(timer);
-  }, [undo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [undoId]);
 
-  // The rail follows the reading position. The band sits in the upper third of
-  // the viewport, which is where your eye is when a section heading counts as
-  // "the one you're in".
-  const sectionEls = useRef(new Map<string, HTMLElement>());
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting);
-        if (visible.length > 0) {
-          setActiveSlug((visible[0].target as HTMLElement).dataset.slug ?? null);
-        }
-      },
-      { rootMargin: "-15% 0px -70% 0px" }
-    );
-    sectionEls.current.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [board.length]);
+  const groupOf = (item: BoardItem): Status =>
+    item.status === "done" && justDone.has(item.id) ? (item.previousStatus ?? "next") : item.status;
 
-  const summary = useMemo(() => summarize(board), [board]);
+  const done = items.filter((item) => groupOf(item) === "done");
+  const open = items.filter((item) => item.status !== "done").length;
+  const held = items.filter((item) => item.held && item.status !== "done").length;
 
   return (
-    <div className="promptbook pt-14 pb-40">
-      <header>
-        <div className="flex items-baseline justify-between gap-4">
-          <h1 className="text-[2.75rem] leading-none tracking-[-0.02em]">backstage</h1>
-          <form action={lockAction}>
-            <button type="submit" className="pb-quiet pb-link text-sm">
-              lock
-            </button>
-          </form>
+    <div className="backstage pt-14 pb-40">
+      <header className="flex items-baseline justify-between gap-4">
+        <div>
+          <h1 className="bs-h1">backstage</h1>
+          <p className="bs-meta mt-2">
+            {open} open · {items.length - open} done{held > 0 && ` · ${held} held`}
+          </p>
         </div>
-        <p className="pb-graphite mt-3">{summary}</p>
-        {/* Reserves its line so an error appearing doesn't shove the board down. */}
-        <p role="status" aria-live="polite" className="pb-held mt-1 min-h-[1.45em]">
-          {error}
-        </p>
+        <button
+          type="button"
+          className="bs-button"
+          onClick={() => {
+            // The curtain closes over the list, and the cookie goes with it.
+            curtain.draw("/");
+            void lockAction();
+          }}
+        >
+          lock
+        </button>
       </header>
 
-      <div className="mt-10 lg:grid lg:grid-cols-[9.5rem_minmax(0,1fr)] lg:gap-12">
-        <nav aria-label="Sections" className="pb-rail hidden lg:block">
-          <ul className="sticky top-10 space-y-1.5 text-[0.9375rem]">
-            {board.map((section) => {
-              const open = section.items.filter((item) => item.status !== "done").length;
-              const current = section.slug === activeSlug;
-              return (
-                <li key={section.slug}>
-                  <a
-                    href={`#${section.slug}`}
-                    aria-current={current}
-                    className="flex items-baseline justify-between gap-2"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      document.getElementById(section.slug)?.scrollIntoView({
-                        behavior: reduceMotion ? "auto" : "smooth",
-                        block: "start",
-                      });
-                      history.replaceState(null, "", `#${section.slug}`);
-                    }}
-                  >
-                    <span>{section.name}</span>
-                    {open > 0 && <span className="tabular-nums">{open}</span>}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <AddItem onCreate={create} />
+      <p role="status" aria-live="polite" className="bs-error mt-2 min-h-[1.5rem]">
+        {error}
+      </p>
 
-        <div className="space-y-16">
-          {board.map((section) => (
-            <section
-              key={section.slug}
-              id={section.slug}
-              data-slug={section.slug}
-              ref={(el) => {
-                if (el) sectionEls.current.set(section.slug, el);
-                else sectionEls.current.delete(section.slug);
-              }}
-              className="scroll-mt-10"
-            >
-              <h2 className="text-[1.375rem] leading-tight tracking-[-0.01em]">
-                {section.name}
+      <div className="mt-8 space-y-12">
+        {GROUPS.map(({ status, label }) => {
+          const group = items.filter((item) => groupOf(item) === status);
+          if (group.length === 0) return null;
+          return (
+            <section key={status} aria-labelledby={`group-${status}`}>
+              <h2 id={`group-${status}`} className="bs-h2">
+                {label} <span className="bs-count">{group.length}</span>
               </h2>
-              {section.blurb && (
-                <p className="pb-note mt-1">{section.blurb}</p>
-              )}
-
-              <ul className="mt-4">
-                {section.items.map((item) => (
-                  <ItemRow
-                    key={item.id}
-                    item={item}
-                    editing={editingId === item.id}
-                    onOpen={() => setEditingId(item.id)}
-                    onClose={() =>
-                      setEditingId((current) => (current === item.id ? null : current))
-                    }
-                    onToggleDone={() => toggleDone(item)}
-                    onUpdate={(patch) => update(item, patch)}
-                    onDelete={() => remove(item)}
-                  />
+              <ul className="mt-3">
+                {group.map((item) => (
+                  <Row key={item.id} item={item} onToggle={() => toggle(item)} />
                 ))}
               </ul>
-
-              <AddItem onCreate={(title) => create(section.slug, title)} />
             </section>
-          ))}
-        </div>
+          );
+        })}
+
+        {done.length > 0 && (
+          <section aria-labelledby="group-done">
+            <h2 id="group-done" className="bs-h2">
+              <button
+                type="button"
+                className="bs-disclosure"
+                aria-expanded={showDone}
+                onClick={() => setShowDone((value) => !value)}
+              >
+                done <span className="bs-count">{done.length}</span>
+                <span aria-hidden className="bs-chevron">›</span>
+              </button>
+            </h2>
+            {showDone && (
+              <ul className="mt-3">
+                {done.map((item) => (
+                  <Row key={item.id} item={item} onToggle={() => toggle(item)} />
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
       </div>
 
       <AnimatePresence>
-        {undo && (
+        {undoId && (
           <motion.div
-            key={undo.item.id}
+            key={undoId}
             role="status"
-            // Enters and leaves along the same path, from just below where it sits.
             initial={{ opacity: 0, transform: "translate(-50%, 8px)" }}
             animate={{ opacity: 1, transform: "translate(-50%, 0px)" }}
             exit={{ opacity: 0, transform: "translate(-50%, 8px)" }}
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="fixed bottom-6 left-1/2 z-50 flex max-w-[calc(100vw-2rem)] items-baseline gap-3 rounded-full bg-black px-5 py-2.5 text-[0.9375rem] text-white"
+            className="fixed bottom-6 left-1/2 z-50 flex items-baseline gap-4 rounded-full bg-black px-5 py-2.5 text-[0.9375rem] text-white"
           >
-            <span className="truncate">
-              Deleted “{undo.item.title}”.
-            </span>
-            <button
-              type="button"
-              className="pb-link shrink-0 disabled:opacity-50"
-              disabled={!undo.ready}
-              onClick={restore}
-            >
-              Undo
+            <span>item deleted</span>
+            <button type="button" className="font-semibold underline underline-offset-4" onClick={restore}>
+              undo
             </button>
           </motion.div>
         )}
@@ -337,56 +203,100 @@ export default function Board({ sections }: { sections: BoardSection[] }) {
   );
 }
 
+function Row({ item, onToggle }: { item: BoardItem; onToggle: () => void }) {
+  const done = item.status === "done";
+  // Optimistically created items have no database id yet.
+  const pending = item.id.startsWith("temp-");
+
+  return (
+    <li className="bs-row">
+      <span className="bs-cue" aria-hidden>
+        {item.cue || ""}
+      </span>
+      <button
+        type="button"
+        className="bs-mark"
+        data-done={done}
+        aria-pressed={done}
+        aria-label={done ? `Mark “${item.title}” not done` : `Mark “${item.title}” done`}
+        disabled={pending}
+        onClick={onToggle}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+          <circle cx="8" cy="8" r="6.5" />
+          <path d="M4.8 8.4 7 10.6 11.4 5.6" />
+        </svg>
+      </button>
+      <div className="min-w-0 py-1">
+        {pending ? (
+          <span className="bs-title">{item.title}</span>
+        ) : (
+          <Link href={`/backstage/${item.id}`} className="bs-title" data-done={done}>
+            {item.title}
+          </Link>
+        )}
+        {(item.tasks.total > 0 || item.held) && (
+          <span className="bs-meta ml-2 whitespace-nowrap">
+            {item.tasks.total > 0 && `${item.tasks.done}/${item.tasks.total}`}
+            {item.tasks.total > 0 && item.held && " · "}
+            {item.held && <span className="bs-held">held</span>}
+          </span>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function isTyping(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+}
+
 function AddItem({ onCreate }: { onCreate: (title: string) => void }) {
-  const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const input = useRef<HTMLInputElement>(null);
 
+  // n jumps to the add field from anywhere on the page.
   useEffect(() => {
-    if (open) input.current?.focus();
-  }, [open]);
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="pb-quiet grid w-full grid-cols-[2rem_1fr] gap-x-2 py-1.5 text-left"
-      >
-        <span aria-hidden className="text-center">+</span>
-        <span>pencil something in</span>
-      </button>
-    );
-  }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== "n" || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isTyping(event.target)) return;
+      event.preventDefault();
+      input.current?.focus();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
-    <div className="grid grid-cols-[2rem_1fr] gap-x-2 py-1.5">
-      <span aria-hidden className="pb-graphite text-center">+</span>
+    <form
+      className="bs-add mt-10"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!value.trim()) return;
+        onCreate(value.trim());
+        setValue("");
+      }}
+    >
+      <span aria-hidden className="bs-add-icon">+</span>
       <input
         ref={input}
-        className="pb-input pb-title"
+        className="bs-add-input"
         value={value}
         maxLength={200}
-        placeholder="what is it?"
-        aria-label="New item"
+        placeholder="add an item"
+        aria-label="Add an item"
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === "Enter" && value.trim()) {
-            event.preventDefault();
-            // Stays open for the next one: adding is usually several in a row.
-            onCreate(value.trim());
+          if (event.key === "Escape") {
             setValue("");
-          } else if (event.key === "Escape") {
-            setValue("");
-            setOpen(false);
+            event.currentTarget.blur();
           }
         }}
-        onBlur={() => {
-          if (value.trim()) onCreate(value.trim());
-          setValue("");
-          setOpen(false);
-        }}
       />
-    </div>
+      <kbd className="bs-kbd" aria-hidden>
+        n
+      </kbd>
+    </form>
   );
 }
