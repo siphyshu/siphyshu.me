@@ -5,12 +5,16 @@ import { usePathname } from "next/navigation";
 import { useNavActionsValue } from "@/components/ui/NavActionsContext";
 
 // "/" and "/projects" are the same view — the bare domain still opens on
-// projects, and /projects exists so the section has a shareable URL of its own.
+// projects, and /projects exists so the section has a shareable URL of its
+// own. The tab itself links to /projects (not /) so clicking it always shows
+// that URL, even though visiting "/" directly renders the same page.
+//
+// gallery and ctfs are parked out of the nav for now — the routes and
+// components still exist (app/(site)/gallery, app/(site)/ctfs), they just
+// aren't live/linked until there's real content, same treatment as games.
 const TABS = [
-    { label: "projects", href: "/", match: ["/", "/projects"] },
+    { label: "projects", href: "/projects", match: ["/", "/projects"] },
     { label: "articles", href: "/articles", match: ["/articles"] },
-    { label: "gallery", href: "/gallery", match: ["/gallery"] },
-    { label: "ctfs", href: "/ctfs", match: ["/ctfs"] },
 ];
 
 const NavBar = () => {
