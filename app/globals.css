@@ -113,9 +113,49 @@ img {
 
 @media (prefers-reduced-motion: reduce) {
   .handprint-press,
-  .handprint-ring {
+  .handprint-ring,
+  .hanging-tag {
     animation: none;
   }
+}
+
+/* Counter tag hung from the rail. Cosine samples + linear so it slows at the
+   peaks without the extra dwell you get from ease-in-out + alternate (that
+   pairing eases to a stop, then eases away from the same stop). */
+@keyframes hanging-tag-sway {
+  0% {
+    transform: rotate(-1.5deg);
+  }
+  12.5% {
+    transform: rotate(-1.06deg);
+  }
+  25% {
+    transform: rotate(0deg);
+  }
+  37.5% {
+    transform: rotate(1.06deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+  62.5% {
+    transform: rotate(1.06deg);
+  }
+  75% {
+    transform: rotate(0deg);
+  }
+  87.5% {
+    transform: rotate(-1.06deg);
+  }
+  100% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+.hanging-tag {
+  transform: rotate(-1.5deg);
+  transform-origin: top center;
+  animation: hanging-tag-sway 6s linear infinite;
 }
 
 /* Wooden frame around the handprint canvas. */
