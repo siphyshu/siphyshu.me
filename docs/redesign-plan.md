@@ -2,6 +2,23 @@
 
 Status: **parked**. Written 2026-09-12. Nothing here is started.
 
+> **Note (2026-09-19):** a separate branch (`worktree-redesign-routing`,
+> merged to `origin/main` via PR #27, not yet in this local `main`) already
+> built step 1 of the build order below — route groups under `app/(site)/`
+> and `app/(reader)/`, a `SiteShell` component, and a `lib/content` module
+> that reads projects/articles via MDX/frontmatter instead of the static
+> `data/*.js` imports. This local branch spent a session building per-section
+> filter toolbars (tag/category/status, multi-select) rendered inline with
+> the tab bar in `app/page.jsx` — built against the **old** static-import
+> model, so it doesn't yet talk to `lib/content` or `SiteShell`.
+>
+> **Decision:** keep tab-switching on `main` for now; the routing/content
+> merge is deferred to its own task, not bundled into mobile testing. When
+> that reconciliation happens, the open question is whether the tab-switcher
+> moves onto `lib/content` + `SiteShell` (recommended, keeps one data-loading
+> path) or the routed pages get taught to accept the toolbar filters as
+> props/searchParams — not just an API-shape merge, a real design decision.
+
 A plan for growing the site from a single-route portfolio into a fuller
 multi-section site, without diluting the existing minimal/sharp/white look.
 
