@@ -4,7 +4,7 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import { projects } from "@/data/projects";
 import { tags } from "@/data/tags";
 
-const ProjectGallery = ({ className, tags: selectedTags = [] }) => {
+const ProjectGallery = ({ className = "", tags: selectedTags = [] }) => {
     const filtered = selectedTags.length > 0
         ? projects.filter((p) => p.tags.some((t) => selectedTags.includes(t)))
         : projects;

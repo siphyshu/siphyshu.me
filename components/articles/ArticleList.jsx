@@ -10,7 +10,7 @@ function parseDate(dateString) {
 
 const sorted = [...articles].sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
-const ArticleList = ({ className, tags = [], order }) => {
+const ArticleList = ({ className = "", tags = [], order }) => {
     const filtered = tags.length > 0
         ? sorted.filter((a) => a.topics.some((t) => tags.includes(t)))
         : sorted;

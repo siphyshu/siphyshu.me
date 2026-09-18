@@ -1,23 +1,30 @@
 # siphyshu.me — redesign plan
 
-Status: **parked**. Written 2026-09-12. Nothing here is started.
+Status: **in progress**. Written 2026-09-12. Step 1 (routing skeleton) is done,
+**without** the MDX/`lib/content` half — see the note below. Steps 2, 3, 5, 6
+are not started; step 4 (MDX + article view) is deliberately deferred.
 
 > **Note (2026-09-19):** a separate branch (`worktree-redesign-routing`,
-> merged to `origin/main` via PR #27, not yet in this local `main`) already
-> built step 1 of the build order below — route groups under `app/(site)/`
-> and `app/(reader)/`, a `SiteShell` component, and a `lib/content` module
-> that reads projects/articles via MDX/frontmatter instead of the static
-> `data/*.js` imports. This local branch spent a session building per-section
-> filter toolbars (tag/category/status, multi-select) rendered inline with
-> the tab bar in `app/page.jsx` — built against the **old** static-import
-> model, so it doesn't yet talk to `lib/content` or `SiteShell`.
+> merged to `origin/main` via PR #27) built step 1 *and* step 4 together —
+> route groups under `app/(site)/` and `app/(reader)/`, a `SiteShell`
+> component, and a `lib/content` module reading projects/articles from
+> `content/**/*.mdx`. Meanwhile this branch spent a session building
+> per-section filter toolbars (tag/category/status, multi-select) inline
+> with the tab bar, against the old static `data/*.js` imports.
 >
-> **Decision:** keep tab-switching on `main` for now; the routing/content
-> merge is deferred to its own task, not bundled into mobile testing. When
-> that reconciliation happens, the open question is whether the tab-switcher
-> moves onto `lib/content` + `SiteShell` (recommended, keeps one data-loading
-> path) or the routed pages get taught to accept the toolbar filters as
-> props/searchParams — not just an API-shape merge, a real design decision.
+> **Reconciled today:** merged in the routing skeleton (`app/(site)/`,
+> `SiteShell`, real per-section routes, tabs as real `<Link>`s) and kept it
+> wired to `data/*.js` — **not** `lib/content`. Explicitly dropped from the
+> merge: `lib/content.ts`, `lib/schemas/content.ts`, `content/**/*.mdx`,
+> `app/(reader)/`, and the MDX build deps (`@mdx-js/*`, `@next/mdx`,
+> `gray-matter`, `shiki`, the `remark-*`/`rehype-*` packages). The per-section
+> toolbars now live in each route page (`app/(site)/*/page.jsx`) as local
+> `useState`, and reach the shared `NavBar` via a small context bridge
+> (`components/ui/NavActionsContext.jsx`) since a page can't otherwise hand
+> props to the layout that wraps it. MDX/`lib/content` stay parked for a
+> later session — adopting them now means switching `ProjectGallery`/
+> `ArticleList` from importing `data/*.js` to receiving server-fetched props,
+> which is real work of its own, not part of this reconciliation.
 
 A plan for growing the site from a single-route portfolio into a fuller
 multi-section site, without diluting the existing minimal/sharp/white look.
@@ -41,18 +48,12 @@ symptoms of one cause. Fix routing and most of them fall out.
 
 ---
 
-## Design rules to hold
+## Design principles
 
-"More features" is how this aesthetic dies. The rules that define it:
-
-1. White bg, black hairline borders, **no rounded corners on containers** — pills only.
-2. Serif everywhere, lowercase for nav and labels.
-3. **Color appears only in tag pills and thumbnails.** All chrome is black/white/gray.
-4. One shadow depth (`shadow-md`), never layered.
-5. **One moment of personality per screen.** Home gets the handprint wall, the
-   footer gets the cat. Section pages stay quiet.
-
-Rule 5 is the one that will be tempting to break.
+See [`design-principles.md`](./design-principles.md). The five rules that used
+to be here were written ahead of the site and were stricter than it — they
+banned rounded containers and colour outside pills while the homepage has
+both. The replacements are inferred from what's actually there.
 
 ---
 
@@ -148,7 +149,10 @@ This also decides the homepage:
 
 ## Build order
 
-1. **Routing skeleton** — unblocks everything else
+1. ~~**Routing skeleton** — unblocks everything else~~ — done. The shell lives in
+   `app/(site)/layout.jsx`, sections are pages under it. `/` and `/projects`
+   render the same grid; `/` is canonical so the bare domain still opens on
+   projects.
 2. **Tags clickable → `/tags/[tag]`** — small, kills a dead affordance
 3. **Cmd+K palette** — replaces the disliked search, needs routes first
 4. **MDX + article view** — biggest single lift
