@@ -4,6 +4,12 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    // tagColorVariants in data/tags.ts holds literal class strings
+    // (text-blue-500, border-blue-600, ...) that components only ever
+    // reference dynamically (tagColorVariants[tag.color]) — Tailwind's
+    // scanner needs to see the literal strings somewhere, so data/ has to
+    // be in the scan path too, not just where they're consumed.
+    "./data/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
