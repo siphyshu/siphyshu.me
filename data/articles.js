@@ -6,7 +6,8 @@ export const articles = [
         subtitle: "After my friend bought the new Arduino R4 with its built-in LED matrix, I thought why not build the snake game on it? This is a walkthrough of how it went.",
         thumbnail: "/thumbnails/articles/snake-r4-thumbnail.png",
         link: "https://siphyshu.medium.com/i-made-the-snake-game-on-the-arduino-uno-r4-led-matrix-with-a-joystick-controller-5127c28f8a38",
-        topics: ["electronics", "c++", "arduino", "game-dev"]
+        topics: ["electronics", "c++", "arduino", "game-dev"],
+        readMinutes: 4
     },
     {
         id: 2,
@@ -15,6 +16,7 @@ export const articles = [
         subtitle: "A look at the biggest cyber attacks of 2021, including the SolarWinds hack, the infamous Log4j vulnerability, and the Kaseya ransomware attacks.",
         thumbnail: "/thumbnails/articles/cyber-attacks-2021-thumbnail.png",
         link: "https://siphyshu.medium.com/a-rundown-of-the-biggest-cyber-attacks-in-2021-and-what-lies-ahead-for-us-6b0b4b2e816d",
-        topics: ["cybersecurity", "cyber-attacks", "2021"]
+        topics: ["cybersecurity", "cyber-attacks", "2021"],
+        readMinutes: 6
     }
 ]; 
