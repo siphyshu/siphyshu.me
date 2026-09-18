@@ -160,19 +160,66 @@ export default function HandprintCanvas({
           </div>
         )}
 
-        {/* "N were here" counter. Hidden while the panel is open: the panel
-            takes one full side of the frame and the counter is always in the
-            bottom-left, so they collide whenever the panel flips left. Nobody
-            needs a visitor count mid-signature anyway. */}
-        {handprints.length > 0 && !panelOpen && (
-          <div
-            className="absolute bottom-2 left-2 bg-red-50 bg-opacity-2 border border-black p-1 pointer-events-auto select-none"
-            style={{ zIndex: 10 }}
-          >
-            <p className="text-sm font-serif">{handprints.length} were here</p>
-          </div>
-        )}
       </div>
+
+      {/* "N were here" counter, as a tag hung from the top rail. Lives outside
+          the overflow-hidden canvas box, same reason as the tooltip layer
+          below: the string has to cross the inner canvas edge, and that box
+          would clip anything positioned above it.
+
+          Hidden while the panel is open: the panel takes one full side of the
+          frame and the tag is always top-left, so they'd collide whenever the
+          panel flips left. Nobody needs a visitor count mid-signature anyway. */}
+      {handprints.length > 0 && !panelOpen && (
+        <div
+          className="hanging-tag absolute pointer-events-none select-none"
+          style={{
+            left: "20px",
+            top: "0px",
+            zIndex: 15,
+          }}
+        >
+          <svg width="1.5" height="18" className="block mx-auto" aria-hidden="true">
+            <line x1="0.75" y1="0" x2="0.75" y2="18" stroke="#7a6247" strokeWidth="1" />
+          </svg>
+          <div
+            className="relative"
+            style={{
+              background: "#f9f4eb",
+              border: "1px solid rgba(90, 62, 35, 0.3)",
+              borderRadius: "2px",
+              padding: "3px 7px 4px",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.08)",
+            }}
+          >
+            {/* Punch hole the string threads through. */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: "4px",
+                height: "4px",
+                top: "2.5px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                border: "1px solid rgba(90, 62, 35, 0.5)",
+                background: "#e6dac2",
+              }}
+            />
+            <p
+              className="whitespace-nowrap"
+              style={{
+                fontFamily: "Georgia, serif",
+                fontSize: "10.5px",
+                color: "#4a3320",
+                letterSpacing: "0.03em",
+                marginTop: "5px",
+              }}
+            >
+              {handprints.length} were here
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Tooltip layer — sits outside the overflow-hidden canvas box (but
           in the same coordinate space, via inset-0) so a label can pop up
