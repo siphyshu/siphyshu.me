@@ -1,5 +1,5 @@
-import GalleryGrid from "@/components/gallery/GalleryGrid";
+import GalleryGridTaped from "@/components/gallery/GalleryGridTaped";
 
 export default function GalleryPage() {
-  return <GalleryGrid />;
+  return <GalleryGridTaped />;
 }

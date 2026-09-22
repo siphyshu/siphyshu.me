@@ -9,12 +9,12 @@ import { useNavActionsValue } from "@/components/ui/NavActionsContext";
 // own. The tab itself links to /projects (not /) so clicking it always shows
 // that URL, even though visiting "/" directly renders the same page.
 //
-// gallery and ctfs are parked out of the nav for now — the routes and
-// components still exist (app/(site)/gallery, app/(site)/ctfs), they just
-// aren't live/linked until there's real content, same treatment as games.
+// ctfs is still parked out of the nav — the route and component exist
+// (app/(site)/ctfs), it just isn't live/linked until there's real content.
 const TABS = [
     { label: "projects", href: "/projects", match: ["/", "/projects"] },
     { label: "articles", href: "/articles", match: ["/articles"] },
+    { label: "gallery", href: "/gallery", match: ["/gallery"] },
 ];
 
 const NavBar = () => {
