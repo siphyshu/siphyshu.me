@@ -91,7 +91,7 @@ const HeaderSection = () => {
                 <div className="hidden md:block w-[10px]"></div>
 
                 {/* Profile Pics */}
-                <div className="relative rounded-full">
+                <div className="relative rounded-full" data-gol-mask>
                     <Image
                         src="/images/jaiyank.jpg"
                         alt="jaiyank"
@@ -115,7 +115,7 @@ const HeaderSection = () => {
                 </div>
 
                 {/* Text Content */}
-                <div className="flex flex-col justify-start items-center md:items-start">
+                <div className="flex flex-col justify-start items-center md:items-start" data-gol-mask>
                     <p className="text-2xl md:text-3xl mb-2 md:mb-3 w-full md:min-w-[310px] lg:min-w-[310px] text-center md:text-left">
                         hey, i'm <TextMorph 
                             targetText={isHoveringSiphyshu ? "siphyshu! 🧑‍💻" : "jaiyank! 👋"}

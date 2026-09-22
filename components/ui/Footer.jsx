@@ -108,7 +108,7 @@ export default function Footer() {
     }, [isAwake])
 
     return (
-        <footer className="flex flex-col w-full py-8">
+        <footer className="flex flex-col w-full py-8" data-gol-mask>
             <div className="relative mt-8 flex justify-end">
                 <div 
                     ref={catRef} 

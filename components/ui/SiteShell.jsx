@@ -46,7 +46,7 @@ export default function SiteShell({ children }) {
 
       {/* Showcase Section - Hide when searching */}
       {!isSearching && (
-        <div className="max-w-4xl w-full mx-auto mb-16">
+        <div className="max-w-4xl w-full mx-auto mb-16" data-gol-mask>
           <NavBar />
           {children}
         </div>
