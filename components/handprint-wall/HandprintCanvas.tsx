@@ -165,18 +165,28 @@ export default function HandprintCanvas({
       {/* "N were here" counter, as a tag hung from the top rail. Lives outside
           the overflow-hidden canvas box, same reason as the tooltip layer
           below: the string has to cross the inner canvas edge, and that box
-          would clip anything positioned above it.
+          would clip anything positioned above it — which is also why it
+          doesn't inherit --hp-blur for free the way a marker does; it isn't
+          a descendant of the canvas box that variable is set on, so it's set
+          again here, directly, whenever the panel is open.
 
-          Hidden while the panel is open: the panel takes one full side of the
-          frame and the tag is always top-left, so they'd collide whenever the
-          panel flips left. Nobody needs a visitor count mid-signature anyway. */}
-      {handprints.length > 0 && !panelOpen && (
+          Never unmounted. It recedes with the rest of the wall instead of
+          popping out of existence, and the sway is paused rather than left
+          running unseen underneath: animation-play-state, not a remount, so
+          it holds whatever rotation it was at instead of resetting to the
+          keyframe's start — a remount would make it visibly snap back to
+          -1.5deg the moment the panel closes and the blur clears. */}
+      {handprints.length > 0 && (
         <div
           className="hanging-tag absolute pointer-events-none select-none"
           style={{
             left: "20px",
             top: "0px",
             zIndex: 15,
+            ["--hp-blur" as string]: panelOpen ? `${WALL_BLUR_PX}px` : "0px",
+            filter: "blur(var(--hp-blur, 0px))",
+            transition: "filter 400ms ease, --hp-blur 400ms ease",
+            animationPlayState: panelOpen ? "paused" : undefined,
           }}
         >
           <svg width="1.5" height="18" className="block mx-auto" aria-hidden="true">
