@@ -26,14 +26,16 @@ export default function ArticleItem({
     return (
         <a
             href={link}
-            className={`flex items-center gap-6 group ${isFirst ? "pb-5" : "py-5"}`}
+            className={`flex items-start md:items-center gap-4 md:gap-6 group ${isFirst ? "pb-5" : "py-5"}`}
         >
-            <div className="relative w-28 h-16 shrink-0 border border-black overflow-hidden">
+            {/* Top-aligned on phones: the text wraps to several lines there,
+                and a centred thumbnail floats beside nothing in particular. */}
+            <div className="relative w-24 h-14 md:w-28 md:h-16 shrink-0 mt-1 md:mt-0 border border-black overflow-hidden">
                 <Image src={thumbnail} alt={title} fill className="object-cover" />
             </div>
 
             <div className="flex-1 min-w-0">
-                <h2 className="prose prose-lg text-black max-w-none group-hover:underline">
+                <h2 className="prose md:prose-lg text-black max-w-none max-md:leading-snug group-hover:underline">
                     {title}
                 </h2>
                 {subtitle && (
@@ -41,6 +43,11 @@ export default function ArticleItem({
                         <ReactMarkdown>{subtitle}</ReactMarkdown>
                     </div>
                 )}
+                {/* The meta column below is desktop-only; without this, phones
+                    and portrait tablets would show no date at all. */}
+                <div className="md:hidden text-gray-400 text-xs mt-2">
+                    {formatDate(date)}{readMinutes ? ` · ${readMinutes} min read` : ""}
+                </div>
             </div>
 
             <div className="hidden md:flex flex-col items-end gap-2 shrink-0 pl-6">
