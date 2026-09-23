@@ -9,6 +9,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.23",
+    "cmdk": "^1.1.1",
     "lucide-react": "^0.411.0",
     "mongodb": "^6.8.0",
     "motion": "^13.3.0",

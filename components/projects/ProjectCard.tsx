@@ -1,11 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import { FaGithub } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { tagColorVariants, type Tag } from "@/data/tags";
+import { PencilMark, useHashMark } from "@/components/ui/PencilMark";
 
 interface ProjectCardProps {
+  /** Anchor id, so /projects#<id> (and the search palette) can point here. */
+  id?: string;
   title: string;
   description: string;
   thumbnail?: string;
@@ -15,6 +19,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({
+  id,
   title,
   description,
   thumbnail = "/thumbnails/projects/placeholder-thumbnail.png",
@@ -22,6 +27,9 @@ export default function ProjectCard({
   tags = [],
   className = "",
 }: ProjectCardProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const mark = useHashMark(id, ref);
+
   const iconMap: Record<string, React.ReactNode> = {
     github: <FaGithub className="text-gray-800 text-2xl cursor-pointer" />,
     external: (
@@ -36,7 +44,8 @@ export default function ProjectCard({
   };
 
   return (
-    <div className={`flex flex-col bg-white border border-black shadow-md ${className}`}>
+    <div ref={ref} id={id} className={`relative flex flex-col bg-white border border-black shadow-md ${className}`}>
+      {mark > 0 && <PencilMark key={mark} />}
       {/* Project Thumbnail */}
       <div className="flex items-center justify-center w-full relative aspect-[1.91/1]">
         <Image
