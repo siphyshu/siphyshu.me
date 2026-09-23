@@ -79,6 +79,16 @@ const PEEK = 3;
 // don't grow with the site's content, and reach-for-it-now rows at that.
 const ALWAYS_OPEN = ["do"];
 
+// Who answers a search for something that isn't here. Side-on: antenna
+// swept back, the big hind leg folded up behind. Only ever seen by someone
+// who went looking.
+const CRICKET = [
+    String.raw`  \            /\ `,
+    String.raw`   \   _______/  \ `,
+    String.raw`    (o)_________)=\ `,
+    String.raw`    /\  /\       \ \ `,
+].join("\n");
+
 // Splits on the query's words so each literal hit gets a highlighter swipe.
 // A fuzzy-only hit ("sctr" finding scattr, see filterEntry) has no literal
 // run of letters to mark, so it simply goes unhighlighted.
@@ -231,7 +241,12 @@ export default function CommandPalette({ open, setOpen }) {
 
                         <Command.List className="index-card__body" label="results">
                             <Command.Empty className="index-card__empty">
-                                nothing on this card for “{query.trim()}”
+                                <div className="crickets" aria-hidden="true">
+                                    <pre>{CRICKET}</pre>
+                                    <span className="crickets__chirp">chirp</span>
+                                </div>
+                                <p className="crickets__title">*crickets*</p>
+                                <p>nothing on this card for “{query.trim()}”</p>
                             </Command.Empty>
                             {groups.map(({ group, entries }) => {
                                 const folded =

@@ -1222,11 +1222,57 @@ a.bs-title:hover {
   font-size: 0.875rem;
 }
 
+/* No results: a cricket, and the silence it's known for. */
 .index-card__empty {
-  min-height: 2.75rem;
-  padding: 0.75rem 1rem;
+  padding: 1.5rem 1rem 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
   color: #9ca3af;
+}
+
+.crickets {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.crickets pre {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.15;
+  text-align: left;
+  color: #6b7280;
+}
+
+.crickets__title {
+  color: #6b7280;
   font-style: italic;
+}
+
+/* Every few seconds, briefly, the only sound on the card. Placed off the
+   antenna's tip, where the song would come from if crickets sang with
+   their heads (they don't — it's the wings — but that's where you'd look). */
+.crickets__chirp {
+  position: absolute;
+  top: -0.35rem;
+  left: -2.25rem;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: #9ca3af;
+  opacity: 0;
+  animation: cricket-chirp 3.2s ease-in-out 0.8s infinite;
+}
+
+@keyframes cricket-chirp {
+  0%, 70%, 100% { opacity: 0; transform: translateY(0); }
+  78% { opacity: 1; transform: translateY(-2px); }
+  88% { opacity: 0; transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crickets__chirp {
+    animation: none;
+  }
 }
 
 /* Its own strip under a rule, so the list reads as ending above it rather
