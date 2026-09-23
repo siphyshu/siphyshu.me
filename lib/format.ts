@@ -22,3 +22,16 @@ export function formatContentDate(iso: string): string {
     timeZone: "UTC",
   });
 }
+
+/**
+ * "Siphy's Bounty Board" -> "siphys-bounty-board". A project's anchor id on
+ * /projects, which is what lets the search palette link to a single card.
+ * Apostrophes are dropped rather than hyphenated so possessives stay one word.
+ */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}

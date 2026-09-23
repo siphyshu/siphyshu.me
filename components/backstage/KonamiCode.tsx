@@ -31,7 +31,7 @@ export default function KonamiCode({ href = "/backstage" }: { href?: string }) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      // The homepage has a search box. Arrow keys move a caret there and "b"
+      // The search palette has a text box. Arrow keys move a caret there and "b"
       // and "a" are just letters someone is typing — none of it is a cheat code.
       const target = event.target as HTMLElement | null;
       if (

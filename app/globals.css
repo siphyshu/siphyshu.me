@@ -923,3 +923,497 @@ a.bs-title:hover {
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Search palette — an index card.
+ *
+ * You write on the red header rule and the entries sit on the faint blue
+ * ruled lines below it, the way a ruled 3x5 card is printed. Both colours
+ * are the card's own ink, not UI colour. The frame itself is the search
+ * bar's (grey hairline, white): the card is the bar, unrolled.
+ * ------------------------------------------------------------------------- */
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgb(0 0 0 / 0.18);
+  backdrop-filter: blur(2px);
+}
+
+.index-card {
+  --card-red: rgb(214 69 65 / 0.75);
+  --card-blue: rgb(96 150 220 / 0.3);
+  --card-row: 2.5rem;
+  position: fixed;
+  z-index: 61;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  top: 0.75rem;
+  width: min(28rem, 100% - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* The search bar's own frame (SearchBar.jsx: border-gray-200, bg-white),
+     since the card is the bar, opened. The top keeps the bar's rounded-md
+     corners — that edge is the bar — and the bottom, the part that unrolled
+     out of it, is square like the site's other frames. */
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem 0.375rem 0 0;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 18px 48px -12px rgb(0 0 0 / 0.3);
+}
+
+@media (min-width: 640px) {
+  .index-card {
+    top: 14vh;
+    max-height: min(34rem, 72vh);
+  }
+}
+
+/* cmdk's root sits between the dialog and the card's parts; pass the column
+   layout through so the list, not the card, is what scrolls. */
+.index-card > [cmdk-root] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Radix keeps the dialog mounted until a closing animation ends, so these
+   run both ways without any JS. */
+.palette-backdrop[data-state="open"] { animation: palette-fade-in 150ms ease-out; }
+.palette-backdrop[data-state="closed"] { animation: palette-fade-out 120ms ease-in forwards; }
+.index-card[data-state="open"] { animation: index-card-in 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+.index-card[data-state="closed"] { animation: index-card-out 120ms ease-in forwards; }
+
+@keyframes palette-fade-in { from { opacity: 0; } }
+@keyframes palette-fade-out { to { opacity: 0; } }
+@keyframes index-card-in { from { opacity: 0; transform: translateY(-6px) scale(0.985); } }
+@keyframes index-card-out { to { opacity: 0; transform: translateY(-4px) scale(0.985); } }
+
+/* Anchored (desktop, bar in view): the card sits exactly over the search
+   bar and unrolls downward from it — the bar becomes the card's header.
+   Closing rolls it back up. measureAnchor() in CommandPalette sets the
+   position, size and --bar-h inline. */
+.index-card[data-anchored] {
+  margin-inline: 0;
+  right: auto;
+}
+
+.index-card[data-anchored][data-state="open"] {
+  animation: index-card-grow 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.index-card[data-anchored][data-state="closed"] {
+  animation: index-card-shrink 170ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Only the bottom corners move: rounded while the card is still bar-sized
+   (the bar is rounded-md all round), square once it has unrolled. The top
+   corners are the bar's and stay put. First and last frames are the bar
+   exactly. */
+@keyframes index-card-grow {
+  from {
+    border-radius: 0.375rem;
+    clip-path: inset(0 0 calc(100% - var(--bar-h)) 0 round 0.375rem);
+  }
+  to {
+    border-radius: 0.375rem 0.375rem 0 0;
+    clip-path: inset(0 0 0 0 round 0.375rem 0.375rem 0 0);
+  }
+}
+
+@keyframes index-card-shrink {
+  from {
+    border-radius: 0.375rem 0.375rem 0 0;
+    clip-path: inset(0 0 0 0 round 0.375rem 0.375rem 0 0);
+  }
+  to {
+    border-radius: 0.375rem;
+    clip-path: inset(0 0 calc(100% - var(--bar-h)) 0 round 0.375rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-card[data-state="open"],
+  .index-card[data-anchored][data-state="open"] { animation: palette-fade-in 150ms ease-out; }
+  .index-card[data-state="closed"],
+  .index-card[data-anchored][data-state="closed"] { animation: palette-fade-out 120ms ease-in forwards; }
+}
+
+/* Laid out like the bar (px-4, 18px icon then 12px, text-sm) and exactly
+   the bar's measured height (--bar-h, set by measureAnchor), so nothing in
+   it moves as the bar opens into the card. The red rule lands where the
+   bar's bottom edge was. 2.75rem is the bar's height when not anchored. */
+.index-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  height: var(--bar-h, 2.75rem);
+  flex-shrink: 0;
+  border-bottom: 2px solid var(--card-red);
+}
+
+.index-card__search {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+/* 16px on phones: anything smaller and iOS zooms the page when the input
+   takes focus. Phones never anchor to the bar, so they don't need to match. */
+.index-card__input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  font-size: 1rem;
+  outline: none;
+}
+
+@media (min-width: 640px) {
+  .index-card__input {
+    font-size: 0.875rem;
+  }
+}
+
+.index-card__input::placeholder {
+  color: #9ca3af;
+}
+
+/* Same keycap as the search bar's ⌘K, so the card and the bar that opened
+   it read as one thing. Sans for the same reason: Menlo shrinks the arrows. */
+.index-card kbd {
+  display: inline-block;
+  min-width: 1.25rem;
+  padding: 0.05rem 0.3rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.1rem;
+  text-align: center;
+  color: #6b7280;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+}
+
+.index-card__close {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+
+.index-card__close:hover {
+  color: #000;
+}
+
+/* Desktop shows the key, phones the word. Our own classes rather than
+   Tailwind's hidden/sm:inline: the keycap rule above (.index-card kbd) is
+   more specific than .hidden and was un-hiding the key on phones. */
+.index-card__close-word {
+  display: none;
+}
+
+.index-card__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 0.18) transparent;
+}
+
+.index-card [cmdk-group-heading],
+.index-card__row,
+.index-card__empty {
+  border-bottom: 1px solid var(--card-blue);
+}
+
+.index-card [cmdk-group-heading] {
+  height: 2rem;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 1rem 0.3rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+}
+
+.index-card__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 1rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+/* The row under your finger: a faint pencil-grey wash across the whole
+   line, so it's obvious which one Enter will open. */
+.index-card__row[data-selected="true"] {
+  color: #000;
+  background: rgb(0 0 0 / 0.045);
+}
+
+/* A little print pasted onto the card for content rows; the same slot holds
+   an icon for everything else, so titles all start on one line. */
+.index-card__thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #6b7280;
+}
+
+.index-card__thumb:has(img) {
+  background: #f3f4f6;
+  outline: 1px solid rgb(0 0 0 / 0.12);
+  outline-offset: -1px;
+}
+
+.index-card__row[data-selected="true"] .index-card__thumb {
+  color: #000;
+}
+
+.index-card__title {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Details are short by design (tags, "medium · 2023", a domain), so the
+   title gives way first and the detail stays whole. */
+.index-card__detail {
+  flex-shrink: 0;
+  max-width: 45%;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.index-card__out {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.index-card__detail + .index-card__out {
+  margin-left: 0;
+}
+
+.index-card__title + .index-card__out {
+  margin-left: auto;
+}
+
+/* "N more photos": quieter than a result, since it's a fold, not a thing. */
+.index-card__more {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* No results: a cricket, and the silence it's known for. */
+.index-card__empty {
+  padding: 1.5rem 1rem 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.crickets {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.crickets pre {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.15;
+  text-align: left;
+  color: #6b7280;
+}
+
+.crickets__title {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Every few seconds, briefly, the only sound on the card. Placed off the
+   antenna's tip, where the song would come from if crickets sang with
+   their heads (they don't — it's the wings — but that's where you'd look). */
+.crickets__chirp {
+  position: absolute;
+  top: -0.35rem;
+  left: -2.25rem;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: #9ca3af;
+  opacity: 0;
+  animation: cricket-chirp 3.2s ease-in-out 0.8s infinite;
+}
+
+@keyframes cricket-chirp {
+  0%, 70%, 100% { opacity: 0; transform: translateY(0); }
+  78% { opacity: 1; transform: translateY(-2px); }
+  88% { opacity: 0; transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crickets__chirp {
+    animation: none;
+  }
+}
+
+/* Its own strip under a rule, so the list reads as ending above it rather
+   than running on underneath. */
+.index-card__foot {
+  display: none;
+  gap: 1.25rem;
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid rgb(0 0 0 / 0.12);
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.index-card__foot > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Phones have no arrow keys to hint at. */
+@media (min-width: 640px) {
+  .index-card__foot {
+    display: flex;
+  }
+}
+
+/* Phones: a bottom sheet riding on the keyboard. The input moves to the
+   bottom, where the thumb is, with results stacked above it; the red rule
+   moves to the top of the input for the same reason — it still separates
+   what you type from what it finds. --keyboard and --visible-h come from
+   placeCard() in CommandPalette. Rounded top, square bottom, like the
+   open card on desktop. After the base card rules so it wins on order. */
+@media (max-width: 639px) {
+  .index-card {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: var(--keyboard, 0px);
+    width: 100%;
+    margin: 0;
+    max-height: calc(var(--visible-h, 100dvh) - 4rem);
+    border-width: 1px 0 0;
+    border-radius: 0.375rem 0.375rem 0 0;
+    /* The home indicator's strip, but only while the keyboard is down —
+       with it up, the sheet sits on the keys, not the screen edge. */
+    padding-bottom: max(0px, calc(env(safe-area-inset-bottom) - var(--keyboard, 0px)));
+  }
+
+  .index-card__head {
+    order: 2;
+    height: 3.25rem;
+    border-bottom: 0;
+    border-top: 2px solid var(--card-red);
+  }
+
+  .index-card__body {
+    order: 1;
+  }
+
+  .index-card__row {
+    min-height: 3rem;
+  }
+
+  .index-card__close {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  /* Parent class for specificity: beats the .index-card kbd keycap rule. */
+  .index-card .index-card__close-key {
+    display: none;
+  }
+
+  .index-card__close-word {
+    display: inline;
+  }
+
+}
+
+/* The slide, only for people who haven't asked for less motion — they keep
+   the plain fade from the reduced-motion rules above. */
+@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+  .index-card[data-state="open"] {
+    animation: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .index-card[data-state="closed"] {
+    animation: sheet-down 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+}
+
+@keyframes sheet-up { from { transform: translateY(100%); } }
+@keyframes sheet-down { to { transform: translateY(100%); } }
+
+/* A highlighter swipe over the letters you typed. Uneven corners so it reads
+   as a pen stroke rather than a selection box. */
+.highlighter {
+  color: inherit;
+  background: rgb(255 226 70 / 0.7);
+  border-radius: 0.2em 0.45em 0.3em 0.5em;
+  padding: 0 0.06em;
+  margin: 0 -0.06em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------------------------------------------------------------------------
+ * Pencil mark — a quick loop drawn around whatever the search sent you to,
+ * then left to fade. See components/ui/PencilMark.tsx.
+ * ------------------------------------------------------------------------- */
+.pencil-mark {
+  position: absolute;
+  inset: -7px;
+  width: calc(100% + 14px);
+  height: calc(100% + 14px);
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+  color: #3b3b3b;
+  animation: pencil-mark 2.6s ease forwards;
+}
+
+.pencil-mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* The SVG stretches to the card's shape; keep the line pencil-thin
+     instead of letting it scale with it. */
+  vector-effect: non-scaling-stroke;
+}
+
+.pencil-mark path + path {
+  opacity: 0.55;
+}
+
+@keyframes pencil-mark {
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}

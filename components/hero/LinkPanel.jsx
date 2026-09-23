@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { FaGithub, FaLinkedin, FaTwitterSquare } from "react-icons/fa";
 
-const LINKS = [
+export const LINKS = [
   {
     href: "https://github.com/siphyshu",
     text: "GitHub",

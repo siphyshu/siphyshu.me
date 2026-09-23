@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import { gallery } from "@/data/gallery";
+import { PencilMark, useHashMark } from "@/components/ui/PencilMark";
 
 // The /gallery view — polaroids taped straight onto the page in a loose
 // grid, no wire or clips. Reuses .garland-polaroid/.garland-photo/
@@ -30,47 +32,57 @@ const seeded = (n) => {
 const TAPE_VARIANTS = ["a", "b", "c"];
 const PIN_COLORS = ["brass", "pewter", "copper"];
 
+// Its own component so each photo can hold a ref: the search palette links
+// to /gallery#photo-<id>, and the photo it lands on gets circled.
+const TapedPhoto = ({ item }) => {
+    const ref = useRef(null);
+    const id = `photo-${item.id}`;
+    const mark = useHashMark(id, ref);
+
+    const seed = item.id * 4;
+    const rot = (seeded(seed + 1) - 0.5) * 10;
+    const offsetY = (seeded(seed + 4) - 0.5) * 20;
+
+    const decor = item.decor;
+    const tapeRot = (seeded(seed + 2) - 0.5) * 16;
+    const tapeVariant = TAPE_VARIANTS[Math.min(TAPE_VARIANTS.length - 1, Math.floor(seeded(seed + 5) * TAPE_VARIANTS.length))];
+    const pinColor = item.pinColor ?? PIN_COLORS[Math.min(PIN_COLORS.length - 1, Math.floor(seeded(seed + 6) * PIN_COLORS.length))];
+
+    return (
+        <figure
+            ref={ref}
+            id={id}
+            className="tape-card"
+            style={{ "--rot": `${rot.toFixed(2)}deg`, "--offset-y": `${offsetY.toFixed(1)}px` }}
+        >
+            {mark > 0 && <PencilMark key={mark} />}
+            {decor === "tape" && (
+                <span
+                    className={`tape-strip tape-${tapeVariant}`}
+                    style={{ "--tape-rot": `${tapeRot.toFixed(2)}deg` }}
+                />
+            )}
+            {decor === "pin" && <span className={`wall-pin wall-pin--${pinColor}`} />}
+            <div className="garland-polaroid">
+                <div className="garland-photo">
+                    <Image
+                        src={item.image}
+                        alt={item.caption}
+                        fill
+                        sizes="(max-width: 640px) 45vw, (max-width: 900px) 30vw, 220px"
+                        className="object-cover"
+                    />
+                </div>
+                <figcaption className="garland-caption">{item.caption}</figcaption>
+            </div>
+        </figure>
+    );
+};
+
 const GalleryGridTaped = ({ className }) => (
     <div className={className}>
         <div className="tape-wall">
-            {gallery.map((item) => {
-                const seed = item.id * 4;
-                const rot = (seeded(seed + 1) - 0.5) * 10;
-                const offsetY = (seeded(seed + 4) - 0.5) * 20;
-
-                const decor = item.decor;
-                const tapeRot = (seeded(seed + 2) - 0.5) * 16;
-                const tapeVariant = TAPE_VARIANTS[Math.min(TAPE_VARIANTS.length - 1, Math.floor(seeded(seed + 5) * TAPE_VARIANTS.length))];
-                const pinColor = item.pinColor ?? PIN_COLORS[Math.min(PIN_COLORS.length - 1, Math.floor(seeded(seed + 6) * PIN_COLORS.length))];
-
-                return (
-                    <figure
-                        className="tape-card"
-                        key={item.id}
-                        style={{ "--rot": `${rot.toFixed(2)}deg`, "--offset-y": `${offsetY.toFixed(1)}px` }}
-                    >
-                        {decor === "tape" && (
-                            <span
-                                className={`tape-strip tape-${tapeVariant}`}
-                                style={{ "--tape-rot": `${tapeRot.toFixed(2)}deg` }}
-                            />
-                        )}
-                        {decor === "pin" && <span className={`wall-pin wall-pin--${pinColor}`} />}
-                        <div className="garland-polaroid">
-                            <div className="garland-photo">
-                                <Image
-                                    src={item.image}
-                                    alt={item.caption}
-                                    fill
-                                    sizes="(max-width: 640px) 45vw, (max-width: 900px) 30vw, 220px"
-                                    className="object-cover"
-                                />
-                            </div>
-                            <figcaption className="garland-caption">{item.caption}</figcaption>
-                        </div>
-                    </figure>
-                );
-            })}
+            {gallery.map((item) => <TapedPhoto key={item.id} item={item} />)}
         </div>
     </div>
 );

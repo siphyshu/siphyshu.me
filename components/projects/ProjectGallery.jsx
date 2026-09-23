@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ProjectCard from "@/components/projects/ProjectCard";
 import { projects } from "@/data/projects";
 import { tags } from "@/data/tags";
+import { slugify } from "@/lib/format";
 
 // Below sm the grid becomes a single swipeable row: cards snap to the gutter
 // and the next one peeks in from the edge. The cards themselves don't change,
@@ -71,6 +72,7 @@ const ProjectGallery = ({ className = "", tags: selectedTags = [] }) => {
                 {filtered.map((project) => (
                     <ProjectCard
                         key={project.id}
+                        id={slugify(project.title)}
                         className="w-[85%] shrink-0 snap-start sm:w-auto"
                         title={project.title}
                         description={project.description}
