@@ -465,6 +465,15 @@ img {
   display: none;
 }
 
+/* 4 -> 3 -> 2. The 3 step starts near where the page stops widening
+   (max-w-4xl), so polaroids never drop much below ~190px before a column
+   goes. */
+@media (max-width: 900px) {
+  .tape-wall {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 640px) {
   .tape-wall {
     grid-template-columns: repeat(2, 1fr);
