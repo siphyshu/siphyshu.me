@@ -62,7 +62,7 @@ const GalleryGridTaped = ({ className }) => (
                                     src={item.image}
                                     alt={item.caption}
                                     fill
-                                    sizes="(max-width: 640px) 45vw, 220px"
+                                    sizes="(max-width: 640px) 45vw, (max-width: 900px) 30vw, 220px"
                                     className="object-cover"
                                 />
                             </div>

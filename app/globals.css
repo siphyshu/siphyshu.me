@@ -456,6 +456,24 @@ img {
   background: #b3714a;
 }
 
+/* Swipe rows (the projects carousel on phones): still scrollable, the dots
+   underneath stand in for the bar. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 4 -> 3 -> 2. The 3 step starts near where the page stops widening
+   (max-w-4xl), so polaroids never drop much below ~190px before a column
+   goes. */
+@media (max-width: 900px) {
+  .tape-wall {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 640px) {
   .tape-wall {
     grid-template-columns: repeat(2, 1fr);
