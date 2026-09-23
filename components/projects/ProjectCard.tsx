@@ -11,6 +11,7 @@ interface ProjectCardProps {
   thumbnail?: string;
   links?: Record<string, string>;
   tags?: Tag[];
+  className?: string;
 }
 
 export default function ProjectCard({
@@ -19,6 +20,7 @@ export default function ProjectCard({
   thumbnail = "/thumbnails/projects/placeholder-thumbnail.png",
   links = {},
   tags = [],
+  className = "",
 }: ProjectCardProps) {
   const iconMap: Record<string, React.ReactNode> = {
     github: <FaGithub className="text-gray-800 text-2xl cursor-pointer" />,
@@ -34,7 +36,7 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="flex flex-col bg-white border border-black shadow-md min-w-[250px]">
+    <div className={`flex flex-col bg-white border border-black shadow-md ${className}`}>
       {/* Project Thumbnail */}
       <div className="flex items-center justify-center w-full relative aspect-[1.91/1]">
         <Image
@@ -47,13 +49,15 @@ export default function ProjectCard({
 
       {/* Project Content */}
       <div className="font-serif p-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-3">
           {/* Title */}
-          <h2 className="text-black prose prose-lg">{title}</h2>
+          <h2 className="text-black prose prose-lg min-w-0 break-words">{title}</h2>
           {/* Links */}
-          <div className="flex items-center gap-2">
+          {/* p-2 -m-2 grows each hit area to finger size without moving the
+              icons; neighbours overlap a little, the later one wins. */}
+          <div className="flex items-center gap-2 shrink-0">
             {Object.entries(links).map(([key, url]) => (
-              <a key={key} href={url} target="_blank" rel="noopener noreferrer">
+              <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={key} className="p-2 -m-2">
                 {iconMap[key] || (
                   <span className="text-gray-800 text-sm cursor-pointer">
                     {key}
@@ -65,7 +69,7 @@ export default function ProjectCard({
         </div>
 
         {/* Tags */}
-        <div className="flex gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           {tags
             .filter(Boolean)
             .map((tag, index) => (
