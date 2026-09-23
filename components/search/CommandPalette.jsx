@@ -246,7 +246,7 @@ export default function CommandPalette({ open, setOpen }) {
                                     <span className="crickets__chirp">chirp</span>
                                 </div>
                                 <p className="crickets__title">*crickets*</p>
-                                <p>nothing on this card for “{query.trim()}”</p>
+                                <p>nothing here for “{query.trim()}”</p>
                             </Command.Empty>
                             {groups.map(({ group, entries }) => {
                                 const folded =
