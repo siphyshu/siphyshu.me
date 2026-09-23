@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 
 // Split in two so that registering a toolbar (which only ever needs the
 // setter) doesn't also subscribe the page to the *value* — a page's own
@@ -29,10 +29,13 @@ export function NavActionsProvider({ children }) {
  * it needs to re-register on every render so the toolbar shown always
  * reflects the page's latest filter state, and it clears on unmount so
  * navigating away never leaves a stale toolbar showing on another section.
+ * A layout effect so the swap lands before paint — the old section's cleanup
+ * and the new one's registration share a frame, instead of the new section
+ * painting once under the old toolbar.
  */
 export function useNavActions(node) {
     const setActions = useContext(SetActionsContext);
-    useEffect(() => {
+    useLayoutEffect(() => {
         setActions(node);
         return () => setActions(null);
     });

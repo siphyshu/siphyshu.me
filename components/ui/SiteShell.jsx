@@ -5,6 +5,7 @@ import HandprintWall from "@/components/handprint-wall/HandprintWall";
 import KonamiCode from "@/components/backstage/KonamiCode";
 import HeaderSection2 from "@/components/hero/HeaderSection2";
 import NavBar from "@/components/ui/NavBar";
+import HeldHeight from "@/components/ui/HeldHeight";
 import { NavActionsProvider } from "@/components/ui/NavActionsContext";
 import SearchBar from "@/components/search/SearchBar";
 import CommandPalette from "@/components/search/CommandPalette";
@@ -45,7 +46,7 @@ export default function SiteShell({ children }) {
           "go to …" rows scroll to. */}
       <div id="sections" className="max-w-4xl w-full mx-auto mb-16" data-gol-mask>
         <NavBar />
-        {children}
+        <HeldHeight>{children}</HeldHeight>
       </div>
     </NavActionsProvider>
   );
