@@ -1,4 +1,4 @@
-import { tags as registry, type Tag } from "@/data/tags";
+import { tags as registry, tagColorVariants, type Tag, type TagColor } from "@/data/tags";
 
 // Client-safe — data/tags.ts is a plain object literal. Both the server-rendered
 // lists and the client-side search results resolve pills through here.
@@ -14,4 +14,17 @@ import { tags as registry, type Tag } from "@/data/tags";
  */
 export function resolveTags(ids: readonly string[]): Tag[] {
   return ids.map((id) => registry[id]).filter(Boolean);
+}
+
+/**
+ * Just a colour's text and border, for pills that sit inside a bigger link
+ * (an article row). The full variant's hover fill and pointer would promise a
+ * click the pill doesn't have. The classes still appear whole in data/tags.ts,
+ * so Tailwind generates them.
+ */
+export function tagInkClasses(color: TagColor): string {
+  return tagColorVariants[color]
+    .split(" ")
+    .filter((c) => c.startsWith("text-") || c.startsWith("border-"))
+    .join(" ");
 }

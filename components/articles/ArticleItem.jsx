@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import ReactMarkdown from 'react-markdown';
+import { resolveTags, tagInkClasses } from "@/lib/tags";
 
 const MONTHS = [
     "January", "February", "March", "April", "May", "June",
@@ -23,6 +24,8 @@ export default function ArticleItem({
     link,
     isFirst = false,
 }) {
+    const tags = resolveTags(topics);
+
     return (
         <a
             href={link}
@@ -51,14 +54,14 @@ export default function ArticleItem({
             </div>
 
             <div className="hidden md:flex flex-col items-end gap-2 shrink-0 pl-6">
-                {topics.length > 0 && (
+                {tags.length > 0 && (
                     <div className="flex gap-1.5 flex-nowrap justify-end">
-                        {topics.slice(0, 3).map((topic) => (
+                        {tags.slice(0, 3).map((tag) => (
                             <span
-                                key={topic}
-                                className="px-2 py-0.5 text-[10px] border rounded-full text-gray-500 border-gray-300"
+                                key={tag.name}
+                                className={`px-2 py-0.5 text-[10px] border rounded-full ${tagInkClasses(tag.color)}`}
                             >
-                                {topic}
+                                {tag.name}
                             </span>
                         ))}
                     </div>

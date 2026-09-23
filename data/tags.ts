@@ -58,6 +58,7 @@ export const tags: Record<string, Tag> = {
   "supabase": { name: "supabase", color: "fuchsia" },
   "blender": { name: "blender", color: "coral" },
   "figma": { name: "figma", color: "pink" },
+  "arduino": { name: "arduino", color: "teal" },
 
   // Frameworks
   "react": { name: "react", color: "blue" },

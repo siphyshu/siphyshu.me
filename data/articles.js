@@ -16,7 +16,7 @@ export const articles = [
         subtitle: "A look at the biggest cyber attacks of 2021, including the SolarWinds hack, the infamous Log4j vulnerability, and the Kaseya ransomware attacks.",
         thumbnail: "/thumbnails/articles/cyber-attacks-2021-thumbnail.png",
         link: "https://siphyshu.medium.com/a-rundown-of-the-biggest-cyber-attacks-in-2021-and-what-lies-ahead-for-us-6b0b4b2e816d",
-        topics: ["cybersecurity", "cyber-attacks", "2021"],
+        topics: ["cybersecurity"],
         readMinutes: 6
     }
 ]; 

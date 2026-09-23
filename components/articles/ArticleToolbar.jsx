@@ -2,8 +2,11 @@
 
 import Toolbar from "@/components/ui/Toolbar";
 import { articles } from "@/data/articles";
+import { tags as registry } from "@/data/tags";
 
-const ALL_TOPICS = [...new Set(articles.flatMap((a) => a.topics))];
+const ALL_TOPICS = [...new Set(articles.flatMap((a) => a.topics))]
+    .filter((id) => registry[id])
+    .map((id) => ({ value: id, label: registry[id].name }));
 
 export default function ArticleToolbar({ tags, setTags, order, setOrder }) {
     return (
