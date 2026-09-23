@@ -183,7 +183,7 @@ export function OgCard({
             <div style={{ display: "flex", flexDirection: "column", marginLeft: 26 }}>
               <Greeting size={40} />
               <div style={{ display: "flex", fontSize: 21, color: MUTED, marginTop: 8 }}>
-                {getAge()} y/o · exploring CS @ VITB · developer, generalist
+                {getAge()} y/o · exploring tech × art · building, breaking
               </div>
             </div>
           </div>
@@ -209,10 +209,10 @@ export function OgCard({
             <div style={{ display: "flex", flexDirection: "column", marginLeft: 28 }}>
               <Greeting size={46} />
               <div style={{ display: "flex", fontSize: 22, color: MUTED, marginTop: 10 }}>
-                {getAge()} y/o · exploring CS @ VITB
+                {getAge()} y/o · exploring tech × art
               </div>
               <div style={{ display: "flex", fontSize: 22, color: MUTED, marginTop: 4 }}>
-                developer, generalist, always curious
+                building, breaking, always curious
               </div>
             </div>
           </div>
@@ -276,7 +276,7 @@ export function OgCard({
             borderBottom: `1px solid ${INK}`,
           }}
         >
-          {getAge()} y/o · exploring CS @ VITB · developer, generalist, always curious
+          {getAge()} y/o · exploring tech × art · building, breaking, always curious
         </div>
 
         <div style={{ display: "flex", position: "relative" }}>

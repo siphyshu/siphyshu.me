@@ -131,11 +131,11 @@ const HeaderSection = () => {
                             width={16}
                             height={16}
                             className="inline h-auto"
-                        />・exploring CS @ VITB
+                        />・exploring tech × art
                     </p>
 
                     <p className="text-sm md:text-base mb-1 text-gray-500">
-                        Developer, generalist, always curious.
+                        building, breaking, always curious.
                     </p>
                 </div>
             </div>
