@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag } from "next/cache";
 import clientPromise from "@/lib/mongodb";
+import { getHandprints, HANDPRINTS_TAG } from "@/lib/handprints";
 import { handprintInputSchema, type Handprint } from "@/lib/schemas/handprint";
 import { clientIp, turnstileConfigured, verifyTurnstile } from "@/lib/turnstile";
 
@@ -32,21 +33,6 @@ const WALL_BURST_LIMIT = 30;
 const WALL_BURST_WINDOW_MS = 60 * 60 * 1000;
 
 let missingSecretLogged = false;
-
-const getHandprints = unstable_cache(
-  async (): Promise<Handprint[]> => {
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
-    const documents = await db.collection(COLLECTION).find({}).toArray();
-    // Expose _id as a plain string `id` rather than dropping it — the client
-    // needs a stable identity per print for React keys and optimistic rollback.
-    return documents.map(
-      ({ _id, ...rest }) => ({ ...rest, id: _id.toString() }) as Handprint
-    );
-  },
-  ["handprints"],
-  { revalidate: 60, tags: ["handprints"] }
-);
 
 export async function GET() {
   try {
@@ -146,12 +132,14 @@ export async function POST(request: Request) {
     };
     const result = await db.collection(COLLECTION).insertOne(handprint);
 
-    // Bust the cache for everyone immediately, not just the submitter.
+    // Bust the cache for everyone immediately, not just the submitter. The
+    // tag also expires every prerendered page under app/(site), since their
+    // shared layout reads the wall through the same tagged cache.
     // profile "max" (Next 16's default recommendation) is stale-while-revalidate,
     // NOT immediate — it wouldn't show the new handprint until the next background
     // revisit. { expire: 0 } is Next's documented pattern for exactly this case:
     // an external request (this POST) needing tagged data to expire right away.
-    revalidateTag("handprints", { expire: 0 });
+    revalidateTag(HANDPRINTS_TAG, { expire: 0 });
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

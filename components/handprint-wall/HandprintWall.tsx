@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import type { HandprintInput } from "@/lib/schemas/handprint";
+import type { Handprint, HandprintInput } from "@/lib/schemas/handprint";
 import { validateLink } from "@/lib/schemas/link";
 import { useHandprints } from "./useHandprints";
 import { useCanvasPlacement } from "./useCanvasPlacement";
@@ -17,6 +17,8 @@ import type { HandprintFormSubmitData } from "./useHandprintForm";
 
 interface HandprintWallProps {
   className?: string;
+  /** Read on the server by the site layout. null if that read failed. */
+  initialHandprints?: Handprint[] | null;
 }
 
 const TOAST_OPTIONS = {
@@ -29,8 +31,11 @@ const TOAST_OPTIONS = {
   className: "bg-red-50 bg-opacity-2 border border-black text-black font-serif",
 };
 
-export default function HandprintWall({ className }: HandprintWallProps) {
-  const { handprints, loadError, addHandprint } = useHandprints();
+export default function HandprintWall({
+  className,
+  initialHandprints = null,
+}: HandprintWallProps) {
+  const { handprints, loadError, addHandprint } = useHandprints(initialHandprints);
   const placement = useCanvasPlacement(handprints);
   // Hoisted out of the form: two different components now branch on it, and
   // the canvas needs to know whether to make room for the in-frame panel.

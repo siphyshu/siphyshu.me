@@ -1,7 +1,7 @@
 # handprint wall — roadmap
 
-Status: **items 1 and 3 done, item 2 shipped but its design is being redone by
-hand, items 4-8 open**. Written 2026-09-14, updated 2026-09-16.
+Status: **items 1, 3 and 7 done, item 2 shipped but its design is being redone
+by hand, items 4-6 and 8 open**. Written 2026-09-14, updated 2026-10-16.
 
 **Parked here deliberately** — work moved to other parts of the site. Pick up at
 item 4; it's the prerequisite for the most other things (it unblocks the
@@ -240,9 +240,23 @@ own mark.
 **Receiving end:** `?hand=<id>` holds that print at full opacity, dims the rest
 slightly, shows its label, clears on first interaction.
 
+**Read `?hand=` on the client** (`useSearchParams` under `<Suspense>`, or
+`window.location` in an effect) — never `searchParams` in a server page. That
+turns the route dynamic, and the wall loses its prerendered fast path (item 7).
+
 ---
 
-## 7. Server-render the wall
+## 7. Server-render the wall — DONE
+
+The `(site)` layout reads through the tagged cache in `lib/handprints.ts`, so
+every `(site)` route stays prerendered (ISR) with the wall in its HTML. Wall
+load in prod went from ~2.3s (client fetch to a cold iad1 function) to arriving
+with the HTML. Keep those routes `○` in the build output: no `cookies()`,
+`headers()` or server `searchParams` under `(site)`.
+
+**Not done:** the submitter's optimistic print keeps its `optimistic-…` id until
+reload (as it always did). Items 4 and 6 need the real one — swap in the
+`insertedId` the POST already returns, rather than `router.refresh()`.
 
 **Buys:** no empty-frame flash; 86 names in the HTML (screen-reader fallback for
 free, and indexable); one fewer round trip; same data path the OG image wants.

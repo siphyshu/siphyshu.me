@@ -4,15 +4,23 @@ import { useEffect, useMemo, useState } from "react";
 import type { Handprint, HandprintInput } from "@/lib/schemas/handprint";
 import { withAges } from "./age";
 
-export function useHandprints() {
-  const [handprints, setHandprints] = useState<Handprint[]>([]);
+/**
+ * `initial` is the wall as the server rendered it, so the prints are already
+ * in the HTML and there's nothing to wait for. Only when the server's read
+ * failed (null) does the client go and fetch them itself.
+ */
+export function useHandprints(initial: Handprint[] | null = null) {
+  const [handprints, setHandprints] = useState<Handprint[]>(initial ?? []);
   const [loadError, setLoadError] = useState(false);
 
   // Oldest-first, each tagged with a normalized age. See ./age — the ordering
   // is what makes newer hands layer over older ones.
   const agedHandprints = useMemo(() => withAges(handprints), [handprints]);
 
+  const needsFetch = initial === null;
+
   useEffect(() => {
+    if (!needsFetch) return;
     let cancelled = false;
 
     (async () => {
@@ -30,7 +38,7 @@ export function useHandprints() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [needsFetch]);
 
   /**
    * `turnstileToken` is a credential for this one request, not part of the
@@ -44,9 +52,9 @@ export function useHandprints() {
     turnstileToken?: string | null
   ): Promise<boolean> => {
     // Temporary client-side id so the optimistic print has a stable React key
-    // until the next GET replaces it with the real Mongo-derived one. The
-    // timestamp is local-only and gets replaced by the server's on the next
-    // read — but it has to be set, or withAges() would treat a brand-new
+    // until the next page load replaces it with the real Mongo-derived one.
+    // The timestamp is local-only and gets replaced by the server's on the
+    // next read — but it has to be set, or withAges() would treat a brand-new
     // handprint as undated and render it as the oldest thing on the wall.
     const optimistic: Handprint = {
       ...input,

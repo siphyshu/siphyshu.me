@@ -15,7 +15,7 @@ const FRAME_STYLE = "wood-frame-lighter-brown";
 // Everything that stays put while you move between sections. Lives in the
 // route group's layout, so navigating projects <-> articles swaps only the
 // children — the wall keeps its state instead of remounting.
-export default function SiteShell({ children }) {
+export default function SiteShell({ children, initialHandprints }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -39,7 +39,10 @@ export default function SiteShell({ children }) {
 
       {/* Interactive Artwork */}
       <div className="mx-auto mt-8 mb-12">
-        <HandprintWall className={FRAME_STYLE} />
+        <HandprintWall
+          className={FRAME_STYLE}
+          initialHandprints={initialHandprints}
+        />
       </div>
 
       {/* Showcase Section. id="sections" is where the search palette's

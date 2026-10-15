@@ -198,6 +198,11 @@ export default function HandprintMarker({
         src={`/handprints/${handprint.color}.svg`}
         width={30}
         height={30}
+        // Not next/image's default of lazy. The markers are server-rendered
+        // into the HTML, so eager lets the preload scanner request the few
+        // distinct colours as soon as it reads them, rather than waiting for
+        // layout to decide the wall is near the viewport.
+        loading="eager"
         alt=""
         className={`w-full h-full select-none ${isPreview ? "handprint-press" : ""}`}
       />
