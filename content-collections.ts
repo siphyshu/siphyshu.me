@@ -146,7 +146,14 @@ const articleBodies = defineCollection({
         [rehypeShiki, { theme: "github-light" }],
       ],
     });
-    return { slug: document._meta.path, mdx };
+    return {
+      slug: document._meta.path,
+      mdx,
+      // A tweet's video is served from video.twimg.com, which answers 403 to
+      // any request whose Referer isn't X's own. The reader page turns off
+      // cross-origin referrers for articles that embed one (see page.jsx).
+      embedsTweet: /<Tweet\b/.test(document.content),
+    };
   },
 });
 

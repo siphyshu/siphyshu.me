@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import Link from "next/link";
+import { Tweet as ReactTweet } from "react-tweet";
 import * as wordle from "@/components/articles/wordle";
 import type {
   AnchorHTMLAttributes,
@@ -83,12 +84,26 @@ function Signoff({ children }: { children: ReactNode }) {
   return <p className="signoff">{children}</p>;
 }
 
+// A tweet, rendered by react-tweet: fetched on the server when the page is
+// built and shipped as plain markup — no script from X on the page, nothing
+// that pops in after load. Light theme always, since the site has no dark
+// mode yet and the tweet would otherwise follow the OS into one:
+//   <Tweet id="1727035609225572524" />
+function Tweet({ id }: { id: string }) {
+  return (
+    <div className="tweet" data-theme="light">
+      <ReactTweet id={id} />
+    </div>
+  );
+}
+
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
   img: MdxImage,
   table: MdxTable,
   Figure,
   Signoff,
+  Tweet,
   // One article's figures. Client components, so their code only reaches the
   // browser on a page that actually renders them.
   ...wordle,

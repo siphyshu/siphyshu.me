@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
   const found = findArticle(slug);
   if (!found) return {};
 
-  const { article } = found;
+  const { article, body } = found;
   return {
     title: `${article.title} // siphyshu`,
     description: article.subtitle,
@@ -48,6 +48,12 @@ export async function generateMetadata({ params }) {
       type: "article",
       publishedTime: article.date,
     },
+    // X's video server refuses any request that names another site as its
+    // referrer, so an embedded tweet's video never plays. "same-origin" keeps
+    // the Referer on this site's own requests and drops it everywhere else —
+    // only on articles that embed a tweet, so links elsewhere still show
+    // where their visitors came from.
+    ...(body.embedsTweet && { referrer: "same-origin" }),
   };
 }
 

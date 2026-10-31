@@ -233,6 +233,18 @@ img {
   gap: 10px;
 }
 
+/* A picture narrower than the column sits in its middle, caption beneath it,
+   rather than hugging the left edge with a gap on the right. Plain pictures
+   only: a .fig card's contents line up with the text, so they stay left. */
+.article-body figure:not(.fig) {
+  justify-items: center;
+  text-align: center;
+}
+
+.article-body > p > img {
+  margin-inline: auto;
+}
+
 .article-body figcaption {
   font-family: theme("fontFamily.sans");
   font-size: 0.82rem;
@@ -325,6 +337,17 @@ img {
   font: 0.82rem theme("fontFamily.sans");
   color: var(--muted);
   min-height: 1.2em;
+}
+
+/* A tweet sits in the middle of the column at its own width (react-tweet caps
+   it at 550px), with the article's gap around it rather than its own margin. */
+.article-body .tweet {
+  display: flex;
+  justify-content: center;
+}
+
+.article-body .tweet .react-tweet-theme {
+  --tweet-container-margin: 0;
 }
 
 /* ── Notes and sign-off ── */
