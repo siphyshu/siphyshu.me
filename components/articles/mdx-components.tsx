@@ -97,6 +97,25 @@ function Tweet({ id }: { id: string }) {
   );
 }
 
+// A YouTube video, from the privacy-enhanced domain. YouTube refuses to play
+// an embed whose request names no site (error 153, "video player
+// configuration error"), and an article that embeds a tweet turns referrers
+// off page-wide for X's sake (see page.jsx). The iframe's own referrerPolicy
+// overrides that for this one request, and sends only the origin — never the
+// article's full URL:
+//   <YouTube id="1QJ83lrbu5c" title="Snake-R4 demo" />
+function YouTube({ id, title }: { id: string; title: string }) {
+  return (
+    <iframe
+      src={`https://www.youtube-nocookie.com/embed/${id}`}
+      title={title}
+      allowFullScreen
+      referrerPolicy="strict-origin-when-cross-origin"
+      className="w-full aspect-video"
+    />
+  );
+}
+
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
   img: MdxImage,
@@ -104,6 +123,7 @@ export const mdxComponents: MDXComponents = {
   Figure,
   Signoff,
   Tweet,
+  YouTube,
   // One article's figures. Client components, so their code only reaches the
   // browser on a page that actually renders them.
   ...wordle,
