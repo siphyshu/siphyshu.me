@@ -35,6 +35,9 @@ img {
   --c-gray-950: 3 7 18;
   /* Black as a line rather than as ink: hairlines, card edges. */
   --c-hairline: 0 0 0;
+  /* Links: the web's own blue by day (Tailwind's blue-600 / -800). */
+  --c-link: 37 99 235;
+  --c-link-hover: 30 64 175;
   /* The Game of Life's dots. */
   --gol-ink: 20 18 14;
 }
@@ -56,6 +59,10 @@ img {
   --c-gray-900: 236 231 222;
   --c-gray-950: 244 240 232;
   --c-hairline: 98 91 82;
+  /* At night the blue is muted and greyed toward the warm palette: still
+     unmistakably a link, without buzzing against the charcoal. */
+  --c-link: 138 164 201;
+  --c-link-hover: 182 200 226;
   --gol-ink: 240 234 224;
 
   /* The reader's tokens (defined with the reader, below). */
@@ -64,7 +71,7 @@ img {
   --rule: #3f3a35;
   --faint: #544e47;
   --surface: #302c28;
-  --accent: #8fb8ff;
+  --accent: rgb(var(--c-link));
   --mark: rgb(250 204 21 / 0.3);
 }
 

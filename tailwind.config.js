@@ -23,6 +23,10 @@ module.exports = {
       // themes (a scrim), use bg-[#000].
       colors: {
         white: 'rgb(var(--c-white) / <alpha-value>)',
+        link: {
+          DEFAULT: 'rgb(var(--c-link) / <alpha-value>)',
+          hover: 'rgb(var(--c-link-hover) / <alpha-value>)',
+        },
         black: 'rgb(var(--c-black) / <alpha-value>)',
         gray: {
           50: 'rgb(var(--c-gray-50) / <alpha-value>)',
