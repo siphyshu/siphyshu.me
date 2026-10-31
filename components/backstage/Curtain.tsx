@@ -108,7 +108,7 @@ export function CurtainProvider({ children }: { children: React.ReactNode }) {
           // Reduced motion keeps the beat — you still get a moment of cover, so
           // the jump to another page is explained — but drops the travel.
           <motion.div
-            className="absolute inset-0 bg-black"
+            className="absolute inset-0 bg-[#000]"
             initial={{ opacity: 0 }}
             animate={{ opacity: covering ? 1 : 0 }}
             transition={{ duration: 0.2, ease: EASE }}

@@ -83,6 +83,7 @@ export default function HandprintPanel({
   return (
     <motion.div
       ref={formRef}
+      data-light
       // pointer-events-auto because the clip box in HandprintCanvas is
       // pointer-events-none and would otherwise swallow clicks on the wall —
       // but only while present. See isPresent above.

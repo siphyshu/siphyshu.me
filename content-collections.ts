@@ -143,7 +143,9 @@ const articleBodies = defineCollection({
         ],
         // Highlighted at build time: the HTML ships coloured, no highlighter
         // reaches the browser.
-        [rehypeShiki, { theme: "github-light" }],
+        // Both themes: light colours inline, dark ones as --shiki-dark
+        // variables that globals.css switches to under data-theme="dark".
+        [rehypeShiki, { themes: { light: "github-light", dark: "github-dark" } }],
       ],
     });
     return {

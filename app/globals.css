@@ -10,6 +10,200 @@ img {
   max-width: unset !important;
 }
 
+/* ── Theme ──────────────────────────────────────────────────────────────
+   Light and dark, switched by data-theme on <html> (next-themes, set before
+   first paint from the visitor's choice or their OS). tailwind.config.js
+   points white, black and gray-* at these channels, so every existing
+   bg-white / text-black / text-gray-500 follows the theme without a dark:
+   variant. Light is the site exactly as it was; dark is the same page at
+   night, not an inversion — warm near-black paper, off-white ink, a softened
+   hairline. Pages that opt out (backstage) carry data-force-light. */
+:root {
+  color-scheme: light;
+  --c-white: 255 255 255;
+  --c-black: 0 0 0;
+  --c-gray-50: 249 250 251;
+  --c-gray-100: 243 244 246;
+  --c-gray-200: 229 231 235;
+  --c-gray-300: 209 213 219;
+  --c-gray-400: 156 163 175;
+  --c-gray-500: 107 114 128;
+  --c-gray-600: 75 85 99;
+  --c-gray-700: 55 65 81;
+  --c-gray-800: 31 41 55;
+  --c-gray-900: 17 24 39;
+  --c-gray-950: 3 7 18;
+  /* Black as a line rather than as ink: hairlines, card edges. */
+  --c-hairline: 0 0 0;
+  /* The Game of Life's dots. */
+  --gol-ink: 20 18 14;
+}
+
+:root[data-theme="dark"]:not(:has([data-force-light])) {
+  color-scheme: dark;
+  /* Dusk: a warm charcoal rather than near-black, ink like old paper. */
+  --c-white: 38 35 32;
+  --c-black: 240 234 224;
+  --c-gray-50: 48 44 40;
+  --c-gray-100: 54 50 45;
+  --c-gray-200: 66 61 55;
+  --c-gray-300: 84 78 71;
+  --c-gray-400: 125 118 108;
+  --c-gray-500: 166 158 146;
+  --c-gray-600: 190 183 172;
+  --c-gray-700: 210 204 194;
+  --c-gray-800: 226 221 212;
+  --c-gray-900: 236 231 222;
+  --c-gray-950: 244 240 232;
+  --c-hairline: 98 91 82;
+  --gol-ink: 240 234 224;
+
+  /* The reader's tokens (defined with the reader, below). */
+  --ink: #ece6dc;
+  --muted: #a69e92;
+  --rule: #3f3a35;
+  --faint: #544e47;
+  --surface: #302c28;
+  --accent: #8fb8ff;
+  --mark: rgb(250 204 21 / 0.3);
+}
+
+/* Cards sit a step lighter than the page, like paper under a lamp, so the
+   grid reads as objects rather than holes in the dark. */
+:root[data-theme="dark"]:not(:has([data-force-light])) [data-card] {
+  background-color: rgb(var(--c-gray-50));
+}
+
+/* Pictures in an article come down a little at night, so a white screenshot
+   doesn't glare off dark paper. */
+:root[data-theme="dark"]:not(:has([data-force-light])) .article-body img {
+  filter: brightness(0.85);
+}
+
+/* The typography plugin (project and article descriptions, game rows) brings
+   its own hex greys, which ignore the theme. Pointed at the theme channels
+   instead — the same greys by day, warm ones at night. */
+.prose {
+  --tw-prose-body: rgb(var(--c-gray-700));
+  --tw-prose-headings: rgb(var(--c-gray-900));
+  --tw-prose-lead: rgb(var(--c-gray-600));
+  --tw-prose-links: rgb(var(--c-gray-900));
+  --tw-prose-bold: rgb(var(--c-gray-900));
+  --tw-prose-counters: rgb(var(--c-gray-500));
+  --tw-prose-bullets: rgb(var(--c-gray-300));
+  --tw-prose-hr: rgb(var(--c-gray-200));
+  --tw-prose-quotes: rgb(var(--c-gray-900));
+  --tw-prose-quote-borders: rgb(var(--c-gray-200));
+  --tw-prose-captions: rgb(var(--c-gray-500));
+  --tw-prose-code: rgb(var(--c-gray-900));
+  --tw-prose-th-borders: rgb(var(--c-gray-300));
+  --tw-prose-td-borders: rgb(var(--c-gray-200));
+}
+
+/* At night body text steps down a shade further, so a card's title leads
+   and its description reads as the line under it. */
+:root[data-theme="dark"]:not(:has([data-force-light])) .prose {
+  --tw-prose-body: rgb(var(--c-gray-600));
+}
+
+/* A card's edge at night: the faint rule rather than a bright outline, so
+   the lifted fill defines the card and the border only finishes it. */
+:root[data-theme="dark"]:not(:has([data-force-light])) [data-card] {
+  border-color: rgb(var(--c-gray-200));
+}
+
+/* The handprint wall stays as it is by day: the frame, the canvas, its hover
+   labels and the forms that place a print. Inside anything marked data-light
+   the light channels come back, and so does black ink — color inherits, so
+   without it unstyled text would keep the page's light colour. */
+:root[data-theme="dark"] [data-light] {
+  color-scheme: light;
+  color: rgb(0 0 0);
+  --c-white: 255 255 255;
+  --c-black: 0 0 0;
+  --c-gray-50: 249 250 251;
+  --c-gray-100: 243 244 246;
+  --c-gray-200: 229 231 235;
+  --c-gray-300: 209 213 219;
+  --c-gray-400: 156 163 175;
+  --c-gray-500: 107 114 128;
+  --c-gray-600: 75 85 99;
+  --c-gray-700: 55 65 81;
+  --c-gray-800: 31 41 55;
+  --c-gray-900: 17 24 39;
+  --c-gray-950: 3 7 18;
+  --c-hairline: 0 0 0;
+}
+
+/* Hairlines soften at night; black text stays bright. */
+.border-black {
+  border-color: rgb(var(--c-hairline));
+}
+
+/* The light switch (components/ui/LightSwitch.jsx), from the reader mockup:
+   a small wall plate whose rocker flips down when the lights are off. All of
+   its state is read from data-theme, so it renders correctly before React
+   knows the theme. */
+.light-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 0.85rem theme("fontFamily.sans");
+  color: rgb(var(--c-gray-500));
+  cursor: pointer;
+}
+
+.light-switch:hover {
+  color: rgb(var(--c-black));
+}
+
+.light-switch-plate {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 24px;
+  border: 1px solid rgb(var(--c-gray-300));
+  border-radius: 3px;
+  background: rgb(var(--c-gray-50));
+}
+
+.light-switch-rocker {
+  width: 8px;
+  height: 13px;
+  border-radius: 2px;
+  background: rgb(var(--c-gray-300));
+  transform: translateY(-2px);
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.light-switch .when-dark {
+  display: none;
+}
+
+:root[data-theme="dark"] .light-switch-rocker {
+  transform: translateY(2px);
+  background: rgb(var(--c-gray-500));
+}
+
+:root[data-theme="dark"] .light-switch .when-light {
+  display: none;
+}
+
+:root[data-theme="dark"] .light-switch .when-dark {
+  display: inline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-switch-rocker {
+    transition: none;
+  }
+}
+
+/* The reader has its own switch in the compact header. */
+:root:has(.reader-grid) .footer-light-switch {
+  display: none;
+}
+
 /* The site's serif: Source Serif 4, loaded by next/font (lib/fonts.ts), which
    declares --font-source-serif on <html>. tailwind.config.js points
    font-serif here, with the system stack behind it. */
@@ -204,6 +398,15 @@ img {
   overflow-x: auto;
 }
 
+/* Shiki writes each token's dark colour as --shiki-dark beside its light one;
+   at night those take over. !important because the light colours are inline
+   styles. */
+:root[data-theme="dark"] .article-body pre.shiki,
+:root[data-theme="dark"] .article-body pre.shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
 /* Tables scroll in a wrapper (mdx-components.tsx): making the table itself
    the scroller needs display: block, which drops the table layout. */
 .article-body table {
@@ -295,7 +498,7 @@ img {
   padding: 8px 12px;
   border: 1px solid var(--rule);
   border-radius: 6px;
-  background: #fff;
+  background: rgb(var(--c-white));
   color: var(--ink);
 }
 
@@ -310,7 +513,7 @@ img {
 .article-body :is(.fig, aside) button.primary {
   background: var(--ink);
   border-color: var(--ink);
-  color: #fff;
+  color: rgb(var(--c-white));
 }
 
 .article-body :is(.fig, aside) button:disabled {
@@ -687,6 +890,9 @@ img {
 }
 
 .garland-caption {
+  /* Ink on the polaroid's paper, which stays light at night — so the ink
+     can't follow the page's text colour into the dark. */
+  color: #000;
   display: block;
   margin-top: 10px;
   text-align: center;
@@ -1284,11 +1490,12 @@ a.bs-title:hover {
   flex-direction: column;
   overflow: hidden;
   /* The search bar's own frame (SearchBar.jsx: border-gray-200, bg-white),
-     since the card is the bar, opened. The top keeps the bar's rounded-md
+     since the card is the bar, opened — theme channels rather than hex, so
+     at night it opens in the bar's dusk colours too. The top keeps the bar's rounded-md
      corners — that edge is the bar — and the bottom, the part that unrolled
      out of it, is square like the site's other frames. */
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: rgb(var(--c-white));
+  border: 1px solid rgb(var(--c-gray-200));
   border-radius: 0.375rem 0.375rem 0 0;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 18px 48px -12px rgb(0 0 0 / 0.3);
 }
@@ -1387,7 +1594,7 @@ a.bs-title:hover {
 
 .index-card__search {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 /* 16px on phones: anything smaller and iOS zooms the page when the input
@@ -1407,7 +1614,7 @@ a.bs-title:hover {
 }
 
 .index-card__input::placeholder {
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 /* Same keycap as the search bar's ⌘K, so the card and the bar that opened
@@ -1420,21 +1627,21 @@ a.bs-title:hover {
   font-size: 0.7rem;
   line-height: 1.1rem;
   text-align: center;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  color: rgb(var(--c-gray-500));
+  background: rgb(var(--c-gray-100));
+  border: 1px solid rgb(var(--c-gray-300));
   border-radius: 0.25rem;
 }
 
 .index-card__close {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
   padding: 0.25rem;
   margin: -0.25rem;
 }
 
 .index-card__close:hover {
-  color: #000;
+  color: rgb(var(--c-black));
 }
 
 /* Desktop shows the key, phones the word. Our own classes rather than
@@ -1450,7 +1657,7 @@ a.bs-title:hover {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgb(0 0 0 / 0.18) transparent;
+  scrollbar-color: rgb(var(--c-black) / 0.18) transparent;
 }
 
 .index-card [cmdk-group-heading],
@@ -1466,7 +1673,7 @@ a.bs-title:hover {
   padding: 0 1rem 0.3rem;
   font-size: 0.75rem;
   letter-spacing: 0.02em;
-  color: #6b7280;
+  color: rgb(var(--c-gray-500));
 }
 
 .index-card__row {
@@ -1475,15 +1682,15 @@ a.bs-title:hover {
   gap: 0.75rem;
   min-height: 2.75rem;
   padding: 0.4rem 1rem;
-  color: #374151;
+  color: rgb(var(--c-gray-700));
   cursor: pointer;
 }
 
 /* The row under your finger: a faint pencil-grey wash across the whole
    line, so it's obvious which one Enter will open. */
 .index-card__row[data-selected="true"] {
-  color: #000;
-  background: rgb(0 0 0 / 0.045);
+  color: rgb(var(--c-black));
+  background: rgb(var(--c-black) / 0.045);
 }
 
 /* A little print pasted onto the card for content rows; the same slot holds
@@ -1496,17 +1703,17 @@ a.bs-title:hover {
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: #6b7280;
+  color: rgb(var(--c-gray-500));
 }
 
 .index-card__thumb:has(img) {
-  background: #f3f4f6;
-  outline: 1px solid rgb(0 0 0 / 0.12);
+  background: rgb(var(--c-gray-100));
+  outline: 1px solid rgb(var(--c-black) / 0.12);
   outline-offset: -1px;
 }
 
 .index-card__row[data-selected="true"] .index-card__thumb {
-  color: #000;
+  color: rgb(var(--c-black));
 }
 
 .index-card__title {
@@ -1527,13 +1734,13 @@ a.bs-title:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 .index-card__out {
   flex-shrink: 0;
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 .index-card__detail + .index-card__out {
@@ -1546,7 +1753,7 @@ a.bs-title:hover {
 
 /* "N more photos": quieter than a result, since it's a fold, not a thing. */
 .index-card__more {
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
   font-size: 0.875rem;
 }
 
@@ -1555,7 +1762,7 @@ a.bs-title:hover {
   padding: 1.5rem 1rem 1.25rem;
   text-align: center;
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 .crickets {
@@ -1569,11 +1776,11 @@ a.bs-title:hover {
   font-size: 0.7rem;
   line-height: 1.15;
   text-align: left;
-  color: #6b7280;
+  color: rgb(var(--c-gray-500));
 }
 
 .crickets__title {
-  color: #6b7280;
+  color: rgb(var(--c-gray-500));
   font-style: italic;
 }
 
@@ -1586,7 +1793,7 @@ a.bs-title:hover {
   left: -2.25rem;
   font-size: 0.7rem;
   font-style: italic;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
   opacity: 0;
   animation: cricket-chirp 3.2s ease-in-out 0.8s infinite;
 }
@@ -1610,9 +1817,9 @@ a.bs-title:hover {
   gap: 1.25rem;
   flex-shrink: 0;
   padding: 0.5rem 1rem;
-  border-top: 1px solid rgb(0 0 0 / 0.12);
+  border-top: 1px solid rgb(var(--c-black) / 0.12);
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: rgb(var(--c-gray-400));
 }
 
 .index-card__foot > span {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import TextMorph from "@/components/hero/TextMorph";
+import LightSwitch from "@/components/ui/LightSwitch";
 import { TABS } from "@/components/ui/NavBar";
 
 // The site's header on pages that don't carry the hero and the wall — an
@@ -50,27 +51,32 @@ export default function CompactHeader() {
                 </span>
             </Link>
 
-            <nav>
-                <ul className="flex gap-3 md:gap-5">
-                    {TABS.map(({ label, href, match }) => {
-                        // Inside a section (/articles/<slug>) counts as being
-                        // in it; only the section's own page is the page.
-                        const isPage = match.includes(pathname);
-                        const isSection = isPage || pathname.startsWith(`${href}/`);
-                        return (
-                            <li key={label}>
-                                <Link
-                                    href={href}
-                                    aria-current={isPage ? "page" : isSection ? "true" : undefined}
-                                    className={`text-base md:text-lg ${isSection ? "underline" : "text-gray-500 hover:text-black"}`}
-                                >
-                                    {label}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </nav>
+            <div className="flex items-center gap-3 md:gap-5">
+                <nav>
+                    <ul className="flex gap-3 md:gap-5">
+                        {TABS.map(({ label, href, match }) => {
+                            // Inside a section (/articles/<slug>) counts as being
+                            // in it; only the section's own page is the page.
+                            const isPage = match.includes(pathname);
+                            const isSection = isPage || pathname.startsWith(`${href}/`);
+                            return (
+                                <li key={label}>
+                                    <Link
+                                        href={href}
+                                        aria-current={isPage ? "page" : isSection ? "true" : undefined}
+                                        className={`text-base md:text-lg ${isSection ? "underline" : "text-gray-500 hover:text-black"}`}
+                                    >
+                                        {label}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
+                {/* The plate alone at the far right; the footer's switch, which
+                    carries the label, is hidden on reader pages. */}
+                <LightSwitch label={false} />
+            </div>
         </header>
     );
 }

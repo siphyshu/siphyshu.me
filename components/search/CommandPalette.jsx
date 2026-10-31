@@ -7,6 +7,7 @@ import { Command } from "cmdk";
 import { ChevronDown, Search } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { escapeRegExp, rankEntries, tokenize } from "./entries";
+import { toggleTheme } from "@/lib/theme";
 
 /**
  * Where the card should sit so it grows out of the search bar: exactly the
@@ -165,6 +166,12 @@ export default function CommandPalette({ open, setOpen }) {
     };
 
     const run = (entry) => {
+        // In place, palette left open: the page changes behind it, which is
+        // the confirmation.
+        if (entry.action === "theme") {
+            toggleTheme();
+            return;
+        }
         if (entry.action === "copy") {
             navigator.clipboard?.writeText(entry.value).then(() => setCopied(entry.id));
             return;

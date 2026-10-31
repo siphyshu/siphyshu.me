@@ -68,12 +68,14 @@ export default function HandprintCanvas({
     // artwork around it grows. Safe here: the only fixed-position element in
     // the wall (the mobile sheet) is a sibling, not a descendant — containment
     // would otherwise make this its containing block.
+    // data-light: the wall and everything in it stay as by day (globals.css).
     <div
+      data-light
       className={`relative w-full max-w-[950px] min-w-[300px] [container-type:inline-size] ${className ?? ""}`}
     >
       <div
         ref={canvasRef}
-        className={`bg-gray-100 overflow-hidden relative w-full aspect-[3.5/1] min-h-[200px] ${
+        className={`bg-[#f3f4f6] overflow-hidden relative w-full aspect-[3.5/1] min-h-[200px] ${
           showCursor ? "cursor-none" : ""
         }`}
         style={{
@@ -89,9 +91,11 @@ export default function HandprintCanvas({
         onPointerMove={onCanvasPointerMove}
         onPointerLeave={onCanvasLeave}
       >
-        {/* White overlay */}
+        {/* White overlay. Literal white, not the theme's paper: the wall is a
+            physical object, and stays as it is by day when the lights go
+            down around it. */}
         <div
-          className="absolute inset-0 bg-white bg-opacity-30 pointer-events-none"
+          className="absolute inset-0 bg-[#fff]/30 pointer-events-none"
           style={{ zIndex: 0 }}
         />
 

@@ -4,6 +4,7 @@ import Footer from "@/components/ui/Footer";
 import GameOfLifeBackground from "@/components/ui/GameOfLifeBackground";
 import { getAge } from "@/lib/age";
 import { sourceSerif } from "@/lib/fonts";
+import { THEME_SCRIPT } from "./theme-script";
 import { SITE_URL } from "@/lib/site";
 
 export const metadata = {
@@ -17,11 +18,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     // Declares --font-source-serif on <html>, where globals.css makes it the
-    // site's --font-serif.
-    <html lang="en" className={sourceSerif.variable}>
-      {/* <head>
-        <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
-      </head> */}
+    // site's --font-serif. suppressHydrationWarning because the theme script
+    // sets data-theme on <html> before React hydrates — that attribute is the
+    // one expected difference between the server's HTML and the client's.
+    <html lang="en" className={sourceSerif.variable} suppressHydrationWarning>
+      <head>
+        {/* Light or dark, decided before first paint — see theme-script.js. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" async /> */}
+      </head>
       <body className="bg-white text-black">
         {/* Fixed behind everything, mounted once here so it keeps running
             (rather than reseeding) across client-side navigation. */}

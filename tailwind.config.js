@@ -17,6 +17,27 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // The neutrals follow the theme: each is a channel triple in globals.css
+      // that [data-theme="dark"] redefines. <alpha-value> keeps bg-black/40
+      // and bg-opacity-30 working. For a black that must stay black in both
+      // themes (a scrim), use bg-[#000].
+      colors: {
+        white: 'rgb(var(--c-white) / <alpha-value>)',
+        black: 'rgb(var(--c-black) / <alpha-value>)',
+        gray: {
+          50: 'rgb(var(--c-gray-50) / <alpha-value>)',
+          100: 'rgb(var(--c-gray-100) / <alpha-value>)',
+          200: 'rgb(var(--c-gray-200) / <alpha-value>)',
+          300: 'rgb(var(--c-gray-300) / <alpha-value>)',
+          400: 'rgb(var(--c-gray-400) / <alpha-value>)',
+          500: 'rgb(var(--c-gray-500) / <alpha-value>)',
+          600: 'rgb(var(--c-gray-600) / <alpha-value>)',
+          700: 'rgb(var(--c-gray-700) / <alpha-value>)',
+          800: 'rgb(var(--c-gray-800) / <alpha-value>)',
+          900: 'rgb(var(--c-gray-900) / <alpha-value>)',
+          950: 'rgb(var(--c-gray-950) / <alpha-value>)',
+        },
+      },
       fontFamily: {
         // --font-serif is set in globals.css;
         // the system stack behind it covers the moment before it's defined.
@@ -49,5 +70,7 @@ module.exports = {
   plugins: [
     require('@tailwindcss/typography'),
   ],
-  darkMode: "class"
+  // Rarely needed — the neutrals switch on their own — but dark: matches the
+  // data-theme the theme script sets on <html>.
+  darkMode: ["selector", '[data-theme="dark"]']
 };

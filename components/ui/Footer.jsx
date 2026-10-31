@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import LightSwitch from '@/components/ui/LightSwitch'
 
 export default function Footer() {
     const [isBlinking, setIsBlinking] = useState(false)
@@ -109,10 +110,13 @@ export default function Footer() {
 
     return (
         <footer className="flex flex-col w-full py-8" data-gol-mask>
-            <div className="relative mt-8 flex justify-end">
+            {/* The light switch on the left, as the README promises; the cat
+                on the right. */}
+            <div className="relative mt-8 flex justify-between items-end">
+                <LightSwitch className="footer-light-switch mb-0.5" />
                 <div 
                     ref={catRef} 
-                    className="relative inline-block cursor-pointer hover:opacity-90 transition-opacity"
+                    className="relative inline-block ml-auto cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={playRandomMeow}
                 >
                     <pre className="font-mono leading-[0.9] tracking-tighter text-gray-300 text-xs text-right">  

@@ -83,6 +83,7 @@ export default function HandprintForm({
   return (
     <motion.div
       ref={formRef}
+      data-light
       className="bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg fixed bottom-0 left-0 right-0 w-full rounded-t-2xl flex flex-col max-h-[85dvh]"
       // Enters and leaves by its own height, so the distance is correct
       // whatever the form grows to. Reduced motion keeps the fade and drops

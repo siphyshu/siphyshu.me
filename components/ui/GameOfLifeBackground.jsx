@@ -202,8 +202,11 @@ export default function GameOfLifeBackground() {
     function draw() {
       const cellSize = paramsRef.current.cell;
       const arm = paramsRef.current.tickArm;
-      const color = `rgba(20, 18, 14, ${paramsRef.current.opacity})`;
-      const colorBorn = `rgba(20, 18, 14, ${paramsRef.current.opacityBorn})`;
+      // The dot colour follows the theme (--gol-ink in globals.css), read
+      // each draw so flipping the light switch recolours the next frame.
+      const ink = getComputedStyle(document.documentElement).getPropertyValue("--gol-ink").trim() || "20 18 14";
+      const color = `rgb(${ink} / ${paramsRef.current.opacity})`;
+      const colorBorn = `rgb(${ink} / ${paramsRef.current.opacityBorn})`;
       const rects = maskedRects();
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);

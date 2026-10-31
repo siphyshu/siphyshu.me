@@ -38,13 +38,13 @@ export default function ProjectCard({
         alt="External Link"
         width={18}
         height={18}
-        className="cursor-pointer"
+        className="cursor-pointer dark:invert"
       />
     ),
   };
 
   return (
-    <div ref={ref} id={id} className={`relative flex flex-col bg-white border border-black shadow-md ${className}`}>
+    <div ref={ref} id={id} data-card className={`relative flex flex-col bg-white border border-black shadow-md ${className}`}>
       {mark > 0 && <PencilMark key={mark} />}
       {/* Project Thumbnail */}
       <div className="flex items-center justify-center w-full relative aspect-[1.91/1]">
@@ -52,7 +52,7 @@ export default function ProjectCard({
           src={thumbnail}
           alt="Project Image"
           fill
-          className="w-full h-full object-fill"
+          className="w-full h-full object-fill dark:brightness-[0.85]"
         />
       </div>
 
@@ -84,7 +84,7 @@ export default function ProjectCard({
             .map((tag, index) => (
               <span
                 key={index}
-                className={`px-2 py-1 text-[10px] border rounded-full ${tagColorVariants[tag.color]} ${tag.special ? "relative pl-4 bg-emerald-100" : ""}`}
+                className={`px-2 py-1 text-[10px] border rounded-full ${tagColorVariants[tag.color]} ${tag.special ? "relative pl-4 bg-emerald-100 dark:bg-emerald-950" : ""}`}
               >
                 {tag.special && (
                   <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -95,7 +95,7 @@ export default function ProjectCard({
         </div>
 
         {/* Description */}
-        <div className="text-gray mt-4 line-clamp-3 overflow-hidden prose prose-sm text-justify">
+        <div className="text-gray mt-4 line-clamp-3 overflow-hidden prose prose-sm">
           <ReactMarkdown>{description}</ReactMarkdown>
         </div>
       </div>

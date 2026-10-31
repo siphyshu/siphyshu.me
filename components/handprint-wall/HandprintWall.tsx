@@ -28,7 +28,8 @@ const TOAST_OPTIONS = {
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
-  className: "bg-red-50 bg-opacity-2 border border-black text-black font-serif",
+  // Literal black: the toast belongs to the wall, which stays as by day.
+  className: "bg-red-50 bg-opacity-2 border border-[#000] text-[#000] font-serif",
 };
 
 export default function HandprintWall({
@@ -163,7 +164,7 @@ export default function HandprintWall({
                 and the desktop form is a popover that wants no scrim. */}
             <motion.div
               key="scrim"
-              className="fixed inset-0 bg-black/20 sm:hidden"
+              className="fixed inset-0 bg-[#000]/20 sm:hidden"
               style={{ zIndex: 19, touchAction: "none" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -201,7 +202,7 @@ export default function HandprintWall({
       <div
         className={`fixed inset-0 flex items-center justify-center transition-colors ${
           turnstileChallenging
-            ? "bg-black/40 pointer-events-auto"
+            ? "bg-[#000]/40 pointer-events-auto"
             : "pointer-events-none"
         }`}
         style={{ zIndex: 60 }}

@@ -86,12 +86,12 @@ function Signoff({ children }: { children: ReactNode }) {
 
 // A tweet, rendered by react-tweet: fetched on the server when the page is
 // built and shipped as plain markup — no script from X on the page, nothing
-// that pops in after load. Light theme always, since the site has no dark
-// mode yet and the tweet would otherwise follow the OS into one:
+// that pops in after load. Its theme follows data-theme on <html>, which
+// react-tweet's stylesheet reads, light switch included:
 //   <Tweet id="1727035609225572524" />
 function Tweet({ id }: { id: string }) {
   return (
-    <div className="tweet" data-theme="light">
+    <div className="tweet">
       <ReactTweet id={id} />
     </div>
   );

@@ -4,7 +4,7 @@ import { gallery } from "@/data/gallery";
 import { tags } from "@/data/tags";
 import { LINKS } from "@/components/hero/LinkPanel";
 import { slugify } from "@/lib/format";
-import { FileText, FolderGit2, Images, Mail } from "lucide-react";
+import { FileText, FolderGit2, Images, Mail, Moon } from "lucide-react";
 
 // Shown on the card, and the address "copy email" puts on the clipboard.
 export const EMAIL = "siphyshu@gmail.com";
@@ -21,7 +21,7 @@ export const EMAIL = "siphyshu@gmail.com";
 // Every row is one of:
 //   href      — a page on the site (may carry a #hash to a specific card)
 //   external  — somewhere else, opened in a new tab
-//   action    — something done in place ("copy")
+//   action    — something done in place ("copy", "theme")
 export const GROUPS = ["projects", "articles", "photos", "do"];
 
 const stripMarkdown = (s) => s.replace(/[_*`]/g, "");
@@ -65,6 +65,16 @@ export const ENTRIES = [
         keywords: "gallery photo",
         href: `/gallery#photo-${g.id}`,
     })),
+    // First in "do": the one action that changes the page you're on.
+    {
+        id: "toggle-theme",
+        group: "do",
+        title: "toggle dark theme",
+        icon: Moon,
+        detail: "",
+        keywords: "dark mode light theme lights night switch",
+        action: "theme",
+    },
     ...[
         ["projects", FolderGit2],
         ["articles", FileText],
