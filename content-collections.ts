@@ -65,9 +65,6 @@ const articleSchema = z.object({
   // The old way of marking a draft. Still parsed so it can be refused by name
   // (see checkFile) rather than silently stripped.
   draft: z.unknown().optional(),
-  // A page that exists to test the reader (the kitchen sink): public in the
-  // repo, since there's nothing private in it, but only rendered in dev.
-  fixture: z.boolean().default(false),
   content: z.string(),
 });
 
@@ -92,8 +89,8 @@ const isDraft = (meta: Meta) => meta.path.startsWith("drafts/");
 /** The URL slug: the file name, whichever folder it's in. */
 const slugOf = (meta: Meta) => meta.path.split("/").pop()!;
 
-function isHidden(meta: Meta, fixture: boolean) {
-  return (isDraft(meta) || fixture) && !INCLUDE_DRAFTS;
+function isHidden(meta: Meta) {
+  return isDraft(meta) && !INCLUDE_DRAFTS;
 }
 
 /** Refuses the old draft flag, so nothing gets drafted in the public folder out of habit. */
@@ -117,7 +114,7 @@ const articles = defineCollection({
   schema: articleSchema,
   transform: ({ content, _meta, draft, ...article }, { skip }) => {
     checkFile(_meta, draft);
-    if (isHidden(_meta, article.fixture)) return skip(isDraft(_meta) ? "draft" : "fixture");
+    if (isHidden(_meta)) return skip("draft");
 
     const hasBody = content.trim().length > 0;
     const file = `content/${_meta.filePath}`;
@@ -158,7 +155,7 @@ const articleBodies = defineCollection({
   schema: articleSchema,
   transform: async (document, context) => {
     checkFile(document._meta, document.draft);
-    if (isHidden(document._meta, document.fixture)) return context.skip(isDraft(document._meta) ? "draft" : "fixture");
+    if (isHidden(document._meta)) return context.skip("draft");
     if (document.external_url) return context.skip("external — no reader page");
 
     // Compiled here, in Node, not by Turbopack — so plugins are ordinary
