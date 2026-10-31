@@ -1,0 +1,146 @@
+---
+title: Wordle was never English
+subtitle: "I went looking for Wordle in other languages and found a 1955 parlour game, two European TV studios, a mother's veto, and a Tamil version with no guess limit."
+date: 2026-10-31
+tags: [games, language, internet]
+draft: true
+---
+
+<WordStrip />
+
+In January 2022 my group chat turned green and yellow for about six weeks. Everyone posted a grid every morning, and for a while nobody posted much else. I don't remember most of the words. What stayed with me was a question that came later, after the craze had cooled. What were people playing in places where five-letter English words aren't the obvious thing to play with?
+
+I assumed the answer was a few translations. I was off by a lot. There is a volunteer-run list called Wordles of the World, coordinated by someone named Júda Ronén. When I opened it this month it had <mark>780 games in 158 languages</mark>.[^1] One of them is in Akkadian, written in cuneiform. One is in Klingon. One is in Morse code. I meant to spend ten minutes on it and spent the evening, and came out with a lot of tabs open and a nagging feeling that I'd had Wordle filed in the wrong drawer.
+
+This is the long version of that evening.
+
+## The man who sent it to three friends
+
+I'll start with Fernando Serboncini, because his story is the one that kept me reading. He's a Brazilian engineer who works on Chrome at Google and lives in Montreal. He started playing Wordle over Christmas 2021, liked how little it asked of you, and wanted it in Portuguese. “English is my second language,” he told Rest of World. “So it's fun.”[^2] He built a Portuguese version called Termo in a few days and launched it on 5 January 2022. The first answer was _festa_, party.
+
+He sent the link to about three friends. “When I looked, 10,000 people were already playing,” he told the Brazilian site Olhar Digital. “That's when I tweeted.”[^3] Ten days later Termo had 100,000 daily players. By February it had more than half a million.
+
+<Figure caption={<>Termo's first weeks against Wordle's. Log scale. This isn't a fair fight: Wordle's numbers count all players and Termo's count daily players, and Wordle had to teach everyone the format first. Two Termo dates are approximate.</>}>
+  <TermoGrowth />
+</Figure>
+
+The part of his story I keep coming back to is the word list. Nobody had a good open list of everyday Portuguese words, so he built one in about a week from operating-system dictionaries, Facebook posts and court rulings.[^4] I really like the idea of court rulings as a source of five-letter words. His mother asked him to remove _seios_ (breasts), and he did. Players in Portugal complained about answers only Brazilians use, like _mamãe_ and _miojo_ (instant noodles). He admitted he hadn't known people in Portugal don't say _mamãe_. On hard days he got death threats. One player proposed to him.
+
+Then I found out the English list started the same way, only at home. Josh Wardle built Wordle for his partner, Palak Shah. She went through about 13,000 five-letter words and sorted them into ones she knew, ones she didn't, and maybes. About 2,000 survived, enough for roughly five years.[^5] So under every version of this game there's a person deciding what counts as a normal word. In English it was Palak. In Portuguese it was Fernando, with notes from his mother. In Turkish, Fatih Kadir Akin built his list from a Scrabble cheat sheet.
+
+## SUTOM, which I misread for a week
+
+The big French one is called SUTOM. I read it as a made-up word for longer than I'd like to admit before I noticed it's _Motus_ backwards.
+
+If you didn't grow up in France: _Motus_ was a TV game show. It ran from June 1990 to August 2019, 6,820 episodes, hosted by Thierry Beccaro.[^6] Teams had eight seconds to spell a word. A right letter in the right place turned into a red square. A right letter in the wrong place got a yellow circle. You were given the first letter. If that sounds like Wordle, it's because it was, about thirty years early.
+
+And _Motus_ was itself a copy. It came from _Lingo_, an American show from 1987 that flopped in the US. A Dutch producer, Harry de Winter, bought the rights anyway. Dutch _Lingo_ ran from 1989 to 2014, came back in 2019, and made 5,665 episodes.[^7] It was popular enough that when a rumour went round in 2006 that it would be cancelled, the prime minister commented on it. _Lingo_ in turn was mostly _Jotto_, a pencil-and-paper game that Morton Rosenfeld invented in New York in 1955.[^8] Wardle has said his own inspiration was _Mastermind_, the peg game.
+
+So when France got its own Wordle, it went straight back to the TV version it already knew. I find that funny, though I can't fully explain why.
+
+What changed over those seventy years is how much the game tells you. I made a small thing to feel the difference. Type a guess and four games judge it by their own rules.
+
+<Figure caption="The same guess under four sets of rules. Jotto gives a number. Mastermind adds how many are in place, without saying which. Lingo and Motus say which, and give you the first letter. Wordle takes the free letter away and swaps red for green.">
+  <FourJudges />
+</Figure>
+
+SUTOM nearly didn't survive its name. In March 2022, with about 230,000 visitors a day, its creator, who goes by Jonathan M., received a letter from the lawyers of France Télévisions, which still owned the _Motus_ trademark. On the morning of 24 March he announced the game would close. People were upset, and his posts got around 15,000 likes and 7,000 shares. By that evening the game was staying. A France Télévisions spokesperson called it _un malentendu_, a misunderstanding.[^9]
+
+## Every alphabet breaks something
+
+This is where the evening turned into a linguistics lesson I hadn't signed up for. Wordle makes assumptions you only notice when they fail. A letter is one character. It looks the same anywhere in a word. There are about 26 of them. And there are plenty of common five-letter words to choose from. Every language I looked at broke at least one of these.
+
+Hebrew first. Five Hebrew letters change shape when they come at the end of a word. מ becomes ם, נ becomes ן, כ becomes ך, פ becomes ף, and צ becomes ץ. So which ones go on the keyboard? Amir Livne Bar-on, a mathematician who designs public transit algorithms for a living, launched the Hebrew version, Meduyeket (“exactly”), on 15 January 2022. Players found it confusing to have two keys for what they think of as one letter, so he merged them. The keyboard went from 27 keys to 22.[^10]
+
+<Figure caption="Type right to left. The last letter takes its final form, and goes back to normal once you add another letter after it. It starts on שלום, shalom, which ends in a final mem.">
+  <HebrewFinals />
+</Figure>
+
+I typed and deleted letters in that for longer than I needed to.
+
+Korean surprised me most. I'd always assumed Hangul was a syllabary, because that's what it looks like. It isn't. Each square block stacks two or three letters, called jamo: an opening consonant, a vowel, and sometimes a closing consonant. There are 19 openings, 21 vowels and 28 options for the ending (including none), which makes 11,172 possible blocks.[^11] No keyboard can hold that many tiles. So Kordle, the Korean version, has you guess the letters inside the blocks.
+
+<Figure caption="Each block split into the letters inside it. Green tiles are consonants, gold are vowels. Type any Korean word, or try the buttons.">
+  <HangulBlocks />
+</Figure>
+
+Chinese was the one an expert said wouldn't work. Before there was any Chinese version, Dustin Chacón, a linguist at NYU Abu Dhabi, told Rest of World it “would need a lot of adaptations to be practical or fair.” Chinese has no alphabet, and one character can be a whole word. Then Anthony Fu made Handle (汉兜), which grades something else entirely. You guess a four-character idiom, a _chengyu_, and every syllable is graded three times: on its opening sound, its ending sound and its tone.[^12] It's a word game about how words sound, where spelling barely comes into it.
+
+<Figure caption="A simplified version of Handle's grading. Pick a guess. Teal means right sound, right place. Orange means it's somewhere else in the idiom. The hidden idiom is a common one.">
+  <HandleGrader />
+</Figure>
+
+Players figured out you can enter four unrelated characters just to test sounds, which I think is great.
+
+Tamil got rid of one of the rules altogether. Tamil has 12 vowels and 18 consonants, and each consonant and vowel pair makes its own letter, which gives 247 letters in all. With that many possible tiles, six guesses aren't enough. Sankar, a software architect in Chennai, removed the limit from his version. Games can take fifty tries, and he posts a hint at midday. He built it, he said, “so that it will be used by my daughter.”
+
+That line is in my notes three times, because nearly every one of these games was built for someone specific. Wardle built his for Palak and Sankar built his for his daughter. Jamie Conway, who made the Yiddish version, Vertle, built it for himself: “If I can have this in English, why can't I have it in Yiddish too?”[^13]
+
+## A letter can take three characters
+
+In many Indigenous writing systems in North America, one letter takes several characters to write. The examples the First Peoples' Cultural Council gives are _kw’_ and _a:y_. In January 2022 Aidan Pine, a linguist with Mother Tongues and Canada's National Research Council, released code that treats a cluster like that as a single tile. It has been used for Bardi, Comanche, Cree, Hawaiian, Ojibwe, Seri and more. On 31 March 2022, nine British Columbia First Nations added it to their FirstVoices language sites, each with its own on-screen keyboard so nobody had to install one.[^14]
+
+Iñupiaq Wordle went live on 7 February 2022. Myles Creed, a graduate student who grew up in Kotzebue, Alaska, built it from Pine's template using Edna Ahgeak MacLean's _North Slope Iñupiaq Dictionary_. He isn't a programmer, and said the coding was the hardest part. One of the people behind it called it “a great way for people to practice their Iñupiaq in a way that doesn't feel intimidating.”[^15]
+
+That's the best case for the game I've come across. It takes one guess a day, and that's all it asks of you.
+
+## Then the lawyers came
+
+The New York Times bought Wordle on 31 January 2022 for a sum in the low seven figures. That much I knew. I didn't know what happened two years later.
+
+Many of the volunteer versions were forks of Reactle, an open-source copy of Wordle by Chase Wackerfuss, an engineer in Minneapolis. It had been forked about 1,900 times, many of them in other languages. In March 2024 the Times sent GitHub a takedown notice covering Reactle and “hundreds of forked repositories,” claiming the 5×6 grid and the green tiles. Wackerfuss deleted the repository rather than fight it.[^16]
+
+<Figure caption="Roughly 1,900 forks of one repository, one square each. Which ones went down isn't public. This shows the scale, not a record.">
+  <ForkTakedown />
+</Figure>
+
+Jayden Macklin-Cordes, a linguistics lecturer in Australia, had built AusErdle on that code. “Regretfully, this means the end of AusErdle,” he told CBS News. He called the letter “overly broad and aggressive” and said it would have “a chilling effect on word game development in other languages.” The developer of a Yorùbá version called it “insanity,” since the Times doesn't publish Wordle in any language besides English. The Times said it “has no issue with individuals creating similar word games that do not infringe.”[^17]
+
+I don't have a tidy opinion on this. The Times paid for the game. But volunteers made it work in Hebrew and Tamil and Iñupiaq, and I find it hard to imagine the Times ever doing that.
+
+## A short detour into suffixes
+
+English did get one souvenir: a new suffix. The American Dialect Society named _-dle_ its Digital Word of the Year for 2022.[^18] The linguist Mark Liberman calls it a _libfix_, a chunk that breaks off one word and gets reused as an ending, the way _-gate_ did after Watergate. In this case the break is in the wrong place, since Wordle is Wardle plus _word_. Language Log's list of -dle games includes Birdle, Plantle, Cloudle and Dogsdle. As of January 2023, according to Language Log, nobody had made a Catdle.[^19]
+
+<DleMaker />
+
+## Homesick engineers
+
+The last thing I noticed came out of Brazil again. Nildo Junior, a Brazilian engineer in Oslo, found _Semantle_, a game where you guess a hidden word by meaning instead of spelling. He wanted to play it in Portuguese. “I wish I could play it in Portuguese because in Portuguese things are easier for me,” he said. He launched Contexto in February 2022. On its best day it had about 300,000 players in Brazil.[^20]
+
+So two of Brazil's biggest word games were made by Brazilians living in Montreal and Oslo who wanted to play in their own language. I have no data for a theory here, but I keep thinking about it. You probably notice your first language most when you're living in someone else's.
+
+## The format goes home
+
+On 11 May 2026, NBC announced a primetime Wordle game show hosted by Savannah Guthrie, made with Jimmy Fallon's production company and the Times. Teams of three will play in a “Wordle arena.” It's due in 2027, and it was scheduled to film in Manchester, England.[^21]
+
+That means forty years after _Lingo_ flopped on American television, the format is going back to American television under a new name. It got there by way of a Dutch studio, a French one, an apartment in Brooklyn and 780 volunteer projects.
+
+What I keep coming back to is the grid. Players in New Zealand were typing coloured squares by hand before Wardle added the share button. He said the point was that “the emoji grid just leaves the colours,” so you could show how you did without spoiling it for anyone.[^22] It's the one part of the game that never needed translating into Portuguese or Hebrew or Iñupiaq. It has no words in it.
+
+<ShareGrid />
+
+<Signoff>thanks for reading! if you know a wordle in a language i didn't mention, i'd love to hear about it 👋</Signoff>
+
+[^1]: [Wordles of the World](https://rwmpelstilzchen.gitlab.io/wordles/). In February 2022 it listed 313 games in 91 languages ([Global Voices](https://globalvoices.org/2022/02/02/yourdle-wordle-is-now-available-in-many-of-the-worlds-languages/)).
+[^2]: [Rest of World](https://restofworld.org/2022/wordle-viral-turkish-japanese-tamil-portuguese/), which also covers the Tamil and Turkish versions and quotes Dustin Chacón.
+[^3]: [Olhar Digital](https://olhardigital.com.br/2022/02/23/games-e-consoles/o-jogo-alcancar-tanta-gente-me-surpreendeu-diz-criador-do-termo/), 23 February 2022. My translation.
+[^4]: [Termo on Wikipedia](https://en.wikipedia.org/wiki/Termo_(video_game)), which collects the Brazilian and Portuguese press coverage.
+[^5]: [Wordle on Wikipedia](https://en.wikipedia.org/wiki/Wordle).
+[^6]: [Motus on French Wikipedia](https://fr.wikipedia.org/wiki/Motus_(jeu_t%C3%A9l%C3%A9vis%C3%A9)).
+[^7]: [Dutch Lingo on Wikipedia](https://en.wikipedia.org/wiki/Lingo_(Dutch_game_show)). Parts of that article are uncited, the prime minister detail included.
+[^8]: [Jotto on Wikipedia](https://en.wikipedia.org/wiki/Jotto).
+[^9]: [Presse-citron](https://www.presse-citron.net/comment-le-jeu-phenomene-sutom-a-seme-la-panique-en-ligne/), 25 March 2022.
+[^10]: [Times of Israel / JTA](https://www.timesofisrael.com/wordle-got-you-farblundget-try-these-hebrew-yiddish-versions/).
+[^11]: The Unicode [Hangul Syllables block](https://unicodefyi.com/guide/hangul-block/) holds all 11,172.
+[^12]: [ifanr](https://www.ifanr.com/app/1472781) on Chinese Wordle versions; the code is at [antfu/handle](https://github.com/antfu/handle).
+[^13]: [Times of Israel / JTA](https://www.timesofisrael.com/wordle-got-you-farblundget-try-these-hebrew-yiddish-versions/).
+[^14]: [First Peoples' Cultural Council](https://fpcc.ca/stories/firstvoices-wordle/).
+[^15]: [Anchorage Daily News](https://adn.com/alaska-life/2022/02/15/wordle-takes-off-this-time-in-inupiaq), 15 February 2022.
+[^16]: [404 Media](https://www.404media.co/nytimes-files-copyright-takedowns-against-hundreds-of-wordle-clones/), 7 March 2024.
+[^17]: [CBS News](https://www.cbsnews.com/amp/newyork/news/nyt-copyright-takedown-wordle-clones-new-york-times), March 2024.
+[^18]: [American Dialect Society Words of the Year](https://en.wikipedia.org/wiki/List_of_American_Dialect_Society%27s_Words_of_the_Year). The overall winner that year was _-ussy_.
+[^19]: [Language Log](https://languagelog.ldc.upenn.edu/nll/?p=57679), 15 January 2023.
+[^20]: [hey.gg interview with Nildo Junior](https://www.hey.gg/blog/contexto).
+[^21]: [TV Insider](https://www.tvinsider.com/1277989/wordle-game-show-host-premiere-trailer/).
+[^22]: [The Spinoff](https://thespinoff.co.nz/media/13-01-2022/those-coloured-boxes-on-twitter-are-new-zealands-fault), 13 January 2022.

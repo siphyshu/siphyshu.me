@@ -1,0 +1,95 @@
+import type { MDXComponents } from "mdx/types";
+import Link from "next/link";
+import * as wordle from "@/components/articles/wordle";
+import type {
+  AnchorHTMLAttributes,
+  ImgHTMLAttributes,
+  ReactNode,
+  TableHTMLAttributes,
+} from "react";
+
+// What markdown elements render as inside an article body. Passed to
+// <MDXContent components={…}> by the reader route. Not Next's root
+// mdx-components.tsx convention — that file is only read by @next/mdx, and the
+// bodies here are compiled by content-collections instead.
+//
+// Custom components an article can use by name (<Figure>, <Signoff>, …) go in
+// this map too.
+
+function MdxLink({ href = "", ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  // Same-origin links go through next/link for client-side navigation. "#foo"
+  // is a heading on this page and stays a plain <a> — routing it would push a
+  // history entry for a scroll. Anything else leaves the site.
+  if (href.startsWith("/")) return <Link href={href} {...props} />;
+  if (href.startsWith("#")) return <a href={href} {...props} />;
+
+  // noreferrer alongside noopener: noopener alone still leaks the full
+  // referring URL, which for a draft preview is a URL nobody else has.
+  return <a href={href} target="_blank" rel="noopener noreferrer" {...props} />;
+}
+
+function MdxImage({ alt = "", ...props }: ImgHTMLAttributes<HTMLImageElement>) {
+  // A plain <img>, not next/image. Markdown's image syntax carries no
+  // dimensions, and next/image needs either both or `fill` plus a positioned
+  // parent — neither of which `![](...)` can supply. The .prose-article rule in
+  // globals.css keeps it inside the column.
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img alt={alt} loading="lazy" decoding="async" {...props} />;
+}
+
+function MdxTable(props: TableHTMLAttributes<HTMLTableElement>) {
+  // The wrapper, not the table, scrolls. `overflow-x: auto` on the <table>
+  // itself needs `display: block`, which drops the table layout algorithm —
+  // columns stop sharing width and the whole thing collapses to shrink-to-fit.
+  return (
+    <div className="overflow-x-auto">
+      <table {...props} />
+    </div>
+  );
+}
+
+// A demo, chart or diagram: a numbered card that hangs into the margin by its
+// own padding, so its contents line up with the text (see .fig in
+// globals.css). Either an image, or whatever is placed inside it:
+//   <Figure src="…" alt="…" caption="…" />
+//   <Figure caption="…"><Demo /></Figure>
+// size="full" is the one way out of the column — a picture edge to edge, no
+// card, its caption kept in the column. Plain pictures in the text don't need
+// this at all: markdown's ![]() or a bare <figure> does.
+function Figure({
+  src,
+  alt = "",
+  caption,
+  size = "content",
+  children,
+}: {
+  src?: string;
+  alt?: string;
+  caption?: ReactNode;
+  size?: "content" | "full";
+  children?: ReactNode;
+}) {
+  return (
+    <figure className={size === "full" ? "bleed-full" : "fig"}>
+      {src ? <MdxImage src={src} alt={alt} /> : children}
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  );
+}
+
+// The closing line, set in the frame's small sans rather than the article's
+// serif: <Signoff>thanks for reading!</Signoff>
+function Signoff({ children }: { children: ReactNode }) {
+  return <p className="signoff">{children}</p>;
+}
+
+export const mdxComponents: MDXComponents = {
+  a: MdxLink,
+  img: MdxImage,
+  table: MdxTable,
+  Figure,
+  Signoff,
+  // One article's figures. Client components, so their code only reaches the
+  // browser on a page that actually renders them.
+  ...wordle,
+};

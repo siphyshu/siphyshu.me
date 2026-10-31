@@ -53,8 +53,9 @@ rest, and keep the rest quiet. A page with two loud things has none.
 
 ## 5. A personal page, not a product
 
-A system serif with no web font loaded. Lowercase headings and a lowercase
-voice ("hey, i'm jaiyank! 👋"). Links that are literally underlined web-blue.
+One book serif, Source Serif 4, for everything that's read; a small gray
+system sans only for the frame around an article (dates, captions, notes).
+Lowercase headings and a lowercase voice ("hey, i'm jaiyank! 👋"). Links that are literally underlined web-blue.
 Emoji used like punctuation. The README tells you "the light switch is on your
 left". It reads like someone's page, not a SaaS landing.
 
@@ -62,6 +63,14 @@ left". It reads like someone's page, not a SaaS landing.
 real button, a text input that looks like one — with one crafted detail rather
 than a layer of design-system gloss. Copy is first person, casual in tone and
 precise in content.
+
+**Why a web font, after starting without one (2026-11-01):** the system serif
+was a different face per device — New York in Safari, Georgia in Chrome and
+Arc, something else on Android — so size and spacing decisions held on one
+and not the others. Newsreader, Charter and Source Serif 4 were compared on
+real articles; Source Serif 4 won. It's self-hosted through `next/font`
+(`lib/fonts.ts`), and `--font-serif` in `globals.css` is the one place to
+change it.
 
 ## 6. Borders mean "this is an object"
 

@@ -1,5 +1,5 @@
 import { projects } from "@/data/projects";
-import { articles } from "@/data/articles";
+import { allArticles } from "content-collections";
 import { gallery } from "@/data/gallery";
 import { tags } from "@/data/tags";
 import { LINKS } from "@/components/hero/LinkPanel";
@@ -43,16 +43,19 @@ export const ENTRIES = [
         ].join(" "),
         href: `/projects#${slugify(p.title)}`,
     })),
-    ...articles.map((a) => ({
-        id: `article-${a.id}`,
-        group: "articles",
-        title: a.title,
-        // Dates are stored d-m-yyyy; the year is all a row has room for.
-        detail: `medium · ${a.date.split("-").pop()}`,
-        thumb: a.thumbnail,
-        keywords: `${a.subtitle} ${(a.topics ?? []).join(" ")}`,
-        external: a.link,
-    })),
+    ...allArticles.map((a) => {
+        // Dates are YYYY-MM-DD; the year is all a row has room for.
+        const year = a.date.slice(0, 4);
+        return {
+            id: `article-${a.slug}`,
+            group: "articles",
+            title: a.title,
+            detail: a.hosted ? year : `medium · ${year}`,
+            thumb: a.thumbnail,
+            keywords: `${a.subtitle} ${a.tags.join(" ")}`,
+            ...(a.hosted ? { href: a.href } : { external: a.href }),
+        };
+    }),
     ...gallery.map((g) => ({
         id: `photo-${g.id}`,
         group: "photos",

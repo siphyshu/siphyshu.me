@@ -1,0 +1,101 @@
+/* The Wordle essay's figures, from the reader mockup. Prefixed wd- because
+   App Router global CSS isn't scoped: these load on whichever page imports
+   them, and must not collide with anything else. */
+
+.article-body {
+  --wd-g: #6aaa64;
+  --wd-y: #c9b458;
+  --wd-x: #787c7e;
+  --wd-r: #d0392b;
+  --wd-c: #f4c20d;
+  --wd-t: #1d9c9c;
+  --wd-o: #de7525;
+  --wd-navy: #24307a;
+  --wd-cjk: "PingFang SC", "Noto Sans SC", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans Hebrew", "Noto Sans Tamil", sans-serif;
+}
+
+.wd-tiles { display: flex; gap: 4px; }
+.wd-tile {
+  --s: 40px;
+  width: var(--s); height: var(--s); flex: none;
+  display: grid; place-items: center; position: relative;
+  font: 600 calc(var(--s) * 0.5) / 1 theme("fontFamily.sans");
+  text-transform: uppercase;
+  border: 1.5px solid var(--rule); border-radius: 3px;
+  background: var(--surface); color: var(--ink);
+}
+.wd-tile.cjk { font-family: var(--wd-cjk); font-weight: 500; }
+.wd-tile.g { background: var(--wd-g); border-color: var(--wd-g); color: #fff; }
+.wd-tile.y { background: var(--wd-y); border-color: var(--wd-y); color: #fff; }
+.wd-tile.x { background: var(--wd-x); border-color: var(--wd-x); color: #fff; }
+.wd-tile.t { background: var(--wd-t); border-color: var(--wd-t); color: #fff; }
+.wd-tile.o { background: var(--wd-o); border-color: var(--wd-o); color: #fff; }
+/* Motus: a red square in place, a yellow circle elsewhere, on navy. */
+.wd-tile.r { background: var(--wd-r); border-color: var(--wd-r); color: #fff; border-radius: 0; }
+.wd-tile.c { background: var(--wd-navy); border-color: var(--wd-navy); color: var(--wd-navy); border-radius: 0; }
+.wd-tile.c::before { content: ""; position: absolute; inset: 10%; border-radius: 50%; background: var(--wd-c); }
+.wd-tile.c span { position: relative; }
+.wd-tile.m { background: var(--wd-navy); border-color: var(--wd-navy); color: #eef0fa; border-radius: 0; }
+.wd-tile.fin { background: var(--mark); border-color: var(--wd-y); }
+.wd-tile.sm { --s: 30px; }
+.wd-tile.xs { --s: 22px; font-size: 11px; border-width: 1px; }
+
+/* Fig. 1 */
+.wd-chart { overflow-x: auto; }
+.wd-chart svg { display: block; width: 100%; min-width: 480px; height: auto; }
+.wd-chart text { font-family: theme("fontFamily.sans"); font-size: 12px; fill: var(--muted); }
+.wd-chart .strong { fill: var(--ink); font-weight: 600; }
+.wd-chart .grid { stroke: var(--rule); }
+.wd-chart .axis { stroke: var(--muted); }
+.wd-chart .ref { stroke: var(--muted); stroke-dasharray: 3 4; }
+.wd-chart .sa { stroke: var(--wd-x); fill: none; stroke-width: 2; }
+.wd-chart .sb { stroke: var(--wd-g); fill: none; stroke-width: 2.5; }
+.wd-chart .da { fill: var(--wd-x); }
+.wd-chart .db { fill: var(--wd-g); }
+
+/* Fig. 2 */
+.wd-judges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 520px) { .wd-judges { grid-template-columns: minmax(0, 1fr); } }
+.wd-judge { display: grid; gap: 6px; align-content: start; font-family: theme("fontFamily.sans"); }
+.wd-judge .jn { font-weight: 600; font-size: 0.9rem; }
+.wd-judge .jy { color: var(--muted); font-weight: 400; }
+.wd-judge .jr { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
+.wd-jrow { display: flex; gap: 3px; align-items: center; min-height: 28px; }
+.wd-jrow .wd-tile { --s: 26px; font-size: 13px; border-width: 1px; }
+.wd-badge { margin-left: 8px; font-weight: 600; font-size: 0.95rem; }
+.wd-pegs { display: grid; grid-template-columns: repeat(3, 9px); gap: 3px; margin-left: 8px; }
+.wd-peg { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.wd-peg.b { background: var(--ink); }
+
+/* Figs. 3–5 */
+.wd-out { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; min-height: 70px; }
+.wd-kbd { display: flex; flex-wrap: wrap; gap: 4px; direction: rtl; }
+.article-body .fig .wd-kbd button { font: 500 1rem / 1 var(--wd-cjk); width: 34px; padding: 7px 0; }
+.article-body .fig .wd-kbd button.sofit { color: var(--wd-r); border-color: var(--wd-r); }
+.wd-rtl { direction: rtl; }
+.wd-block { display: grid; gap: 4px; justify-items: center; }
+.wd-arrow { font-size: 0.75rem; color: var(--muted); }
+.wd-han { display: grid; gap: 10px; }
+.wd-hrow { display: grid; grid-template-columns: repeat(4, minmax(0, 64px)); gap: 6px; }
+.wd-hcell { display: grid; gap: 4px; justify-items: center; }
+.wd-hcell .wd-tile { --s: 46px; }
+.wd-py { display: flex; gap: 2px; font: 0.72rem theme("fontFamily.sans"); }
+.wd-py b { font-weight: 500; padding: 1px 4px; border-radius: 3px; color: #fff; }
+.wd-py b.g { background: var(--wd-t); }
+.wd-py b.y { background: var(--wd-o); }
+.wd-py b.x { background: var(--wd-x); }
+.wd-py b.none { background: transparent; color: var(--muted); }
+
+/* Fig. 6 */
+.wd-forks { width: 100%; height: auto; display: block; }
+
+/* The -dle maker: an aside between rules, not a figure. */
+.wd-aside {
+  font-family: theme("fontFamily.sans");
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+  border-block: 1px solid var(--rule);
+  padding-block: 14px;
+}
+.wd-aside b { color: var(--ink); font-weight: 600; }
