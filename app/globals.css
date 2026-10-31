@@ -10,63 +10,368 @@ img {
   max-width: unset !important;
 }
 
-/* Article and project bodies. Everything here is an override of something that
-   would otherwise win, so it is all scoped to .prose-article rather than added
-   to the typography plugin's theme. */
-
-/* Puts back what the rule above takes away, for content images only. The global
-   `img` rule is `!important`, so matching that is the only way to beat it; the
-   class makes this selector more specific, so it wins without needing to touch
-   the wall's images. This is the narrowing the comment above asks for, done for
-   the one case that can be reasoned about in isolation. */
-.prose-article img {
-  max-width: 100% !important;
-  height: auto;
+/* The site's serif: Source Serif 4, loaded by next/font (lib/fonts.ts), which
+   declares --font-source-serif on <html>. tailwind.config.js points
+   font-serif here, with the system stack behind it. */
+:root {
+  --font-serif: var(--font-source-serif);
 }
 
-/* Headings are wrapped in their own anchor by rehype-autolink-headings, which
-   the typography plugin then styles as a link — every heading would arrive
-   underlined and coloured. The marker appears on hover instead, outside the
-   text so it never reflows the heading. */
-.prose-article :is(h1, h2, h3, h4, h5, h6) a {
+/* ── The reader ────────────────────────────────────────────────────────────
+   Tokens and rules from the reader mockup. Serif is the article; a small gray
+   sans is everything around it (dates, captions, notes, the share row), so the
+   eye can tell the text from its frame at a glance. */
+:root {
+  --site-width: 56rem;
+  --reader-content: 40rem;
+  --reader-gutter: 1rem;
+  --ink: #111111;
+  --muted: #6b7280;
+  --rule: #e5e7eb;
+  --faint: #d1d5db;
+  --surface: #fafaf9;
+  --accent: #2563eb;
+  --mark: rgb(255 226 70 / 0.7);
+  /* A figure card's padding, which it also hangs into the margin by, so what
+     sits inside it lines up with the text around it. */
+  --hang: 18px;
+}
+
+/* The footer follows whichever layout is on screen. */
+:root:has(.reader-grid) {
+  --site-width: var(--reader-content);
+}
+
+/* Named column tracks (Josh Comeau's "full-bleed layout"). Everything sits in
+   the text column, header included, so every left edge on the page is one
+   line. .bleed-full is the one way out, for the rare edge-to-edge picture. */
+.reader-grid {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--reader-gutter), 1fr)
+    [content-start] min(var(--reader-content), 100% - 2 * var(--reader-gutter))
+    [content-end] minmax(var(--reader-gutter), 1fr)
+    [full-end];
+}
+
+.reader-grid > * {
+  grid-column: content;
+}
+
+.reader-grid > .bleed-full {
+  grid-column: full;
+}
+
+/* ── Article body ── */
+
+/* One gap between every block, instead of a margin per element: paragraphs,
+   figures, quotes and code all sit 1.25em apart, and a new component gets the
+   rhythm for free. Only headings ask for more room above. */
+.article-body {
+  row-gap: 1.25em;
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  counter-reset: fig;
+}
+
+.article-body > * {
+  margin: 0;
+  min-width: 0;
+}
+
+.article-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.article-body a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.article-body :is(h2, h3) {
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+  position: relative;
+}
+
+.article-body h2 {
+  font-size: 1.35rem;
+  letter-spacing: -0.005em;
+  margin-top: 1.4em;
+}
+
+.article-body h3 {
+  font-size: 1.12rem;
+  margin-top: 0.8em;
+}
+
+/* rehype-autolink-headings makes each heading's text its own link. It reads as
+   a heading, not a link; the "#" shows on hover, outside the text. */
+.article-body :is(h2, h3) a {
   color: inherit;
   text-decoration: none;
 }
 
-.prose-article :is(h1, h2, h3, h4, h5, h6) a:hover::before {
+.article-body :is(h2, h3) a:hover::before {
   content: "#";
   position: absolute;
   margin-left: -1em;
-  color: #9ca3af;
+  color: var(--faint);
 }
 
-.prose-article :is(h1, h2, h3, h4, h5, h6) {
-  position: relative;
+.article-body :is(strong, b) {
+  font-weight: 700;
 }
 
-/* Sharp corners and hairline borders, per the site's existing containers. Shiki
-   sets the code block's background inline, so only the frame is set here. */
-.prose-article :is(pre, table, img) {
-  border-radius: 0;
+.article-body em {
+  font-style: italic;
 }
 
-.prose-article pre {
-  border: 1px solid #000;
+.article-body mark {
+  background: var(--mark);
+  color: inherit;
+  padding: 0 2px;
 }
 
-/* The typography plugin wraps inline code in literal backticks via ::before and
-   ::after. That reads as a typo in prose that already sets code in mono. */
-.prose-article :not(pre) > code::before,
-.prose-article :not(pre) > code::after {
-  content: none;
+.article-body blockquote {
+  border-left: 3px solid var(--rule);
+  padding-left: 18px;
+  font-style: italic;
 }
 
-/* Wide code scrolls inside its own box rather than widening the page. Tables
-   get the same treatment from a wrapper in mdx-components.tsx instead: making
-   the table itself a scroll container needs `display: block`, which drops the
-   table layout algorithm and collapses it to shrink-to-fit. */
-.prose-article pre {
+.article-body hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.article-body :is(ul, ol) {
+  padding-left: 1.3em;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body li + li,
+.article-body li > :is(ul, ol) {
+  margin-top: 0.3em;
+}
+
+.article-body li::marker {
+  color: var(--muted);
+}
+
+/* GFM task lists: the checkbox replaces the bullet. */
+.article-body li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.3em;
+}
+
+/* Puts back what the global `img` rule takes away, for article images only —
+   matching its !important is the only way to beat it. */
+.article-body img {
+  max-width: 100% !important;
+  height: auto;
+  display: block;
+}
+
+.article-body :not(pre) > code {
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.05em 0.3em;
+}
+
+/* Code hangs like a figure card, so its text starts on the article's edge.
+   Shiki sets the colours inline; long lines scroll inside the box rather than
+   widening the page. */
+.article-body pre {
+  font-size: 0.82em;
+  line-height: 1.6;
+  padding: 14px var(--hang);
+  margin-inline: calc(-1 * var(--hang));
+  border: 1px solid var(--rule);
+  border-radius: 8px;
   overflow-x: auto;
+}
+
+/* Tables scroll in a wrapper (mdx-components.tsx): making the table itself
+   the scroller needs display: block, which drops the table layout. */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: theme("fontFamily.sans");
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.article-body :is(th, td) {
+  text-align: left;
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.article-body th {
+  font-weight: 600;
+}
+
+/* ── Figures ── */
+
+/* A plain figure: a picture in the text, caption underneath. */
+.article-body figure {
+  display: grid;
+  gap: 10px;
+}
+
+.article-body figcaption {
+  font-family: theme("fontFamily.sans");
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* <Figure>: a demo, chart or diagram — an object in the article, so it gets
+   a card. It hangs into the margin by its own padding, so its contents line
+   up with the text; on a phone there's no margin to hang into. Numbered in
+   order, by CSS, so inserting one never means renumbering the rest. */
+.article-body .fig {
+  padding: var(--hang);
+  margin-inline: calc(-1 * var(--hang));
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+  gap: 12px;
+}
+
+.article-body .fig figcaption::before {
+  counter-increment: fig;
+  content: "Fig. " counter(fig) ". ";
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.article-body .bleed-full figcaption {
+  width: min(var(--reader-content), 100% - 2 * var(--reader-gutter));
+  margin-inline: auto;
+}
+
+.article-body .bleed-full img {
+  width: 100%;
+}
+
+@media (max-width: 680px) {
+  .article-body :is(.fig, pre) {
+    margin-inline: 0;
+    padding-inline: 14px;
+  }
+}
+
+/* Controls inside a demo — buttons, a text field, a status line. Plain and
+   small, in the frame's sans, so the demo's own content is what stands out. */
+.article-body :is(.fig, aside) :is(button, input[type="text"]) {
+  font: 500 0.82rem / 1 theme("fontFamily.sans");
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.article-body :is(.fig, aside) button {
+  cursor: pointer;
+}
+
+.article-body :is(.fig, aside) button:hover {
+  border-color: var(--muted);
+}
+
+.article-body :is(.fig, aside) button.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.article-body :is(.fig, aside) button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.article-body :is(.fig, aside) input[type="text"] {
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 8px 10px;
+  width: 8em;
+  max-width: 100%;
+}
+
+.article-body .fig-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.article-body .fig-msg {
+  font: 0.82rem theme("fontFamily.sans");
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+/* ── Notes and sign-off ── */
+
+/* GFM footnote references: small sans numerals, not underlined. */
+.article-body sup a {
+  font-family: theme("fontFamily.sans");
+  font-size: 0.7em;
+  text-decoration: none;
+  padding-inline: 1px;
+}
+
+/* The footnotes GFM collects at the end, relabelled "Notes" at build time. */
+.article-body section[data-footnotes] {
+  margin-top: 1.5em;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: theme("fontFamily.sans");
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.article-body section[data-footnotes] h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.article-body section[data-footnotes] ol {
+  display: grid;
+  gap: 6px;
+}
+
+.article-body section[data-footnotes] li + li {
+  margin-top: 0;
+}
+
+.article-body section[data-footnotes] :is(p, li) {
+  margin: 0;
+}
+
+.article-body .signoff {
+  font-family: theme("fontFamily.sans");
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
 }
 
 /* Registered so it's a real <length> rather than an untyped token. Without
@@ -1417,3 +1722,4 @@ a.bs-title:hover {
   70% { opacity: 1; }
   100% { opacity: 0; }
 }
+

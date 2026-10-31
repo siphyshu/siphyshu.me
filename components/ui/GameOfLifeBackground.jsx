@@ -34,7 +34,10 @@ const isDev = false;
 // hero versus a full-width card grid), and it leaves real empty space
 // unlit — the exact gap reported in review. Instead, elements that sit on a
 // transparent background and need to stay legible carry a `data-gol-mask`
-// attribute (see HeaderSection2); every draw() reads their *real*, current
+// attribute (see HeaderSection2), or sit directly inside an element carrying
+// `data-gol-mask-children` — an article body, whose paragraphs, figures and
+// breakouts each have their own width, so one rect around the lot would blank
+// the whole viewport beside the text. Every draw() reads their *real*, current
 // getBoundingClientRect() and skips any tick that falls inside one. Elements
 // with their own solid background (cards, images, the wood frame) never
 // needed this — they already occlude the canvas for free, same as before,
@@ -172,7 +175,7 @@ export default function GameOfLifeBackground() {
     }
 
     function maskedRects() {
-      const nodes = document.querySelectorAll("[data-gol-mask]");
+      const nodes = document.querySelectorAll("[data-gol-mask], [data-gol-mask-children] > *");
       const rects = [];
       for (const node of nodes) {
         const r = node.getBoundingClientRect();

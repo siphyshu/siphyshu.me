@@ -1,34 +1,29 @@
 "use client"
 
 import Image from "next/image";
+import Link from "next/link";
 import ReactMarkdown from 'react-markdown';
+import { formatContentDate as formatDate } from "@/lib/format";
 import { resolveTags, tagInkClasses } from "@/lib/tags";
-
-const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
-
-function formatDate(dateString) {
-    const [day, month, year] = dateString.split("-");
-    return `${parseInt(day)} ${MONTHS[parseInt(month) - 1]} ${year}`;
-}
 
 export default function ArticleItem({
     date,
     title,
     subtitle,
     thumbnail = "/thumbnails/articles/placeholder-thumbnail.png",
-    topics = [],
+    tags: tagIds = [],
     readMinutes,
-    link,
+    href,
+    hosted = false,
     isFirst = false,
 }) {
-    const tags = resolveTags(topics);
+    const tags = resolveTags(tagIds);
+    // Hosted articles route client-side; Medium posts are a plain link out.
+    const Row = hosted ? Link : "a";
 
     return (
-        <a
-            href={link}
+        <Row
+            href={href}
             className={`flex items-start md:items-center gap-4 md:gap-6 group ${isFirst ? "pb-5" : "py-5"}`}
         >
             {/* Top-aligned on phones: the text wraps to several lines there,
@@ -70,6 +65,6 @@ export default function ArticleItem({
                     {formatDate(date)}{readMinutes ? ` · ${readMinutes} min read` : ""}
                 </div>
             </div>
-        </a>
+        </Row>
     )
 }

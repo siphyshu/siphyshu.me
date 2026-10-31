@@ -11,5 +11,11 @@ export default async function SiteLayout({ children }) {
     return null;
   });
 
-  return <SiteShell initialHandprints={handprints}>{children}</SiteShell>;
+  return (
+    <div className="px-4">
+      <div className="max-w-4xl w-full mx-auto">
+        <SiteShell initialHandprints={handprints}>{children}</SiteShell>
+      </div>
+    </div>
+  );
 }

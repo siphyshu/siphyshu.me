@@ -1,71 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import LinkPanel from "@/components/hero/LinkPanel";
+import TextMorph from "@/components/hero/TextMorph";
 import { getAge } from "@/lib/age";
-
-const TextMorph = ({ targetText, isAnimating }) => {
-    const [scrambledText, setScrambledText] = useState(targetText);
-    const characters = 'abcdefghijklmnopqrstuvwxyz';
-
-    useEffect(() => {
-        if (!isAnimating) {
-            return;
-        }
-
-        const textPart = targetText.split(' ').slice(0, -1).join(' ');
-        const emojiPart = targetText.split(' ').slice(-1)[0];
-
-        let steps = 0;
-        const maxSteps = 10; // Increased for smoother transition
-        
-        // Smoother easing function with more pronounced curve
-        const easeInOut = (t) => {
-            if ( t <= 0.5 ) {
-                return 2.0 * t * t;
-            }
-
-            t -= 0.5;
-            return 1 - Math.pow(1 - t, 100);
-        }
-    
-
-        const interval = setInterval(() => {
-            if (steps >= maxSteps) {
-                setScrambledText(targetText);
-                clearInterval(interval);
-                return;
-            }
-
-            const progress = easeInOut(steps / maxSteps);
-
-            const scrambled = textPart
-                .split('')
-                .map((char, index) => {
-                    if (char === ' ' || char === ',' || char === '!' || char === "'") return char;
-                    
-                    // More gradual character reveal
-                    if (Math.random() < progress * 1.5) return textPart[index];
-                    
-                    // Use character set closer to the final character for smoother transition
-                    const randomChar = Math.random() < progress 
-                        ? characters[Math.floor(Math.random() * 5) + characters.indexOf(textPart[index].toLowerCase()) - 2]
-                        : characters[Math.floor(Math.random() * characters.length)];
-                    return randomChar || textPart[index];
-                })
-                .join('');
-
-            setScrambledText(`${scrambled} ${emojiPart}`);
-            steps++;
-        }, 70); // Adjusted timing for smoother animation
-
-        return () => clearInterval(interval);
-    }, [targetText, isAnimating]);
-
-    return isAnimating ? scrambledText : targetText;
-};
 
 const HeaderSection = () => {
     // Add state for tracking hover

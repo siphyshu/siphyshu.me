@@ -1,4 +1,5 @@
-const os = require("os");
+import os from "os";
+import { withContentCollections } from "@content-collections/next";
 
 // This machine's LAN addresses, so a phone on the same network can load the
 // dev server (http://<mac's ip>:3000). Next blocks cross-origin requests to
@@ -25,4 +26,6 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// Runs the content-collections builder (and its watcher under `next dev`)
+// before Next starts, so the generated module exists when anything imports it.
+export default withContentCollections(nextConfig);

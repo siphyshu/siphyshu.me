@@ -1,18 +1,14 @@
 "use client"
 
 import ArticleItem from "@/components/articles/ArticleItem";
-import { articles } from "@/data/articles";
+import { allArticles } from "content-collections";
 
-function parseDate(dateString) {
-    const [day, month, year] = dateString.split("-").map(Number);
-    return new Date(year, month - 1, day).getTime();
-}
-
-const sorted = [...articles].sort((a, b) => parseDate(b.date) - parseDate(a.date));
+// Newest first. Dates are YYYY-MM-DD, so a string compare is chronological.
+const sorted = [...allArticles].sort((a, b) => b.date.localeCompare(a.date));
 
 const ArticleList = ({ className = "", tags = [], order }) => {
     const filtered = tags.length > 0
-        ? sorted.filter((a) => a.topics.some((t) => tags.includes(t)))
+        ? sorted.filter((a) => a.tags.some((t) => tags.includes(t)))
         : sorted;
     const displayed = order === "oldest" ? [...filtered].reverse() : filtered;
 
@@ -25,15 +21,16 @@ const ArticleList = ({ className = "", tags = [], order }) => {
             )}
             <div>
                 {displayed.map((article, index) => (
-                    <div key={article.id}>
+                    <div key={article.slug}>
                         <ArticleItem
                             date={article.date}
                             title={article.title}
                             subtitle={article.subtitle}
                             thumbnail={article.thumbnail}
-                            topics={article.topics}
+                            tags={article.tags}
                             readMinutes={article.readMinutes}
-                            link={article.link}
+                            href={article.href}
+                            hosted={article.hosted}
                             isFirst={index === 0}
                         />
                         {index < displayed.length - 1 && (

@@ -11,9 +11,9 @@ import { useNavActionsValue } from "@/components/ui/NavActionsContext";
 //
 // ctfs is still parked out of the nav — the route and component exist
 // (app/(site)/ctfs), it just isn't live/linked until there's real content.
-const TABS = [
+export const TABS = [
     { label: "projects", href: "/projects", match: ["/", "/projects"] },
-    { label: "articles", href: "/articles", match: ["/articles"] },
+    { label: "writing", href: "/articles", match: ["/articles"] },
     { label: "gallery", href: "/gallery", match: ["/gallery"] },
 ];
 

@@ -1,9 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    // Articles can use classes in their JSX (a video embed's aspect-video).
+    "./content/**/*.mdx",
     // tagColorVariants in data/tags.ts holds literal class strings
     // (text-blue-500, border-blue-600, ...) that components only ever
     // reference dynamically (tagColorVariants[tag.color]) — Tailwind's
@@ -13,6 +17,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        // --font-serif is set in globals.css;
+        // the system stack behind it covers the moment before it's defined.
+        serif: ['var(--font-serif)', ...defaultTheme.fontFamily.serif],
+      },
       keyframes: {
         // 'slide-up' lived here for the handprint form's entrance. That sheet
         // is now drag-driven and springs via Motion, and keyframes can't be

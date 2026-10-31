@@ -1,0 +1,280 @@
+---
+title: "Building Snake on the Arduino UNO R4's LED Matrix"
+subtitle: "After my friend bought the new Arduino R4 with its built-in LED matrix, I thought why not build the snake game on it? This is a walkthrough of how it went."
+date: 2023-12-04
+tags: [electronics, c++, arduino, game-dev]
+thumbnail: /thumbnails/articles/snake-r4-thumbnail.png
+# Ported from Medium, which stays the original: search engines are pointed there.
+canonical_url: https://siphyshu.medium.com/i-made-the-snake-game-on-the-arduino-uno-r4-led-matrix-with-a-joystick-controller-5127c28f8a38
+---
+
+My friend ([Eeman Majumder](https://medium.com/u/5ea5fc6a4cea)) impulsively bought the new Arduino UNO R4 WIFI while we were hosting him at our place for a 2-week dev sprint. The day it came, we were thinking of fun things to do with it, and luckily we had a dual-axis joystick controller lying around the house. I put two and two together and built the popular retro snake game on the LED matrix! 🐍
+
+<figure>
+  <img src="/articles/snake-r4/01.png" alt="Read till the end or scroll down for watching the demo video" />
+  <figcaption>Read till the end or scroll down for watching the demo video</figcaption>
+</figure>
+
+## da setup 🏗️
+
+Let’s get some setup out of the way so we can get to the fun stuff ASAP!
+
+First we get the environment and make the electrical connections, for this:
+
+1.  Either install the [Arduino IDE](https://www.arduino.cc/en/software/) OR use the [cloud editor](https://create.arduino.cc/editor).
+2.  Get a [dual-axis joystick module](https://robu.in/product/joystick-module-ps2-breakout-sensor/) and connect the Arduino's 5V, GND, A0, A1, and D13 to the module's 5V, GND, URX, URY, and SW respectively.
+
+<figure>
+  <img src="/articles/snake-r4/02.png" alt="SW is connected to D2 here, but I prefer the D13 so it doesn’t obstruct the LED matrix screen." />
+  <figcaption>SW is connected to D2 here, but I prefer the D13 so it doesn’t obstruct the LED matrix screen.</figcaption>
+</figure>
+
+In the code, we define some constants, variables and objects that will set up the game. This includes some library imports, our input pins, the LED matrix grid and its size, the food object, the snake object and its speed, length, and direction, and finally the current and high score.
+
+<figure>
+  <img src="/articles/snake-r4/03.png" alt="" />
+</figure>
+
+## main game logic 🧠
+
+Now that the setup is done, it’s time to implement the core game logic. Yay!
+
+We have to do a couple of things here — handle the joystick, move the snake, check for any collisions, update the screen, generate new food and add a small delay. The flowchart explains this whole process.
+
+<figure>
+  <img src="/articles/snake-r4/04.png" alt="" />
+</figure>
+
+### Take input from joystick
+
+We constantly input the analog values (0 to 1024) from the joystick, normalize them to -512 to 512 in both axes (this is optional, but it just makes things clearer), then map the value to its corresponding direction.
+
+We also disallow any move from the joystick that is directly opposite of the current direction while the game is running. This is because the snake can’t go backwards — which will be considered an illegal move and end the game.
+
+```cpp
+void handleJoystick() {
+  xValue = analogRead(joystickXPin);
+  yValue = analogRead(joystickYPin);
+  swState = not digitalRead(joystickSwPin);
+
+  xMap = map(xValue, 0, 1023, -512, 512);
+  yMap = map(yValue, 0, 1023, 512, -512);
+
+  // disallow moving in the opposite direction of current direction while the game is running
+  if (xMap <= 512 && xMap >= 10 && yMap <= 511 && yMap >= -511) {
+    if ((!isGameOver && directionPrev != 3) || isGameOver) { direction = 1; } // Right 
+  } else if (xMap >= -512 && xMap <= -10 && yMap <= 511 && yMap >= -511) {
+    if ((!isGameOver && directionPrev != 1) || isGameOver) { direction = 3; } // Left
+  } else if (yMap <= 512 && yMap >= 10 && xMap <= 511 && xMap >= -511) {
+    if ((!isGameOver && directionPrev != 4) || isGameOver) { direction = 2; } // Up
+  } else if (yMap >= -512 && yMap <= -10 && xMap <= 511 && xMap >= -511) {
+    if ((!isGameOver && directionPrev != 2) || isGameOver) { direction = 4; } // Down
+  }
+
+  if (!isGameOver) {
+    directionPrev = direction;
+  }
+}  
+```
+
+### Move the snake
+
+We have to actually make the snake move, it won’t move on its own. We shift the body of the snake (which is essentially just an array of points having XY coordinates) forward by updating the coordinates of all the points, starting from the end (tail), to the coordinates of the next point.
+
+Given the current direction, we shift the head +1 in that direction. In case it is at the wall, we wrap it around to the other side. We could disable this to make the game harder but for a pleasurable playing experience, I kept it.
+
+```cpp
+void moveSnake() {
+  // Move the body of the snake
+  for (int i = snakeLength - 1; i > 0; i--) {
+    snake[i] = snake[i - 1];
+  }
+
+  // Move the head of the snake
+  switch (direction) {
+    case 1:  // Right
+      snake[0].x = (snake[0].x + 1) % matrixSizeX;
+      break;
+    case 2:  // Up
+      snake[0].y = (snake[0].y - 1 + matrixSizeY) % matrixSizeY;
+      break;
+    case 3:  // Left
+      snake[0].x = (snake[0].x - 1 + matrixSizeX) % matrixSizeX;
+      break;
+    case 4:  // Down
+      snake[0].y = (snake[0].y + 1) % matrixSizeY;
+      break;
+  }
+}
+```
+
+### Check if a collision occurs
+
+We have to check two collisions — one with self and one with the food.
+
+If the snake collides with itself, we end the game. We do this by checking if the head’s position is equal to any of the points in the body’s position.
+
+If it collides with the food, we increment the snake’s length and the score and decrement the current speed by 5 if it’s still above the max speed.
+
+```cpp
+void checkCollisions() {
+  // Check for collision with self
+  for (int i = 1; i < snakeLength; i++) {
+    if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+      // Game over, restart
+      gameOver();
+    }
+  }
+
+  // Check for collision with food
+  if (snake[0].x == food.x && snake[0].y == food.y) {
+    snakeLength++;
+    score++;
+
+    generateFood();
+
+    if (currentSpeed > maxSpeed) {
+      currentSpeed -= 5;
+    }
+  }
+}
+```
+
+### Generate new food
+
+If the snake eats the food, we will have to put new food on the grid, right? This is simple — we update the food’s position to a random point in the grid, make sure that it doesn’t overlap with the snake, and update the matrix.
+
+```cpp
+void generateFood() {
+  food.x = random(matrixSizeX);
+  food.y = random(matrixSizeY);
+
+  // Make sure the food does not overlap with the snake
+  for (int i = 0; i < snakeLength; i++) {
+    if (food.x == snake[i].x && food.y == snake[i].y) {
+      generateFood();
+      return;
+    }
+  }
+
+  grid[food.y][food.x] = 1;
+  matrix.renderBitmap(grid, matrixSizeY, matrixSizeX);
+}
+```
+
+### Update the LED matrix
+
+To show all these changes above, we reset our grid (meaning switch of all LEDs on the matrix), then update the grid based on the snake and food positions, and then render the new grid on the LED matrix.
+
+```cpp
+void updateMatrix() {
+  resetGrid();
+
+  for (int i = 0; i < snakeLength; i++) {
+    grid[snake[i].y][snake[i].x] = 1;
+  }
+  grid[food.y][food.x] = 1;
+  matrix.renderBitmap(grid, matrixSizeY, matrixSizeX);
+}
+```
+
+### Game Over
+
+Finally, when the snake bites itself, the game gets over.
+
+<figure>
+  <img src="/articles/snake-r4/05.png" alt="" />
+</figure>
+
+Here, we check if we made the high score, play the “Game Over” text on the LED matrix, display the score for a few seconds, and then ask the player if they want to continue playing the game.
+
+```cpp
+void gameOver() {
+  isGameOver = true;
+  resetGrid();
+
+  if (score >= highScore) {
+    highScore = score;
+  }
+  
+  printText("    Game Over    ", 35);
+  for (int i = 0; i < 4; i++) {
+    displayScore(true, false);
+  }
+
+  continuePlaying();
+  initializeGame();
+}
+```
+
+## finishing touches 🪄
+
+At this point, our game is functional. We could stop here if we want and call it a day. Or, we could go the extra mile and add some finishing touches for a polished look and an overall satisfying playing experience. For this, I added some aesthetic additions and some qualify-of-life improvements.
+
+Firstly, an ascii art intro animation when the game loads. It says SNAKE-R4.
+
+<figure>
+  <img src="/articles/snake-r4/06.gif" alt="" />
+</figure>
+
+I ended up designing a numbers font in Arduino’s [LED Matrix editor](https://ledmatrix-editor.arduino.cc/) for displaying the score, because the fonts in the ArduinoGraphics library did not quite align in the center of the LED matrix and it really bugged me.
+
+<figure>
+  <img src="/articles/snake-r4/07.gif" alt="" />
+</figure>
+
+Then, I added the option to continue playing by selecting Y/N with the joystick. Again, the frames for the animation were designed in the LED Matrix editor and included in the code using the .h files provided by it.
+
+<figure>
+  <img src="/articles/snake-r4/08.gif" alt="" />
+</figure>
+
+All we have to do in the code is to render the appropriate frame based on the joystick direction (left or right) and play the yes\_option or no\_option animation sequence when one of them gets selected.
+
+```cpp
+void continuePlaying() {
+  matrix.loadSequence(continue_playing);
+  matrix.renderFrame(2);
+  String selectedOption = "yes";
+
+  while (!swState) {
+    handleJoystick();
+    if (direction == 3) {
+      matrix.renderFrame(0);
+      selectedOption = "yes";
+    } else if (direction == 1) {
+      matrix.renderFrame(1);
+      selectedOption = "no";
+    }
+    delay(100);
+  }
+
+  if (selectedOption == "no") {
+    matrix.loadSequence(no_option);
+    matrix.play();
+    delay(1500);
+    printText("    thx for playing!        made by siphyshu    ", 35);
+    while (true) {
+      displayScore(false, true);
+    }
+  } else if (selectedOption == "yes") {
+    matrix.loadSequence(yes_option);
+    matrix.play();
+    delay(1500);
+  }
+}
+```
+
+Finally, if the player chooses no, the game ends with a credit sequence and the high-score is shown on the screen permanently in a never-ending loop.
+
+<iframe src="https://www.youtube-nocookie.com/embed/1QJ83lrbu5c" title="Snake-R4 demo" allowFullScreen className="w-full aspect-video" />
+
+Tada! 🎉 With these final touches, we are done with Snake-R4. I had a lot of fun building (and playing! :D) this project, and if you did too while reading about it, a [follow](https://siphyshu.medium.com/) would be amazing!
+
+View the repository: [https://github.com/siphyshu/snake-R4](https://github.com/siphyshu/Snake-R4)
+
+Follow me on Twitter/X for behind-the-scenes:
+
+> building wid da homies 🍲💻🔥 pic.twitter.com/zfk6cNtcan
+
+<Signoff>Stay safe, have fun, and always be building! 🫂️</Signoff>
