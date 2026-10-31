@@ -1,7 +1,9 @@
 import type { MDXComponents } from "mdx/types";
 import Link from "next/link";
 import { Tweet as ReactTweet } from "react-tweet";
-import * as wordle from "@/components/articles/wordle";
+// Drafts' figures: components/drafts/ locally, an empty stub elsewhere
+// (tsconfig "@drafts" tries the folder first, then components/drafts-stub.ts).
+import * as drafts from "@drafts";
 import type {
   AnchorHTMLAttributes,
   ImgHTMLAttributes,
@@ -124,7 +126,8 @@ export const mdxComponents: MDXComponents = {
   Signoff,
   Tweet,
   YouTube,
-  // One article's figures. Client components, so their code only reaches the
-  // browser on a page that actually renders them.
-  ...wordle,
+  // Draft articles' figures. Client components, so their code only reaches
+  // the browser on a page that actually renders them. A published article's
+  // figures move out of components/drafts/ with it, and get listed here.
+  ...drafts,
 };

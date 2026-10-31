@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXContent } from "@content-collections/mdx/react";
@@ -96,6 +97,19 @@ export default async function ArticlePage({ params }) {
             ))}
           </div>
         </header>
+        {article.cover && article.thumbnail && (
+          // Hangs into the margin like a figure card, so the picture's edge
+          // lines up with nothing and the text's edge stays the text's.
+          <Image
+            src={article.thumbnail}
+            alt=""
+            width={1200}
+            height={630}
+            sizes="(max-width: 680px) 100vw, 676px"
+            priority
+            className="article-cover"
+          />
+        )}
       </div>
 
       {/* Each child is masked from the Game of Life on its own: one rect around

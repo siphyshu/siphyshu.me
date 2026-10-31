@@ -3,13 +3,15 @@ title: Kitchen sink
 subtitle: "Every element the reader knows how to render, on one page. A fixture for checking the prose styles — and the file to copy when starting a real article."
 date: 2026-09-24
 tags: [web, nextjs]
-thumbnail: /thumbnails/articles/placeholder-thumbnail.png
-draft: true
+thumbnail: /thumbnails/articles/kitchen-sink-thumbnail.png
+cover: true
+fixture: true
 ---
 
-This file is a **draft**, so it renders under `next dev` and is absent from a
-production build. That is the whole draft mechanism: set `draft: true`, write
-until it's ready, delete the line to publish.
+This file is a **fixture**, so it renders under `next dev` and is absent from a
+production build. Real drafts work differently: a draft lives in
+`content/drafts/`, which git ignores, and publishing is moving the file into
+`content/articles/`. The repo is public, so a draft never gets committed.
 
 Copy this file to start a new article. Delete everything below the frontmatter.
 
@@ -41,8 +43,8 @@ tags: z.array(
 ```
 
 ```bash
-npm run dev   # drafts visible
-npm run build # drafts gone
+npm run dev   # drafts and fixtures visible
+npm run build # both gone
 ```
 
 ## Lists, quotes, and rules
@@ -68,7 +70,7 @@ npm run build # drafts gone
 | `tags`          | no       | Must already exist in `data/tags.ts`           |
 | `canonical_url` | no       | The original, when this is a repost            |
 | `external_url`  | no       | Published elsewhere; no body, no page here     |
-| `draft`         | no       | Defaults to `false`                            |
+| `fixture`       | no       | Dev-only test page; defaults to `false`        |
 
 ---
 

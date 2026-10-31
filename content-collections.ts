@@ -14,8 +14,18 @@ import { tags as tagRegistry } from "./data/tags";
 // `next build`, and as a watcher under `next dev` — so edits to an .mdx file
 // show up without a restart.
 
-/** Drafts render under `next dev` and are absent from a production build. */
+/**
+ * Drafts render under `next dev` and are absent from a production build.
+ *
+ * An article is a draft by *where it lives*: content/drafts/, which is
+ * gitignored, so a draft can't reach GitHub — the repo is public, and a
+ * `draft: true` flag hid an article from the site but never from the repo.
+ * Publishing is moving the file into content/articles/.
+ */
 const INCLUDE_DRAFTS = process.env.NODE_ENV === "development";
+
+/** Both folders, read as one collection. content/drafts/ may not exist. */
+const CONTENT = { directory: "content", include: ["articles/*.mdx", "drafts/*.mdx"] };
 
 /** Roughly how fast an article is read. Medium uses 265; this is a little gentler. */
 const WORDS_PER_MINUTE = 230;
@@ -38,6 +48,10 @@ const articleSchema = z.object({
     )
     .default([]),
   thumbnail: z.string().optional(),
+  // Show the thumbnail at the top of the article too, under the header. Off
+  // by default: most articles open with their own first picture, and a
+  // thumbnail cropped from it would show the same thing twice.
+  cover: z.boolean().default(false),
   // Published elsewhere (the Medium posts): listed here, linked out, no reader
   // page. Named after JSON Feed's `external_url`, which means the same thing.
   external_url: z.url().optional(),
@@ -48,7 +62,12 @@ const articleSchema = z.object({
   canonical_url: z.url().optional(),
   // Only for external posts — a hosted article's read time is counted from its body.
   readMinutes: z.number().int().positive().optional(),
-  draft: z.boolean().default(false),
+  // The old way of marking a draft. Still parsed so it can be refused by name
+  // (see checkFile) rather than silently stripped.
+  draft: z.unknown().optional(),
+  // A page that exists to test the reader (the kitchen sink): public in the
+  // repo, since there's nothing private in it, but only rendered in dev.
+  fixture: z.boolean().default(false),
   content: z.string(),
 });
 
@@ -67,8 +86,24 @@ function rehypeNotesLabel() {
   };
 }
 
-function isHidden(draft: boolean) {
-  return draft && !INCLUDE_DRAFTS;
+type Meta = { path: string; filePath: string };
+
+const isDraft = (meta: Meta) => meta.path.startsWith("drafts/");
+/** The URL slug: the file name, whichever folder it's in. */
+const slugOf = (meta: Meta) => meta.path.split("/").pop()!;
+
+function isHidden(meta: Meta, fixture: boolean) {
+  return (isDraft(meta) || fixture) && !INCLUDE_DRAFTS;
+}
+
+/** Refuses the old draft flag, so nothing gets drafted in the public folder out of habit. */
+function checkFile(meta: Meta, draft: unknown) {
+  if (draft !== undefined) {
+    throw new Error(
+      `content/${meta.filePath} has "draft:" in its frontmatter. Drafts live in content/drafts/ now ` +
+        "(gitignored — this repo is public): move the file there and delete the line."
+    );
+  }
 }
 
 // Everything the list, the tag filter and the search palette need — and
@@ -78,14 +113,14 @@ function isHidden(draft: boolean) {
 // client bundle.
 const articles = defineCollection({
   name: "articles",
-  directory: "content/articles",
-  include: "*.mdx",
+  ...CONTENT,
   schema: articleSchema,
-  transform: ({ content, _meta, ...article }, { skip }) => {
-    if (isHidden(article.draft)) return skip("draft");
+  transform: ({ content, _meta, draft, ...article }, { skip }) => {
+    checkFile(_meta, draft);
+    if (isHidden(_meta, article.fixture)) return skip(isDraft(_meta) ? "draft" : "fixture");
 
     const hasBody = content.trim().length > 0;
-    const file = `content/articles/${_meta.fileName}`;
+    const file = `content/${_meta.filePath}`;
     if (article.external_url && hasBody) {
       // Either hosted here or published elsewhere, never both: otherwise the
       // list links out while an orphan page sits at /articles/<slug>.
@@ -100,7 +135,7 @@ const articles = defineCollection({
       throw new Error(`${file} has no body and no \`external_url\` — nothing to show.`);
     }
 
-    const slug = _meta.path;
+    const slug = slugOf(_meta);
     // Prose only: code blocks are skimmed rather than read, and counting them
     // as words nearly doubled the estimate on a code-heavy post.
     const prose = content.replace(/^```[\s\S]*?^```/gm, "");
@@ -119,11 +154,11 @@ const articles = defineCollection({
 // the reader route, never from a "use client" module.
 const articleBodies = defineCollection({
   name: "articleBodies",
-  directory: "content/articles",
-  include: "*.mdx",
+  ...CONTENT,
   schema: articleSchema,
   transform: async (document, context) => {
-    if (isHidden(document.draft)) return context.skip("draft");
+    checkFile(document._meta, document.draft);
+    if (isHidden(document._meta, document.fixture)) return context.skip(isDraft(document._meta) ? "draft" : "fixture");
     if (document.external_url) return context.skip("external — no reader page");
 
     // Compiled here, in Node, not by Turbopack — so plugins are ordinary
@@ -149,7 +184,7 @@ const articleBodies = defineCollection({
       ],
     });
     return {
-      slug: document._meta.path,
+      slug: slugOf(document._meta),
       mdx,
       // A tweet's video is served from video.twimg.com, which answers 403 to
       // any request whose Referer isn't X's own. The reader page turns off

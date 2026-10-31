@@ -28,6 +28,10 @@
       ],
       "content-collections": [
         "./.content-collections/generated"
+      ],
+      "@drafts": [
+        "./components/drafts/index.ts",
+        "./components/drafts-stub.ts"
       ]
     }
   },

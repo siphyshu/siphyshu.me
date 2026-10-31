@@ -560,6 +560,25 @@ img {
   --tweet-container-margin: 0;
 }
 
+/* An article's cover: its thumbnail under the header, when the frontmatter
+   asks for it. Hangs like a figure card. */
+.article-cover {
+  margin-top: 2rem;
+  width: calc(100% + 2 * var(--hang));
+  max-width: none !important;
+  height: auto;
+  margin-inline: calc(-1 * var(--hang));
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+
+@media (max-width: 680px) {
+  .article-cover {
+    width: 100%;
+    margin-inline: 0;
+  }
+}
+
 /* ── Notes and sign-off ── */
 
 /* GFM footnote references: small sans numerals, not underlined. */
