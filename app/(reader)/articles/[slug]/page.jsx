@@ -7,7 +7,8 @@ import ShareLinks from "@/components/articles/ShareLinks";
 import { mdxComponents } from "@/components/articles/mdx-components";
 import { getRelated } from "@/lib/articles";
 import { formatContentDate } from "@/lib/format";
-import { resolveTags, tagInkClasses } from "@/lib/tags";
+import { tagColorVariants } from "@/data/tags";
+import { resolveTags, tagSearchHref } from "@/lib/tags";
 import { SITE_URL } from "@/lib/site";
 
 // Metadata comes from allArticles, the body from allArticleBodies — the second
@@ -85,8 +86,8 @@ export default async function ArticlePage({ params }) {
     <article className="pt-12 md:pt-16 pb-10">
       <div className="reader-grid">
         <header className="grid gap-3.5" data-gol-mask>
-          {/* Where this sits: the section, then what it's about. The topic is
-              the article's first tag, plain text until /tags/[tag] exists. */}
+          {/* Where this sits: the section, then what it's about — the
+              article's first tag, as plain text. */}
           <nav aria-label="Breadcrumb" className="font-sans text-sm text-gray-500">
             <Link href="/articles" className="hover:text-black">writing</Link>
             {tags[0] && <span> / {tags[0].name}</span>}
@@ -100,9 +101,15 @@ export default async function ArticlePage({ params }) {
             <span aria-hidden>·</span>
             <span>{article.readMinutes} min read</span>
             {tags.map((tag) => (
-              <span key={tag.name} className={`px-2 text-[11px] leading-normal border rounded-full ${tagInkClasses(tag.color)}`}>
+              // To search, which lives on the front of the site: /articles,
+              // opened on the tag.
+              <Link
+                key={tag.name}
+                href={tagSearchHref(tag, "/articles")}
+                className={`px-2 text-[11px] leading-normal border rounded-full ${tagColorVariants[tag.color]}`}
+              >
                 {tag.name}
-              </span>
+              </Link>
             ))}
           </div>
           {article.original_url && (

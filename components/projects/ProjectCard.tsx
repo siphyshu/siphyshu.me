@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { FaGithub } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { tagColorVariants, type Tag } from "@/data/tags";
+import { tagSearchHref } from "@/lib/tags";
 import { PencilMark, useHashMark } from "@/components/ui/PencilMark";
 
 interface ProjectCardProps {
@@ -82,15 +83,18 @@ export default function ProjectCard({
           {tags
             .filter(Boolean)
             .map((tag, index) => (
-              <span
+              // A plain <a>, not next/link: a same-page hash change has to
+              // fire hashchange for the palette to hear it.
+              <a
                 key={index}
+                href={tagSearchHref(tag)}
                 className={`px-2 py-1 text-[10px] border rounded-full ${tagColorVariants[tag.color]} ${tag.special ? "relative pl-4 bg-emerald-100 dark:bg-emerald-950" : ""}`}
               >
                 {tag.special && (
                   <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                 )}
                 {tag.name}
-              </span>
+              </a>
             ))}
         </div>
 

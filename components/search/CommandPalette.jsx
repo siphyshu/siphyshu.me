@@ -155,6 +155,23 @@ export default function CommandPalette({ open, setOpen }) {
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [setOpen]);
 
+    // A tag pill links to #search=<tag> (see tagSearchHref): open on that
+    // query. Read on mount too, for a pill on an article page, which lands
+    // here by route change and fires no hashchange. The hash is dropped once
+    // read, so a refresh or Back doesn't reopen the card.
+    useEffect(() => {
+        const fromHash = () => {
+            const match = window.location.hash.match(/^#search=(.*)$/);
+            if (!match) return;
+            window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            setQuery(decodeURIComponent(match[1]));
+            setOpen(true);
+        };
+        fromHash();
+        window.addEventListener("hashchange", fromHash);
+        return () => window.removeEventListener("hashchange", fromHash);
+    }, [setOpen]);
+
     // Every open starts on a blank card.
     const onOpenChange = (next) => {
         if (!next) {
