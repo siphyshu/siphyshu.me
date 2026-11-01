@@ -25,6 +25,10 @@ export default function RootLayout({ children }) {
       <head>
         {/* Light or dark, decided before first paint — see theme-script.js. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* Here rather than in metadata.alternates: article pages set their
+            own alternates (the canonical), which would replace these. */}
+        <link rel="alternate" type="application/rss+xml" title="siphyshu // jaiyank" href="/feed.xml" />
+        <link rel="alternate" type="application/feed+json" title="siphyshu // jaiyank" href="/feed.json" />
         {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" async /> */}
       </head>
       <body className="bg-white text-black">

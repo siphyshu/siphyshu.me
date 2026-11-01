@@ -4,7 +4,7 @@ type Article = (typeof allArticles)[number];
 
 // Newest first — the order the list shows. Dates are YYYY-MM-DD, so a string
 // compare is chronological.
-const byDate = [...allArticles].sort((a, b) => b.date.localeCompare(a.date));
+export const byDate = [...allArticles].sort((a, b) => b.date.localeCompare(a.date));
 
 /**
  * Up to `limit` other articles, most shared tags first, then newest. Falls back
