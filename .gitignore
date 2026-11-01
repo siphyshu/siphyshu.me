@@ -54,3 +54,6 @@ deleted-bot-handprints-backup.json
 /content/drafts/
 /public/drafts/
 /components/drafts/
+
+# Private roadmap, shared by local sessions — never committed. See CLAUDE.md.
+/ROADMAP.md
