@@ -245,7 +245,7 @@ img {
 
 /* Named column tracks (Josh Comeau's "full-bleed layout"). Everything sits in
    the text column, header included, so every left edge on the page is one
-   line. .bleed-full is the one way out, for the rare edge-to-edge picture. */
+   line. .bleed-full is the one way out, for the rare picture that wants the room. */
 .reader-grid {
   display: grid;
   grid-template-columns:
@@ -259,8 +259,21 @@ img {
   grid-column: content;
 }
 
+/* "Full" is wide, not literally edge to edge: on a large screen a picture
+   touching both sides of the window stops reading as something placed in the
+   article. It spans the full track but stops short of the window, up to
+   72rem. On a phone there's no margin worth keeping, so it does run edge to
+   edge there. */
 .reader-grid > .bleed-full {
   grid-column: full;
+  justify-self: center;
+  width: min(100% - 3rem, 72rem);
+}
+
+@media (max-width: 640px) {
+  .reader-grid > .bleed-full {
+    width: 100%;
+  }
 }
 
 /* ── Article body ── */
@@ -489,6 +502,15 @@ img {
 
 .article-body .bleed-full img {
   width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .article-body .bleed-full img {
+    border: 0;
+    border-radius: 0;
+  }
 }
 
 @media (max-width: 680px) {
@@ -604,6 +626,14 @@ img {
   font-size: 0.85rem;
   font-weight: 600;
   margin: 0 0 10px;
+}
+
+/* GFM's back-link is "↩", which most systems draw as a blue emoji box. Asked
+   for as text, it's a plain arrow in the notes' own grey. */
+.article-body [data-footnote-backref] {
+  font-variant-emoji: text;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  text-decoration: none;
 }
 
 .article-body section[data-footnotes] ol {

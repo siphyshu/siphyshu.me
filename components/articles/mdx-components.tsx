@@ -56,8 +56,9 @@ function MdxTable(props: TableHTMLAttributes<HTMLTableElement>) {
 // globals.css). Either an image, or whatever is placed inside it:
 //   <Figure src="…" alt="…" caption="…" />
 //   <Figure caption="…"><Demo /></Figure>
-// size="full" is the one way out of the column — a picture edge to edge, no
-// card, its caption kept in the column. Plain pictures in the text don't need
+// size="full" is the one way out of the column — a picture far wider than the
+// text (up to 72rem, edge to edge only on phones), its caption kept in the
+// column. Plain pictures in the text don't need
 // this at all: markdown's ![]() or a bare <figure> does.
 function Figure({
   src,

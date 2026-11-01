@@ -60,6 +60,11 @@ const articleSchema = z.object({
   // page's <link rel="canonical">. Named as dev.to and most Hugo/Jekyll themes
   // name it. Without it, the page is its own canonical.
   canonical_url: z.url().optional(),
+  // Where this article first appeared, when it was ported here from somewhere
+  // else (the Medium posts). A credit to readers, shown under the header as
+  // "Originally published on Medium on <date>" — not a canonical: once
+  // ported, the page here is the original and Medium's copy points to it.
+  original_url: z.url().optional(),
   // Only for external posts — a hosted article's read time is counted from its body.
   readMinutes: z.number().int().positive().optional(),
   // The old way of marking a draft. Still parsed so it can be refused by name
@@ -122,6 +127,11 @@ const articles = defineCollection({
       // Either hosted here or published elsewhere, never both: otherwise the
       // list links out while an orphan page sits at /articles/<slug>.
       throw new Error(`${file} has both \`external_url\` and a body — pick one.`);
+    }
+    if (article.external_url && article.original_url) {
+      // An external post is still where it was first published; it has no
+      // page here to carry the credit.
+      throw new Error(`${file} has both \`external_url\` and \`original_url\` — original_url is for a post ported here.`);
     }
     if (article.external_url && article.canonical_url) {
       // An external post has no page here, so there is nothing to put a

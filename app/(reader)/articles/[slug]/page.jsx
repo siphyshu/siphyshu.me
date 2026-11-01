@@ -23,6 +23,15 @@ export function generateStaticParams() {
 // Anything else 404s rather than rendering on request.
 export const dynamicParams = false;
 
+// "siphyshu.medium.com" -> "Medium": the site's own name for the credit line,
+// the bare host for anywhere not listed.
+const SITE_NAMES = { "medium.com": "Medium" };
+function siteName(url) {
+  const host = new URL(url).hostname.replace(/^www\./, "");
+  const known = Object.keys(SITE_NAMES).find((d) => host === d || host.endsWith(`.${d}`));
+  return known ? SITE_NAMES[known] : host;
+}
+
 function findArticle(slug) {
   const article = allArticles.find((a) => a.slug === slug);
   const body = allArticleBodies.find((b) => b.slug === slug);
@@ -96,6 +105,17 @@ export default async function ArticlePage({ params }) {
               </span>
             ))}
           </div>
+          {article.original_url && (
+            // The credit for a post ported from elsewhere. The date is the
+            // article's own: it keeps the date it was first published.
+            <p className="font-sans text-sm text-gray-500">
+              Originally published on{" "}
+              <a href={article.original_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-black">
+                {siteName(article.original_url)}
+              </a>{" "}
+              on {formatContentDate(article.date)}.
+            </p>
+          )}
         </header>
         {article.cover && article.thumbnail && (
           // Hangs into the margin like a figure card, so the picture's edge

