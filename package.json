@@ -14,7 +14,7 @@
     "lucide-react": "^0.411.0",
     "mongodb": "^6.8.0",
     "motion": "^13.3.0",
-    "next": "^16.3.3",
+    "next": "^16.4.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.5.0",
@@ -22,21 +22,21 @@
     "react-toastify": "^10.0.5",
     "react-tweet": "^3.3.1",
     "remark-gfm": "^4.0.1",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@content-collections/core": "^0.15.3",
     "@content-collections/mdx": "^0.2.2",
     "@content-collections/next": "^0.2.11",
     "@shikijs/rehype": "^4.4.3",
-    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/typography": "^0.5.20",
     "@types/hast": "^3.0.5",
     "@types/mdx": "^2.0.14",
     "@types/node": "^25.9.5",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.4",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.4.3",
     "postcss": "^8.5.23",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
@@ -46,7 +46,12 @@
     "unist-util-visit": "^5.2.0"
   },
   "overrides": {
-    "brace-expansion": "^2.1.4",
-    "glob": "^10.5.0"
+    "brace-expansion": "^2.1.7",
+    "glob": "^10.5.0",
+    "toml": "^5.0.1",
+    "uuid": "^11.1.1",
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "^6.1.5"
+    }
   }
 }
