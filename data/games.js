@@ -17,7 +17,7 @@ export const games = [
         platform: "hardware",
         demoVideo: null,
         links: {
-            "external": "https://siphyshu.medium.com/i-made-the-snake-game-on-the-arduino-uno-r4-led-matrix-with-a-joystick-controller-5127c28f8a38",
+            "external": "/articles/snake-r4-led-matrix",
             "github": "https://github.com/siphyshu/snake-R4",
         },
         tags: ["game-dev", "electronics"]

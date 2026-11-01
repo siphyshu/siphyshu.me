@@ -49,7 +49,7 @@ export const projects = [
         description: "The classic snake game built on the Arduino UNO R4's 8x12 LED matrix, uses a dual-axis joystick controller for movement.", 
         thumbnail: "/thumbnails/projects/snake-r4-thumbnail.png", 
         links: {
-            "external": "https://siphyshu.medium.com/i-made-the-snake-game-on-the-arduino-uno-r4-led-matrix-with-a-joystick-controller-5127c28f8a38",
+            "external": "/articles/snake-r4-led-matrix",
             "github": "https://github.com/siphyshu/snake-R4",
         }, 
         tags: ["electronics", "c++"],
