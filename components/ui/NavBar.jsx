@@ -9,10 +9,14 @@ import { useNavActionsValue } from "@/components/ui/NavActionsContext";
 // own. The tab itself links to /projects (not /) so clicking it always shows
 // that URL, even though visiting "/" directly renders the same page.
 //
+// "/index" is "/" as the prerender sees it: the root page is built as
+// /index, so usePathname() reads "/index" in the static HTML (and on the
+// client it hydrates from) until the first client-side navigation.
+//
 // ctfs is still parked out of the nav — the route and component exist
 // (app/(site)/ctfs), it just isn't live/linked until there's real content.
 export const TABS = [
-    { label: "projects", href: "/projects", match: ["/", "/projects"] },
+    { label: "projects", href: "/projects", match: ["/", "/index", "/projects"] },
     { label: "writing", href: "/articles", match: ["/articles"] },
     { label: "gallery", href: "/gallery", match: ["/gallery"] },
 ];
@@ -35,7 +39,7 @@ const NavBar = () => {
                                     href={href}
                                     scroll={false}
                                     aria-current={isActive ? "page" : undefined}
-                                    className={`text-xl md:text-2xl ${isActive ? "underline" : "text-gray-500"}`}
+                                    className={`text-xl md:text-2xl ${isActive ? "underline" : "text-gray-500 hover:text-black"}`}
                                 >
                                     {label}
                                 </Link>
