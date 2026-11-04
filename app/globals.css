@@ -12,7 +12,7 @@ img {
 
 /* ── Theme ──────────────────────────────────────────────────────────────
    Light and dark, switched by data-theme on <html> (next-themes, set before
-   first paint from the visitor's choice or their OS). tailwind.config.js
+   first paint from the visitor's choice, else light). tailwind.config.js
    points white, black and gray-* at these channels, so every existing
    bg-white / text-black / text-gray-500 follows the theme without a dark:
    variant. Light is the site exactly as it was; dark is the same page at
