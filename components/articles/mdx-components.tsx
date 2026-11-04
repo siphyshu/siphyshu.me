@@ -81,6 +81,19 @@ function Figure({
   );
 }
 
+// A gap the author still has to fill, written as a question to themselves:
+// <Ask>Why did you start this?</Ask>. Shown under `next dev` only, so a
+// forgotten one can never reach the live site.
+function Ask({ children }: { children: ReactNode }) {
+  if (process.env.NODE_ENV !== "development") return null;
+  return (
+    <aside className="ask">
+      <span>your words</span>
+      {children}
+    </aside>
+  );
+}
+
 // The closing line, set in the frame's small sans rather than the article's
 // serif: <Signoff>thanks for reading!</Signoff>
 function Signoff({ children }: { children: ReactNode }) {
@@ -124,6 +137,7 @@ export const mdxComponents: MDXComponents = {
   img: MdxImage,
   table: MdxTable,
   Figure,
+  Ask,
   Signoff,
   Tweet,
   YouTube,

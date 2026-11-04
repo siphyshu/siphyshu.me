@@ -57,3 +57,7 @@ deleted-bot-handprints-backup.json
 
 # Private roadmap, shared by local sessions — never committed. See CLAUDE.md.
 /ROADMAP.md
+
+# Obsidian's vault settings and workspace, wherever the vault is opened.
+.obsidian/
+.trash/

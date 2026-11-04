@@ -1,0 +1,145 @@
+---
+title: Wallpy
+description: "Dynamic wallpapers that follow the sun, the days of the week, or a schedule of their own. A small CLI for macOS, Windows and Linux, with a community gallery of wallpacks."
+thumbnail: /thumbnails/projects/wallpy-card-2.jpg
+order: 2
+since: 2022
+links:
+  external: https://wallpy.siphyshu.me
+  github: https://github.com/siphyshu/wallpy
+  docs: https://wallpy.siphyshu.me/docs
+tags: [go, cli, nextjs, wip]
+hiddentags: [supabase, python, homebrew, winget, scoop, cloudflare, wallpaper]
+stack: [Go, Next.js, Supabase, Cloudflare R2]
+platforms: [macOS, Windows, Linux]
+try:
+  command: brew install siphyshu/tap/wallpy
+  more:
+    label: winget, Scoop, AUR, .deb and .rpm
+    url: https://github.com/siphyshu/wallpy#install
+gallery:
+  - src: /projects/wallpy/show-two-c.jpg
+    alt: "Two terminals over the A Day in the Village wallpaper: wallpy show for Zelda Wind Waker at midday, and for Greasy Diner at night"
+    caption: "wallpy show: any wallpack's schedule, and what it shows at any time of day."
+  - src: /projects/wallpy/browse.jpg
+    alt: "wallpy browse in a terminal over the Desert Sands wallpaper"
+    caption: "wallpy browse — the gallery, in the terminal."
+  - src: /projects/wallpy/both-halves.jpg
+    alt: "The Deku Tree wallpack page in a browser, with a terminal in front"
+    caption: "Both halves: a wallpack's page on the site, and the CLI showing the same wallpack."
+  - src: /projects/wallpy/site-gallery.jpg
+    alt: "The Wallpy gallery: a search bar, category filters and a grid of wallpacks"
+    caption: "The gallery: wallpacks from the community, each one reviewed before it's listed."
+history:
+  - year: 2022
+    title: "v1 — a weekend project"
+    note: "Wallpy Sensei: a Python script, a wallmap per wallpack, and Windows Task Scheduler running it every five minutes."
+  - year: 2025
+    title: "v2 — a clean slate, in Python"
+    note: "Schedules tied to the sun, a solar calculator, tests. Up to 2.25.0 on PyPI."
+  - year: 2026
+    title: "v3 — rewritten in Go"
+    note: "With the community gallery and a written wallpack spec. Homebrew, winget, Scoop, AUR, .deb and .rpm."
+---
+
+## it started with a zelda wallpaper
+
+In September 2022 I came across [Matt Vince's Zelda Wind Waker wallpaper pack](https://www.mattvince.com/product/zelda-wind-waker-wallpaper-4-pack/):
+one island, painted at four times of day. Beautiful. Four wallpapers that only make sense
+if they change with the day, and nothing on my Windows laptop could do that. There was a HEIC version available, but those only work natively on macOS. So I spent
+a weekend putting together something that could work on my laptop.
+
+## a weekend version
+
+I remember sitting on the top bunk of my hostel room and writing the "wallmap"
+spec and its parser by hand. v1 was just a Python script, plus a JSON "wallmap"
+per wallpack that said which image went with which hour.
+
+Setting it up meant six manual steps in Windows Task Scheduler:
+run the script at startup, then again every five minutes, forever, and untick
+"start the task only if the computer is on AC power", etc. I wanted to implement this for macOS and Linux too, but never got around to it, as I never needed it.
+
+In any case, v1 served my purpose. Every five minutes, for the better part of two years, my laptop started a Python interpreter to check whether it was time for a new picture. And every time I opened my laptop and saw the Zelda wallpaper change on its own, it made me so happy.
+
+## starting over, twice
+
+v1, good as it was, still had a few "quirks". For example, I could not reasonably share it with my friends, because of the setup steps required. And even if I did, it used to literally flash a cmd prompt window for a fraction of a second, and it could get annoying for some people.
+
+So in January 2025 I deleted everything and rebuilt it properly, still in Python:
+wallpacks that find and validate themselves, schedules that can say
+`sunrise+1h30m` instead of a fixed hour, and a solar calculator so that sunrise
+means *your* sunrise. It became a CLI tool on PyPI, so installation was as
+simple as `pip install wallpy`. That was v2, and it reached 2.25.0.
+
+v2 still had its own caveats. To use wallpy, you needed Python installed, and there was no easy way to share, download, or make your own wallpacks.
+
+In October 2026 I started over again, this time in Go, and finished the gallery
+alongside it. I liked the idea of browsing a community curated gallery of dynamic wallpacks, and easily downloading them using the CLI. This is where it stands as of v3!
+
+<Figure
+  src="/projects/wallpy/both-halves.jpg"
+  alt="The Deku Tree wallpack page in a browser, with a terminal in front"
+  caption="Both halves: a wallpack's page in the gallery, and the CLI showing the same wallpack."
+  size="full"
+/>
+
+## small things I love
+
+- **The gallery, in the terminal.** `wallpy browse` lists every wallpack in the
+  gallery and draws a preview of each one right in the terminal: real pixels
+  where the terminal can show images, coloured half blocks everywhere else.
+  Press enter and it's your wallpaper.
+- **One command.** `wallpy use <pack>` downloads a wallpack, switches to it, sets
+  the wallpaper and starts the background agent.
+- **It changes right at sunset.** v1 checked every five minutes. The agent now
+  sleeps until the next change and wakes on time.
+- **It doesn't fight you.** Set a wallpaper by hand and Wallpy leaves it alone
+  until the next scheduled change.
+- **"bangalore" is in India.** The online geocoder matched it to a town in
+  Pakistan, not Bengaluru. City search is offline now: every city of 15,000+
+  people, built into the app. It's instant, and nothing about where you are
+  leaves your machine.
+
+<Figure
+  src="/projects/wallpy/browse.jpg"
+  alt="wallpy browse in a terminal over the Desert Sands wallpaper"
+  caption="wallpy browse: the gallery in a terminal. Previews use Kitty graphics where the terminal supports them, and half blocks everywhere else."
+  size="full"
+/>
+
+## one spec, two programs
+
+The gallery is a Next.js site on Supabase, with the images on Cloudflare R2.
+Anyone can make a wallpack there in the browser, and every wallpack is reviewed before
+it's listed.
+
+<Figure
+  src="/projects/wallpy/site-gallery.jpg"
+  alt="The Wallpy gallery: a search bar, category filters and a grid of wallpacks"
+  caption="The gallery at wallpy.siphyshu.me."
+  size="full"
+/>
+
+The site and the CLI are separate programs in different languages, so the wallpack
+format is written down as a
+[spec](https://github.com/siphyshu/wallpy/tree/main/spec) with 23 test
+vectors: a schedule, a time and a place go in, the image that should show comes
+out. Both have to pass them. If the site accepts a wallpack, the CLI has to show
+exactly the image the spec says it shows.
+
+And the Zelda Wind Waker wallpack that started all this is in the gallery now.
+
+<Figure
+  src="/projects/wallpy/wind-waker-day.jpg"
+  alt="The Wind Waker island as one picture cut into dawn, morning, dusk and night"
+  caption="Zelda Wind Waker by Matt Vince: one island, through four of its sixteen images."
+  size="full"
+/>
+
+## try it
+
+The [gallery](https://wallpy.siphyshu.me/gallery) has every wallpack, with its
+schedule and a preview of each image. If one catches your eye, the
+[docs](https://wallpy.siphyshu.me/docs) get Wallpy onto your machine in one
+command. And if you have a set of wallpapers that only make sense together,
+sign in and make a wallpack of your own!

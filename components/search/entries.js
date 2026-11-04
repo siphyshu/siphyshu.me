@@ -1,4 +1,4 @@
-import { projects } from "@/data/projects";
+import { projects } from "@/lib/projects";
 import { allArticles } from "content-collections";
 import { gallery } from "@/data/gallery";
 import { tags } from "@/data/tags";
@@ -28,7 +28,7 @@ const stripMarkdown = (s) => s.replace(/[_*`]/g, "");
 
 export const ENTRIES = [
     ...projects.map((p) => ({
-        id: `project-${p.id}`,
+        id: `project-${p.slug}`,
         group: "projects",
         title: p.title,
         // Tags, not the description: they fit on the row, and the full
@@ -41,7 +41,8 @@ export const ENTRIES = [
             ...p.tags.map((t) => tags[t]?.name).filter(Boolean),
             ...(p.hiddentags ?? []),
         ].join(" "),
-        href: `/projects#${slugify(p.title)}`,
+        // Its own page once it has a write-up; until then, its card.
+        href: p.href ?? `/projects#${p.slug}`,
     })),
     ...allArticles.map((a) => {
         // Dates are YYYY-MM-DD; the year is all a row has room for.

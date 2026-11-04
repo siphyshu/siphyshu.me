@@ -50,6 +50,8 @@ export const tags: Record<string, Tag> = {
   "ocr": { name: "ocr", color: "green" },
   "cli": { name: "cli", color: "emerald" },
   "discord": { name: "discord", color: "indigo" },
+  "instagram": { name: "instagram", color: "fuchsia" },
+  "community": { name: "community", color: "coral" },
 
   // Tools
   "docker": { name: "docker", color: "blue" },

@@ -25,7 +25,7 @@ export default function CompactHeader() {
 
     return (
         <header
-            className="flex justify-between items-center gap-4 pt-8 md:pt-12 pb-3 border-b border-black"
+            className="compact-header flex justify-between items-center gap-4 pt-8 md:pt-12 pb-3 border-b border-black"
             data-gol-mask
         >
             <Link

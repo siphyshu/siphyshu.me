@@ -96,6 +96,28 @@ function rehypeNotesLabel() {
   };
 }
 
+// Shared by articles and projects: both bodies are read in the same column.
+const MDX_OPTIONS = {
+  remarkPlugins: [remarkGfm],
+  rehypePlugins: [
+    // An `id` on every heading — what anchors and a future TOC hang off.
+    rehypeSlug,
+    rehypeNotesLabel,
+    // `wrap` makes the heading's own text the link, so there's no extra
+    // marker node; the hover "#" is drawn in globals.css (.article-body).
+    // Not the notes label: nobody links to "Notes".
+    [
+      rehypeAutolinkHeadings,
+      { behavior: "wrap", test: (node: Element) => node.properties?.id !== "footnote-label" },
+    ],
+    // Highlighted at build time: the HTML ships coloured, no highlighter
+    // reaches the browser.
+    // Both themes: light colours inline, dark ones as --shiki-dark
+    // variables that globals.css switches to under data-theme="dark".
+    [rehypeShiki, { themes: { light: "github-light", dark: "github-dark" } }],
+  ],
+} satisfies Parameters<typeof compileMDX>[2];
+
 type Meta = { path: string; filePath: string };
 
 const isDraft = (meta: Meta) => meta.path.startsWith("drafts/");
@@ -183,26 +205,7 @@ const articleBodies = defineCollection({
 
     // Compiled here, in Node, not by Turbopack — so plugins are ordinary
     // imported functions rather than the string names @next/mdx requires.
-    const mdx = await compileMDX(context, document, {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [
-        // An `id` on every heading — what anchors and a future TOC hang off.
-        rehypeSlug,
-        rehypeNotesLabel,
-        // `wrap` makes the heading's own text the link, so there's no extra
-        // marker node; the hover "#" is drawn in globals.css (.article-body).
-        // Not the notes label: nobody links to "Notes".
-        [
-          rehypeAutolinkHeadings,
-          { behavior: "wrap", test: (node: Element) => node.properties?.id !== "footnote-label" },
-        ],
-        // Highlighted at build time: the HTML ships coloured, no highlighter
-        // reaches the browser.
-        // Both themes: light colours inline, dark ones as --shiki-dark
-        // variables that globals.css switches to under data-theme="dark".
-        [rehypeShiki, { themes: { light: "github-light", dark: "github-dark" } }],
-      ],
-    });
+    const mdx = await compileMDX(context, document, MDX_OPTIONS);
     return {
       slug: slugOf(document._meta),
       mdx,
@@ -214,6 +217,85 @@ const articleBodies = defineCollection({
   },
 });
 
+const projectSchema = z.object({
+  title: z.string(),
+  // The card's blurb, and the line under the title on the project's page.
+  // Markdown, for the odd _(aside)_.
+  description: z.string(),
+  thumbnail: z.string().optional(),
+  // Position on /projects, lowest first. The list is curated, not dated.
+  order: z.number(),
+  // The year it started, for the page's meta line.
+  since: z.number().int().optional(),
+  // `github` and `external` (the live thing) are the card's two icons. Any
+  // other key, like `docs`, is listed only on the project's page.
+  links: z.record(z.string(), z.string()).default({}),
+  tags: z
+    .array(
+      z.string().refine((id) => id in tagRegistry, {
+        error: (issue) => `unknown tag "${issue.input}" — add it to data/tags.ts`,
+      })
+    )
+    .default([]),
+  // Off the card for room, still searchable. Free text, not registry ids.
+  hiddentags: z.array(z.string()).default([]),
+  // Kept, but off the list: not shown on /projects or in search, and no page.
+  archived: z.boolean().default(false),
+
+  // The rest is only for the project's page.
+
+  // The big picture at the top, in the same 1.91:1 frame as the thumbnail
+  // (and an OG image). Falls back to the thumbnail, for when that's already
+  // the best picture of the thing.
+  hero: z.string().optional(),
+
+  // The placard's "built with" and "runs on" rows.
+  stack: z.array(z.string()).default([]),
+  platforms: z.array(z.string()).default([]),
+  // The one thing to do: a command to copy, or a place to open — plus, for a
+  // command, where the other ways to install it are.
+  try: z
+    .union([
+      z.object({ command: z.string(), more: z.object({ label: z.string(), url: z.string() }).optional() }),
+      z.object({ label: z.string(), url: z.string() }),
+    ])
+    .optional(),
+  // Screenshots under the intro, each with a caption. 16:10, like a screen.
+  gallery: z.array(z.object({ src: z.string(), alt: z.string().default(""), caption: z.string() })).default([]),
+  // Versions, oldest first. All but the newest are set faded.
+  history: z.array(z.object({ year: z.number().int(), title: z.string(), note: z.string().optional() })).default([]),
+  content: z.string(),
+});
+
+const PROJECTS = { directory: "content", include: "projects/*.mdx" };
+
+// Card data: what the /projects grid, its tag filter and the search palette
+// need. A project gets its own page only once it has a write-up — a page
+// that only repeated the card would be thinner than the card.
+const projects = defineCollection({
+  name: "projects",
+  ...PROJECTS,
+  schema: projectSchema,
+  transform: ({ content, _meta, ...project }) => {
+    const slug = slugOf(_meta);
+    const hasPage = content.trim().length > 0;
+    return { ...project, slug, hasPage, href: hasPage ? `/projects/${slug}` : null };
+  },
+});
+
+// The write-ups, compiled. Server-only, like articleBodies.
+const projectBodies = defineCollection({
+  name: "projectBodies",
+  ...PROJECTS,
+  schema: projectSchema,
+  transform: async (document, context) => {
+    if (!document.content.trim()) return context.skip("no write-up — no page");
+    if (document.archived) return context.skip("archived — no page");
+    const mdx = await compileMDX(context, document, MDX_OPTIONS);
+    return { slug: slugOf(document._meta), mdx };
+  },
+});
+
 export default defineConfig({
-  content: [articles, articleBodies],
+  content: [articles, articleBodies, projects, projectBodies],
 });

@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef } from "react";
 import { FaGithub } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { tagColorVariants, type Tag } from "@/data/tags";
 import { tagSearchHref } from "@/lib/tags";
 import { PencilMark, useHashMark } from "@/components/ui/PencilMark";
+
+const THUMB_BOX = "flex items-center justify-center w-full relative aspect-[1.91/1]";
 
 interface ProjectCardProps {
   /** Anchor id, so /projects#<id> (and the search palette) can point here. */
@@ -16,6 +19,8 @@ interface ProjectCardProps {
   thumbnail?: string;
   links?: Record<string, string>;
   tags?: Tag[];
+  /** The project's own page, once it has a write-up. */
+  href?: string | null;
   className?: string;
 }
 
@@ -26,13 +31,13 @@ export default function ProjectCard({
   thumbnail = "/thumbnails/projects/placeholder-thumbnail.png",
   links = {},
   tags = [],
+  href = null,
   className = "",
 }: ProjectCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const mark = useHashMark(id, ref);
 
   const iconMap: Record<string, React.ReactNode> = {
-    github: <FaGithub className="text-gray-800 text-2xl cursor-pointer" />,
     external: (
       <Image
         src="/icons/external_link.svg"
@@ -42,39 +47,58 @@ export default function ProjectCard({
         className="cursor-pointer dark:invert"
       />
     ),
+    github: <FaGithub className="text-gray-800 text-2xl cursor-pointer" />,
   };
+
+  const image = (
+    <Image
+      src={thumbnail}
+      alt="Project Image"
+      fill
+      className="w-full h-full object-fill dark:brightness-[0.85]"
+    />
+  );
 
   return (
     <div ref={ref} id={id} data-card className={`relative flex flex-col bg-white border border-black shadow-md ${className}`}>
       {mark > 0 && <PencilMark key={mark} />}
-      {/* Project Thumbnail */}
-      <div className="flex items-center justify-center w-full relative aspect-[1.91/1]">
-        <Image
-          src={thumbnail}
-          alt="Project Image"
-          fill
-          className="w-full h-full object-fill dark:brightness-[0.85]"
-        />
-      </div>
+      {/* Project Thumbnail — the way into the project's page, when it has
+          one. Out of the tab order: the title is the same link. */}
+      {href ? (
+        <Link href={href} className={THUMB_BOX} tabIndex={-1} aria-hidden>
+          {image}
+        </Link>
+      ) : (
+        <div className={THUMB_BOX}>{image}</div>
+      )}
 
       {/* Project Content */}
       <div className="font-serif p-4">
         <div className="flex justify-between items-center gap-3">
           {/* Title */}
-          <h2 className="text-black prose prose-lg min-w-0 break-words">{title}</h2>
+          <h2 className="text-black prose prose-lg min-w-0 break-words">
+            {href ? (
+              <Link href={href} className="no-underline hover:underline underline-offset-[3px]">
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
+          </h2>
           {/* Links */}
-          {/* p-2 -m-2 grows each hit area to finger size without moving the
-              icons; neighbours overlap a little, the later one wins. */}
+          {/* Two icons at most: the code and the live thing. Any other link
+              (docs, say) is only on the project's page, where links are
+              written out. p-2 -m-2 grows each hit area to finger size without
+              moving the icons; neighbours overlap a little, the later one wins. */}
           <div className="flex items-center gap-2 shrink-0">
-            {Object.entries(links).map(([key, url]) => (
-              <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={key} className="p-2 -m-2">
-                {iconMap[key] || (
-                  <span className="text-gray-800 text-sm cursor-pointer">
-                    {key}
-                  </span>
-                )}
-              </a>
-            ))}
+            {/* In iconMap's order, not the file's, so every card matches. */}
+            {Object.keys(iconMap)
+              .filter((key) => links[key])
+              .map((key) => (
+                <a key={key} href={links[key]} target="_blank" rel="noopener noreferrer" aria-label={key} className="p-2 -m-2">
+                  {iconMap[key]}
+                </a>
+              ))}
           </div>
         </div>
 
