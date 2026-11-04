@@ -15,9 +15,12 @@ export default function ArticleItem({
     readMinutes,
     href,
     hosted = false,
+    kind = "article",
     isFirst = false,
 }) {
-    const tags = resolveTags(tagIds);
+    const essay = kind === "essay";
+    // An essay shows the word "essay" where the tag pills would be.
+    const tags = essay ? [] : resolveTags(tagIds);
     // Hosted articles route client-side; Medium posts are a plain link out.
     const Row = hosted ? Link : "a";
 
@@ -44,7 +47,7 @@ export default function ArticleItem({
                 {/* The meta column below is desktop-only; without this, phones
                     and portrait tablets would show no date at all. */}
                 <div className="md:hidden text-gray-400 text-xs mt-2">
-                    {formatDate(date)}{readMinutes ? ` · ${readMinutes} min read` : ""}
+                    {essay && "essay · "}{formatDate(date)}{readMinutes ? ` · ${readMinutes} min read` : ""}
                 </div>
             </div>
 
@@ -61,6 +64,7 @@ export default function ArticleItem({
                         ))}
                     </div>
                 )}
+                {essay && <div className="text-gray-400 text-xs italic">essay</div>}
                 <div className="text-gray-400 text-xs">
                     {formatDate(date)}{readMinutes ? ` · ${readMinutes} min read` : ""}
                 </div>

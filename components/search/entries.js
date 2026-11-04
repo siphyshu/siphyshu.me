@@ -50,7 +50,7 @@ export const ENTRIES = [
             id: `article-${a.slug}`,
             group: "articles",
             title: a.title,
-            detail: a.hosted ? year : `medium · ${year}`,
+            detail: a.kind === "essay" ? `essay · ${year}` : a.hosted ? year : `medium · ${year}`,
             thumb: a.thumbnail,
             keywords: `${a.subtitle} ${a.tags.join(" ")}`,
             ...(a.hosted ? { href: a.href } : { external: a.href }),

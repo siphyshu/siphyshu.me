@@ -351,10 +351,18 @@ img {
   padding: 0 2px;
 }
 
+/* Its own grid with the body's gap: the row-gap above only reaches the body's
+   direct children, so a quote's paragraphs would otherwise run together. */
 .article-body blockquote {
+  display: grid;
+  row-gap: 1.25em;
   border-left: 3px solid var(--rule);
   padding-left: 18px;
   font-style: italic;
+}
+
+.article-body blockquote > * {
+  margin: 0;
 }
 
 .article-body hr {

@@ -8,10 +8,18 @@ const ALL_TAGS = [...new Set(allArticles.flatMap((a) => a.tags))]
     .filter((id) => registry[id])
     .map((id) => ({ value: id, label: registry[id].name }));
 
-export default function ArticleToolbar({ tags, setTags, order, setOrder }) {
+export default function ArticleToolbar({ tags, setTags, kind, setKind, order, setOrder }) {
     return (
         <Toolbar
             dropdowns={[
+                {
+                    id: "kind",
+                    type: "toggle",
+                    label: "all writing",
+                    options: ["all writing", "articles", "essays"],
+                    value: kind,
+                    onChange: (v) => setKind(v === "all writing" ? null : v),
+                },
                 { id: "tag", label: "all tags", options: ALL_TAGS, value: tags, onChange: setTags },
                 {
                     id: "order",

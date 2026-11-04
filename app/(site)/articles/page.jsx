@@ -7,10 +7,18 @@ import { useNavActions } from "@/components/ui/NavActionsContext";
 
 export default function ArticlesPage() {
   const [tags, setTags] = useState([]);
+  const [kind, setKind] = useState(null);
   const [order, setOrder] = useState(null);
   useNavActions(
-    <ArticleToolbar tags={tags} setTags={setTags} order={order} setOrder={setOrder} />
+    <ArticleToolbar
+      tags={tags}
+      setTags={setTags}
+      kind={kind}
+      setKind={setKind}
+      order={order}
+      setOrder={setOrder}
+    />
   );
 
-  return <ArticleList tags={tags} order={order} />;
+  return <ArticleList tags={tags} kind={kind} order={order} />;
 }

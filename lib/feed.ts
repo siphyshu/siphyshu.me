@@ -21,5 +21,6 @@ export const feedItems = byDate.map((a) => ({
   summary: a.subtitle,
   date: a.date,
   tags: a.tags,
-  image: a.thumbnail && new URL(a.thumbnail, SITE_URL).href,
+  // A generated essay thumbnail is a data: URL, which a feed reader can't fetch.
+  image: a.thumbnail && !a.thumbnail.startsWith("data:") ? new URL(a.thumbnail, SITE_URL).href : undefined,
 }));

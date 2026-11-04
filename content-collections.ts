@@ -8,6 +8,7 @@ import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
 import { z } from "zod";
 import { tags as tagRegistry } from "./data/tags";
+import { essayThumbnail, paragraphRhythm } from "./lib/essay-thumbnail";
 
 // Builds content/ into typed modules under .content-collections/generated,
 // imported as "content-collections". Runs inside next.config.mjs — once for
@@ -47,7 +48,14 @@ const articleSchema = z.object({
       })
     )
     .default([]),
+  // An essay is personal prose rather than a write-up of something: it sits
+  // in the same writing list, without tags, and the list can be narrowed to
+  // either kind. Without a `thumbnail`, it gets one drawn from its own
+  // paragraphs (lib/essay-thumbnail.ts).
+  kind: z.enum(["article", "essay"]).default("article"),
   thumbnail: z.string().optional(),
+  // Draws a different generated thumbnail than the slug does. Essays only.
+  thumbnail_seed: z.string().optional(),
   // Show the thumbnail at the top of the article too, under the header. Off
   // by default: most articles open with their own first picture, and a
   // thumbnail cropped from it would show the same thing twice.
@@ -147,8 +155,13 @@ const articles = defineCollection({
     // as words nearly doubled the estimate on a code-heavy post.
     const prose = content.replace(/^```[\s\S]*?^```/gm, "");
     const words = prose.split(/\s+/).filter(Boolean).length;
+    const { thumbnail_seed, ...rest } = article;
+    const thumbnail =
+      article.thumbnail ??
+      (article.kind === "essay" ? essayThumbnail(paragraphRhythm(content), thumbnail_seed ?? slug) : undefined);
     return {
-      ...article,
+      ...rest,
+      thumbnail,
       slug,
       hosted: !article.external_url,
       href: article.external_url ?? `/articles/${slug}`,
